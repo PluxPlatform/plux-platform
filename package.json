@@ -1,0 +1,36 @@
+{
+  "name": "plux-platform",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:admin": "pnpm --filter admin dev",
+    "dev:server": "pnpm --filter server start:dev",
+    "dev:site": "pnpm --filter site dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "enpm exec lint-staged --allow-empty --concurrent false",
+    "commit-msg": "enpm exec commitlint -e $1"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "body-max-line-length": [
+        0,
+        "always",
+        12000
+      ]
+    }
+  }
+}
