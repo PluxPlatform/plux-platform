@@ -9,6 +9,7 @@
   "scripts": {
     "dev:admin": "pnpm --filter admin dev",
     "dev:server": "pnpm --filter server start:dev",
+    "dev:editor": "pnpm --filter konva-editor dev",
     "dev:site": "pnpm --filter site dev",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
@@ -30,8 +31,11 @@
       "body-max-line-length": [
         0,
         "always",
-        12000
+        200
       ]
     }
+  },
+  "dependencies": {
+    "@rollup/plugin-json": "^6.1.0"
   }
 }

@@ -1,5 +1,5 @@
 // 基础通用配置
-interface CommonConfig {
+export interface CommonConfig {
   name: string;
   id: string;
   x?: number;
@@ -78,7 +78,6 @@ interface HtmlConfig extends CommonConfig {
   type: "html";
   // 按钮文本
   html: string;
-  // 填充颜色
 }
 
 // 使用联合类型

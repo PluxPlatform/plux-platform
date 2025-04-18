@@ -35,7 +35,7 @@ const BasicLayout: React.FC = () => {
           <span>欢迎您，管理员</span>
         </Header>
 
-        <Content className="m-[24px] mh-[200px]  p-[10px] bg-[#fff]">
+        <Content className="flex m-[24px] mh-[200px]  bg-[#fff]">
           <Outlet />
         </Content>
       </Layout>
