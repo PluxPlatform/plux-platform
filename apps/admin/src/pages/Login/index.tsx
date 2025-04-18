@@ -12,14 +12,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <div>
       <Card title="登录" style={{ width: 350 }}>
         <Form
           name="login"

@@ -92,8 +92,8 @@ const MenuManage: React.FC = () => {
 
   return (
     <div className="flex gap-8">
-      <Card title="菜单树" style={{ width: 300 }}>
-        <Space style={{ marginBottom: 16 }}>
+      <Card title="菜单树">
+        <Space>
           <Button icon={<PlusOutlined />} type="primary" onClick={handleAdd}>
             新增
           </Button>

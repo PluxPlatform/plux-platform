@@ -12,15 +12,8 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Card title="注册" style={{ width: 400 }}>
+    <div>
+      <Card title="注册">
         <Form name="register" onFinish={onFinish}>
           <Form.Item
             name="username"

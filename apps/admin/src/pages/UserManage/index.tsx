@@ -60,12 +60,11 @@ const UserManage: React.FC = () => {
 
   return (
     <div>
-      <Space style={{ marginBottom: 16 }}>
+      <Space>
         <Input.Search
           placeholder="搜索用户名或邮箱"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 240 }}
         />
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
           新增
