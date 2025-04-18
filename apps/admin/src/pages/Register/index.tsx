@@ -12,8 +12,8 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div>
-      <Card title="注册">
+    <div className="flex flex-1 items-center justify-center">
+      <Card title="注册" className="min-w-[400px]">
         <Form name="register" onFinish={onFinish}>
           <Form.Item
             name="username"

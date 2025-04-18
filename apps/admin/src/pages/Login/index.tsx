@@ -12,7 +12,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="flex flex-1 items-center justify-center">
       <Card title="登录" style={{ width: 350 }}>
         <Form
           name="login"

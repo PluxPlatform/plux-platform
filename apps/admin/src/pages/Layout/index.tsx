@@ -17,7 +17,7 @@ const BasicLayout: React.FC = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider breakpoint="lg" collapsedWidth="0">
-        <div className="m-[16px] h-[32px] c-[#fff] bg-[rgba(255,255,255,.2)] text-[14px]">
+        <div className="m-[16px] text-[#fff] p-[16px] bg-[rgba(255,255,255,.2)] text-[14px]">
           PluxPlatform
         </div>
         <Menu
@@ -33,7 +33,7 @@ const BasicLayout: React.FC = () => {
           <span>欢迎您，管理员</span>
         </Header>
 
-        <Content className="m-[24px] mh-[200px] bg-[#fff]">
+        <Content className="m-[24px] mh-[200px]  p-[10px] bg-[#fff]">
           <Outlet />
         </Content>
       </Layout>
