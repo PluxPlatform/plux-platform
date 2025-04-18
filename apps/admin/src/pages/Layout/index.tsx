@@ -1,12 +1,14 @@
 import React from "react";
 import { Layout, Menu } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import logo from "@/assets/logo/logo_s.png";
 
 const { Header, Sider, Content } = Layout;
 
 const menuItems = [
   { key: "user", label: "人员管理" },
   { key: "menu", label: "菜单管理" },
+  { key: "editor", label: "编辑器" },
 ];
 
 const BasicLayout: React.FC = () => {
@@ -17,8 +19,8 @@ const BasicLayout: React.FC = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Sider breakpoint="lg" collapsedWidth="0">
-        <div className="m-[16px] text-[#fff] p-[16px] bg-[rgba(255,255,255,.2)] text-[14px]">
-          PluxPlatform
+        <div className="text-[#fff] text-[14px] flex justify-center items-center">
+          <img src={logo} alt="logo" className="w-[60%] h-[60%]" />
         </div>
         <Menu
           theme="dark"
