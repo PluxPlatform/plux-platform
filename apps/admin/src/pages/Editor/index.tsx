@@ -16,7 +16,7 @@ const EditorPage = () => {
     <div className="flex flex-1 relative">
       <SiderMenu />
       <EditorProps />
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden relative">
         <EditorHeader />
         <div id="editor" className="flex-1"></div>
       </div>

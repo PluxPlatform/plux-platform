@@ -1,8 +1,20 @@
+import {
+  PictureOutlined,
+  ReloadOutlined,
+  EditOutlined,
+  StarOutlined,
+  StarFilled,
+  MinusOutlined,
+  ArrowRightOutlined,
+  AppstoreOutlined,
+} from "@ant-design/icons";
+import React from "react";
+
 // shape 类型定义
 export interface ShapeComponent {
   type: string;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   defaultProps: Record<string, string | number | number[]>;
 }
 
@@ -20,7 +32,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "rect",
         label: "矩形",
-        icon: "el-icon-picture-outline",
+        icon: <PictureOutlined />,
         defaultProps: {
           width: 100,
           height: 100,
@@ -32,7 +44,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "circle",
         label: "圆形",
-        icon: "el-icon-refresh",
+        icon: <ReloadOutlined />,
         defaultProps: {
           radius: 50,
           fill: "#ffffff",
@@ -43,7 +55,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "text",
         label: "文本",
-        icon: "el-icon-edit",
+        icon: <EditOutlined />,
         defaultProps: {
           text: "文本",
           fontSize: 16,
@@ -55,7 +67,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "polygon",
         label: "多边形",
-        icon: "el-icon-star-off",
+        icon: <StarOutlined />,
         defaultProps: {
           radius: 50,
           sides: 5,
@@ -67,7 +79,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "star",
         label: "多角星",
-        icon: "el-icon-star-on",
+        icon: <StarFilled />,
         defaultProps: {
           radius: 50,
           points: 5,
@@ -81,7 +93,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "line",
         label: "直线",
-        icon: "el-icon-minus",
+        icon: <MinusOutlined />,
         defaultProps: {
           points: [0, 0, 100, 0],
           stroke: "#000000",
@@ -91,7 +103,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "arrow",
         label: "箭头",
-        icon: "el-icon-right",
+        icon: <ArrowRightOutlined />,
         defaultProps: {
           points: [0, 0, 100, 0],
           stroke: "#000000",
@@ -109,7 +121,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "button",
         label: "按钮",
-        icon: "el-icon-s-grid",
+        icon: <AppstoreOutlined />,
         defaultProps: {
           width: 120,
           height: 40,
@@ -127,7 +139,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "html",
         label: "按钮",
-        icon: "el-icon-s-grid",
+        icon: <AppstoreOutlined />,
         defaultProps: {
           width: 100,
           height: 100,
@@ -137,7 +149,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "html",
         label: "div",
-        icon: "el-icon-s-grid",
+        icon: <AppstoreOutlined />,
         defaultProps: {
           width: 100,
           height: 100,
@@ -153,7 +165,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "image",
         label: "图片",
-        icon: "el-icon-picture",
+        icon: <PictureOutlined />,
         defaultProps: {
           width: 100,
           height: 100,
@@ -169,7 +181,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "device",
         label: "温度传感器",
-        icon: "el-icon-cpu",
+        icon: "<CpuOutlined />",
         defaultProps: {
           width: 50,
           height: 50,
@@ -183,7 +195,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "device",
         label: "湿度传感器",
-        icon: "el-icon-cpu",
+        icon: "<CpuOutlined />",
         defaultProps: {
           width: 50,
           height: 50,
@@ -197,7 +209,7 @@ const shapes: ShapeGroup[] = [
       {
         type: "device",
         label: "电表",
-        icon: "el-icon-cpu",
+        icon: "<CpuOutlined />",
         defaultProps: {
           width: 50,
           height: 50,

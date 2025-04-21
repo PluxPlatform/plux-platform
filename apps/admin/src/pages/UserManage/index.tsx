@@ -59,7 +59,7 @@ const UserManage: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="flex-1">
       <Space>
         <Input.Search
           placeholder="搜索用户名或邮箱"
