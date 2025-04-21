@@ -30,7 +30,12 @@ export const SelectEvent = (
     if (e.target !== stage && e.target.attrs.type !== "pipeline") {
       const ntr = new Konva.Transformer();
       layer.add(ntr);
-      ntr.attachTo(e.target);
+      let node = e.target as any;
+      // 如果target 的父节点是group 则需要将target 改为父节点
+      if (e.target.parent?.nodeType === "Group") {
+        node = e.target.parent;
+      }
+      ntr.attachTo(node);
       onSelect &&
         onSelect(getSelectNode(e.target as Konva.Shape) as Konva.Shape);
       layer.draw();
