@@ -4,7 +4,6 @@ import commonjs from "@rollup/plugin-commonjs";
 import { terser } from "rollup-plugin-terser";
 import livereload from "rollup-plugin-livereload";
 import copy from "rollup-plugin-copy";
-import json from "@rollup/plugin-json";
 
 const production = !process.env.ROLLUP_WATCH;
 // const path =
@@ -38,4 +37,5 @@ export default {
     !production && livereload("dist"),
     production && terser(),
   ],
+  external: ["canvas"],
 };
