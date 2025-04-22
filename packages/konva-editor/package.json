@@ -2,13 +2,13 @@
   "name": "@plux/konva-editor",
   "version": "1.0.0",
   "description": "基于Konva的绘图工具",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "konvaEditor/index.js",
+  "module": "konvaEditor/index.esm.js",
+  "types": "konvaEditor/index.d.ts",
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",
-    "serve": "serve -s dist"
+    "serve": "serve -s konvaEditor"
   },
   "keywords": [
     "konva",
