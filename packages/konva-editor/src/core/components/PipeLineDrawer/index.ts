@@ -124,7 +124,7 @@ export class PipelineDrawer {
     this.pipe = new Konva.Group({
       id: this.config.id || createUUID(),
       name: "pipeline-group",
-      draggable: true, // 设置为可拖动
+      draggable: false, // 设置为可拖动
     });
 
     // 创建管道主体线条
@@ -140,6 +140,8 @@ export class PipelineDrawer {
       strokeWidth: this.config.pipeWidth,
       lineCap: this.config.lineCap as any,
       name: "pipeline-line",
+      draggable: false,
+      tension: 0.01,
     });
 
     this.pipe.add(this.line);
