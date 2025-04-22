@@ -16,7 +16,7 @@ const EditorPage = () => {
     <div className="flex flex-1 relative">
       <SiderMenu />
       <EditorProps />
-      <div className="flex flex-1 flex-col overflow-hidden relative">
+      <div className="flex-1 flex-col overflow-hidden relative">
         <EditorHeader />
 
         <div
@@ -24,7 +24,7 @@ const EditorPage = () => {
             backgroundSize: "20px 20px",
           }}
           id="editor"
-          className="flex-1 relative z-10 bg-[linear-gradient(to_right,theme(colors.gray.200)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.gray.200)_1px,transparent_1px)]"
+          className="h-[calc(100%-40px)] overflow-hidden relative z-10 bg-[linear-gradient(to_right,theme(colors.gray.200)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.gray.200)_1px,transparent_1px)]"
         ></div>
       </div>
     </div>
