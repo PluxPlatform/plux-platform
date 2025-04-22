@@ -18,7 +18,14 @@ const EditorPage = () => {
       <EditorProps />
       <div className="flex flex-1 flex-col overflow-hidden relative">
         <EditorHeader />
-        <div id="editor" className="flex-1"></div>
+
+        <div
+          style={{
+            backgroundSize: "20px 20px",
+          }}
+          id="editor"
+          className="flex-1 relative z-10 bg-[linear-gradient(to_right,theme(colors.gray.200)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.gray.200)_1px,transparent_1px)]"
+        ></div>
       </div>
     </div>
   );
