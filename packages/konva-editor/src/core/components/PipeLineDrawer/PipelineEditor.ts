@@ -1,11 +1,11 @@
 import Konva from "konva";
-import { getStage } from "../../index";
+import { getStage, LAYERNAME } from "../../index";
 
 // 管道编辑器入口
 export const PipelineEditor = (pipeLine: Konva.Line) => {
   const stage = getStage();
   if (!stage) return;
-  clearPipelineController(pipeLine); // 先清除旧的控制器
+  clearPipelineController(); // 先清除旧的控制器
   createPipelineController(pipeLine); // 创建新的控制器
   onPipelineClick(pipeLine); // 监听点击事件以添加点
 };
@@ -54,6 +54,36 @@ export function createPipelineControllerPoint(
   anchor.on("mouseout", () => {
     document.body.style.cursor = "default";
     anchor.radius(6); // 恢复原大小
+    pipeLine.getLayer()?.batchDraw();
+  });
+
+  // 双击删除锚点 (不允许删除起点和终点)
+  anchor.on("dblclick", (e) => {
+    const targetAnchor = e.target as Konva.Circle;
+    const idx = targetAnchor.getAttr("_pointIndex");
+    const currentPoints = pipeLine.points();
+
+    // 检查是否为起点或终点
+    if (idx === 0 || idx === currentPoints.length - 2) {
+      console.log("Cannot delete start or end point.");
+      return; // 不允许删除起点或终点
+    }
+
+    // 移除点 (x 和 y)
+    const newPoints = currentPoints.slice();
+    newPoints.splice(idx, 2); // 从 idx 开始移除 2 个元素 (x, y)
+
+    // 更新管道的点
+    pipeLine.points(newPoints);
+
+    // 销毁当前锚点自身，避免干扰后续更新
+    targetAnchor.destroy();
+
+    // 更新控制器 (清除旧的，创建新的)
+    clearPipelineController();
+    createPipelineController(pipeLine);
+
+    // 重绘 Layer
     pipeLine.getLayer()?.batchDraw();
   });
 
@@ -110,7 +140,7 @@ export function onPipelineClick(pipeLine: Konva.Line) {
       pipeLine.points(newPoints);
 
       // 更新控制器
-      clearPipelineController(pipeLine);
+      clearPipelineController();
       createPipelineController(pipeLine);
       pipeLine.getLayer()?.batchDraw();
     }
@@ -144,17 +174,26 @@ export function createPipelineController(pipeLine: Konva.Line) {
  * 清除指定管道的控制器
  * @param pipeLine 管道线
  */
-export function clearPipelineController(pipeLine: Konva.Line) {
-  const layer = pipeLine.getLayer();
-  if (!layer) return;
-  // 查找并销毁旧的控制器组
-  const oldControllers = layer.find(".pipelineController");
-  oldControllers.forEach((group) => group.destroy());
-  layer.batchDraw(); // 清除后绘制
+export function clearPipelineController() {
+  const stage = getStage();
+  if (!stage) return;
+
+  // 获取名为 LAYERNAME.PIPELINE 的图层
+  const pipelineLayer = stage.findOne(`.${LAYERNAME.PIPELINE}`) as Konva.Layer;
+  if (!pipelineLayer) {
+    console.warn(`Layer with name "${LAYERNAME.PIPELINE}" not found.`);
+    return;
+  }
+
+  // 查找并销毁该图层中所有名为 "pipelineController" 的组
+  const oldControllers = pipelineLayer.find(".pipelineController");
+  if (oldControllers.length > 0) {
+    oldControllers.forEach((group) => group.destroy());
+    pipelineLayer.batchDraw(); // 清除后绘制
+  }
 }
 
 // --- 辅助函数 ---
-// 计算点到线段的距离 (之前已提供，保持不变)
 function pointToSegmentDistance(
   px: number,
   py: number,

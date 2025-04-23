@@ -1,6 +1,7 @@
 import Konva from "konva";
 import { LAYERNAME } from "../..";
 import { PipelineEditor } from "../../components/PipeLineDrawer";
+import { clearPipelineController } from "../../components/PipeLineDrawer/PipelineEditor";
 
 export const getSelector = (stage: Konva.Stage) => {
   return stage.find("Transformer") as Konva.Transformer[];
@@ -19,6 +20,7 @@ export const SelectEvent = (
     .getLayers()
     .find((l) => l.attrs.name === LAYERNAME.MAIN) as Konva.Layer;
   stage.on("click tap", (e) => {
+    clearPipelineController();
     let tr = getSelector(stage);
     if (tr && tr.length > 0) {
       tr.forEach((t) => {
