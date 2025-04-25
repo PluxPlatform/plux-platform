@@ -1,3 +1,4 @@
+import Konva from "konva";
 import { getStage } from "..";
 import { createUUID } from "../../utils";
 import ButtonShape from "./Button";
@@ -131,6 +132,68 @@ export class ShapeFactory {
     if (!node) return;
     node.moveDown();
     node.draw();
+  }
+
+  // 当前元素是否是自定义图形
+  static isCustomShape(node: Konva.Node) {
+    let type = node.getAttrs().type;
+    if (!type) {
+      type = node.parent?.getAttrs().type;
+      node = node.parent as any;
+    }
+    if (type === "pipeline") return undefined;
+    return node;
+  }
+
+  // 获取当前元素绑定的管道
+  static getPipelineNodes(node: Konva.Node) {
+    const pipelineIds = (node.getAttr("pipelineIds") || []) as string[];
+    if (pipelineIds.length <= 0) return [];
+    const Stage = node.getStage();
+    const pipelines = pipelineIds.map((id) => {
+      return Stage!.findOne(`#${id}`) as Konva.Line;
+    });
+    return pipelines;
+  }
+  static getPipelineIds(node: Konva.Node) {
+    const pipelineIds = (node.getAttr("pipelineIds") || []) as number[];
+    return pipelineIds;
+  }
+  // 设置当前元素绑定的管道
+  static setNodePipeline(node: Konva.Node, pipeline: Konva.Line) {
+    const pipelineIds = this.getPipelineIds(node);
+    pipelineIds.push(pipeline.getAttr("id"));
+    node.setAttr("pipelineIds", pipelineIds);
+  }
+  // 移除当前元素绑定的管道
+  static removePipeline(node: Konva.Node, line?: Konva.Line) {
+    const pipelineIds = this.getPipelineIds(node);
+    if (!line) {
+      node.setAttr("pipelineIds", []);
+    } else {
+      const index = pipelineIds.indexOf(line.getAttr("id"));
+      pipelineIds.splice(index, 1);
+      node.setAttr("pipelineIds", pipelineIds);
+    }
+  }
+  //获取当前管道绑定的上下元素
+  static getPipelineBindNodes(line: Konva.Line) {
+    const startNode = line.getAttr("startNodeId");
+    const endNode = line.getAttr("endNodeId");
+    return {
+      startNode,
+      endNode,
+    };
+  }
+
+  // 设置当前管道绑定的上下元素
+  static setPipelineNodes(
+    line: Konva.Line,
+    startNode: Konva.Node,
+    endNode: Konva.Node
+  ) {
+    line.setAttr("startNodeId", startNode.getAttr("id"));
+    line.setAttr("endNodeId", endNode.getAttr("id"));
   }
 }
 

@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { EditorTheme } from "../theme";
-import { DeleteEvent, DropEvent, SelectEvent } from "./events";
+import { bindMoveEvent, DeleteEvent, DropEvent, SelectEvent } from "./events";
 import { Axis } from "./components/Axis";
 import { WheelEvent } from "./events/Wheel";
 
@@ -110,6 +110,7 @@ export class KonvaEditor {
     this.stage.draw();
     currentKonvaEditor = this;
   }
+  mainLayer: Konva.Layer | null = null;
   createLayer() {
     // 创建图层时先判断是否存在
     // 背景图层
@@ -128,6 +129,7 @@ export class KonvaEditor {
       mainLayer = new Konva.Layer({
         name: LAYERNAME.MAIN,
       });
+      this.mainLayer = mainLayer;
       this.stage.add(mainLayer);
     }
 
@@ -178,6 +180,8 @@ export class KonvaEditor {
     SelectEvent(this.stage, this.config.onSelect);
     WheelEvent(this.stage);
     DeleteEvent(this.stage);
+
+    bindMoveEvent(this.mainLayer!);
     // this.createAxis();
   }
 
