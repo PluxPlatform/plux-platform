@@ -131,6 +131,8 @@ export class KonvaEditor {
       });
       this.mainLayer = mainLayer;
       this.stage.add(mainLayer);
+    } else {
+      this.mainLayer = this.stage.findOne(`.${LAYERNAME.MAIN}`) as Konva.Layer;
     }
 
     // 辅助图层
@@ -164,10 +166,7 @@ export class KonvaEditor {
       });
       this.stage.add(pipelineLayer);
     }
-    console.log(
-      "layers",
-      this.stage.getLayers().map((layer) => layer.name())
-    );
+
     // 渲染图层
     bgLayer?.draw();
     mainLayer?.draw();
@@ -180,8 +179,9 @@ export class KonvaEditor {
     SelectEvent(this.stage, this.config.onSelect);
     WheelEvent(this.stage);
     DeleteEvent(this.stage);
-
-    bindMoveEvent(this.mainLayer!);
+    setTimeout(() => {
+      bindMoveEvent(this.mainLayer!);
+    }, 1000);
     // this.createAxis();
   }
 

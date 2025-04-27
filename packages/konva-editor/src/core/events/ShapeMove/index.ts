@@ -10,7 +10,7 @@ export const bindMoveEvent = (layer: Konva.Layer) => {
   layer.on("dragstart.updatePipelines", (e) => {
     const node = ShapeFactory.isCustomShape(e.target);
     if (!node) return;
-
+    console.log("node", node);
     const pipelineNodes = ShapeFactory.getPipelineNodes(node);
     if (!pipelineNodes || pipelineNodes.length === 0) return;
 
@@ -32,7 +32,10 @@ export const bindMoveEvent = (layer: Konva.Layer) => {
       if (startNodeId === node.id()) {
         endpointAbsPos = parentTransform.point({ x: points[0], y: points[1] });
       } else if (endNodeId === node.id()) {
-        endpointAbsPos = parentTransform.point({ x: points[points.length - 2], y: points[points.length - 1] });
+        endpointAbsPos = parentTransform.point({
+          x: points[points.length - 2],
+          y: points[points.length - 1],
+        });
       }
 
       // 计算并存储偏移量 (端点绝对位置 - 节点绝对位置)
@@ -80,8 +83,12 @@ export const bindMoveEvent = (layer: Konva.Layer) => {
       };
 
       // 将新的绝对位置转换回管道父容器的相对坐标
-      const parentInverseTransform = pipelineParent.getAbsoluteTransform().copy().invert();
-      const newEndpointRelativePos = parentInverseTransform.point(newEndpointAbsPos);
+      const parentInverseTransform = pipelineParent
+        .getAbsoluteTransform()
+        .copy()
+        .invert();
+      const newEndpointRelativePos =
+        parentInverseTransform.point(newEndpointAbsPos);
 
       const points = itemLine.points().slice();
       let pointsUpdated = false;
@@ -122,7 +129,7 @@ export const bindMoveEvent = (layer: Konva.Layer) => {
  * @param layer 图层
  */
 export const unbindMoveEvent = (layer: Konva.Layer) => {
-    layer.off("dragstart.updatePipelines");
-    layer.off("dragmove.updatePipelines");
-    layer.off("dragend.updatePipelines");
-}
+  layer.off("dragstart.updatePipelines");
+  layer.off("dragmove.updatePipelines");
+  layer.off("dragend.updatePipelines");
+};

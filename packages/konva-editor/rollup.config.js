@@ -6,9 +6,9 @@ import livereload from "rollup-plugin-livereload";
 import copy from "rollup-plugin-copy";
 
 const production = !process.env.ROLLUP_WATCH;
-// const path =
-//   "/Volumes/codes/project/build-energy-data-system_-front/src/views/KonvaStage/konvaEditor";
-const path = "konvaEditor";
+const path =
+  "/Volumes/codes/project/build-energy-data-system_-front/src/views/KonvaStage/konvaEditor";
+// const path = "konvaEditor";
 export default {
   input: "src/index.ts",
   output: [
