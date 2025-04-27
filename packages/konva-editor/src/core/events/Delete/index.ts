@@ -1,5 +1,6 @@
 import Konva from "konva";
 import { getSelector } from "../Select";
+import { deleteShape } from "../../components/PipeLineDrawer/util";
 
 // 删除元素
 export const DeleteEvent = (stage: Konva.Stage) => {
@@ -21,6 +22,8 @@ export const DeleteEvent = (stage: Konva.Stage) => {
         // 删除当前选中的元素
         activeNode.getNode().destroy();
         activeNode.destroy();
+        //
+        deleteShape(activeNode);
       }
     }
     e.preventDefault();
