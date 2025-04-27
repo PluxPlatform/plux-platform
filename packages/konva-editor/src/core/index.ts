@@ -93,7 +93,7 @@ export class KonvaEditor {
         container,
         width,
         height,
-        draggable: false,
+        draggable: true,
       });
     }
 
@@ -179,9 +179,7 @@ export class KonvaEditor {
     SelectEvent(this.stage, this.config.onSelect);
     WheelEvent(this.stage);
     DeleteEvent(this.stage);
-    setTimeout(() => {
-      bindMoveEvent(this.mainLayer!);
-    }, 1000);
+    bindMoveEvent(this.mainLayer!);
     // this.createAxis();
   }
 

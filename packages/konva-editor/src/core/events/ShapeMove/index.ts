@@ -10,7 +10,6 @@ export const bindMoveEvent = (layer: Konva.Layer) => {
   layer.on("dragstart.updatePipelines", (e) => {
     const node = ShapeFactory.isCustomShape(e.target);
     if (!node) return;
-    console.log("node", node);
     const pipelineNodes = ShapeFactory.getPipelineNodes(node);
     if (!pipelineNodes || pipelineNodes.length === 0) return;
 
