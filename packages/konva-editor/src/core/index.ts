@@ -93,7 +93,7 @@ export class KonvaEditor {
         container,
         width,
         height,
-        draggable: true,
+        draggable: false,
       });
     }
 
