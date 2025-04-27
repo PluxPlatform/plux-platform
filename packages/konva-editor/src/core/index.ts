@@ -50,6 +50,16 @@ export const getStageData = () => {
 
 function loadStageFromData(data: any, container: string) {
   const stage = Konva.Node.create(data, container);
+  const dom = document.getElementById(container.replace("#", ""));
+  if (!dom) return;
+  // 获取dom元素的宽高
+  const height = dom.offsetHeight;
+  const width = dom.offsetWidth;
+  stage.setAttrs({
+    width,
+    height,
+  });
+  // const width = dom.offsetWidth;
   stage.find("Image").forEach((imgNode: any) => {
     const imageSrc = imgNode.attrs.imageSrc;
     if (imageSrc) {
