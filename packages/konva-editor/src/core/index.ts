@@ -187,9 +187,13 @@ export class KonvaEditor {
     mainLayer?.draw();
     // 添加图层到舞台
   }
+  // 清空舞台
+  clear() {
+    this.init("editor");
+  }
   // 测试管道动画
   testAnimateLine = () => {
-    this.stage.clear();
+    this.clear();
     this.createLayer();
     testAnimateLine(this.pipelineLayer!);
   };
