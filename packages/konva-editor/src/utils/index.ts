@@ -3,6 +3,7 @@ import Konva from "konva";
 export * from "./dropData";
 export * from "./uuid";
 export * from "./stageTofit";
+export * from "./animate";
 
 export const computedXY = (
   canvas: Konva.Stage,

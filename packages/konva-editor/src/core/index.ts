@@ -3,6 +3,7 @@ import { EditorTheme } from "../theme";
 import { bindMoveEvent, DeleteEvent, DropEvent, SelectEvent } from "./events";
 import { Axis } from "./components/Axis";
 import { WheelEvent } from "./events/Wheel";
+import { testAnimateLine } from "../utils/animate/animateLine.test";
 
 export enum LAYERNAME {
   BG = "bgLayer",
@@ -121,10 +122,11 @@ export class KonvaEditor {
     currentKonvaEditor = this;
   }
   mainLayer: Konva.Layer | null = null;
+  pipelineLayer: Konva.Layer | null = null;
   createLayer() {
     // 创建图层时先判断是否存在
     // 背景图层
-    let bgLayer, mainLayer, helperLayer, gridLayer, axisLayer, pipelineLayer;
+    let bgLayer, mainLayer, helperLayer, gridLayer, axisLayer;
     if (!this.stage.findOne(`.${LAYERNAME.BG}`)) {
       bgLayer = new Konva.Layer({
         name: LAYERNAME.BG,
@@ -171,17 +173,26 @@ export class KonvaEditor {
 
     // 管道
     if (!this.stage.findOne(`.${LAYERNAME.PIPELINE}`)) {
-      pipelineLayer = new Konva.Layer({
+      this.pipelineLayer = new Konva.Layer({
         name: LAYERNAME.PIPELINE,
       });
-      this.stage.add(pipelineLayer);
+      this.stage.add(this.pipelineLayer);
+    } else {
+      this.pipelineLayer = this.stage.findOne(
+        `.${LAYERNAME.PIPELINE}`
+      ) as Konva.Layer;
     }
-
     // 渲染图层
     bgLayer?.draw();
     mainLayer?.draw();
     // 添加图层到舞台
   }
+  // 测试管道动画
+  testAnimateLine = () => {
+    this.stage.clear();
+    this.createLayer();
+    testAnimateLine(this.pipelineLayer!);
+  };
 
   // 初始化编辑器
   initEditor(dom: HTMLElement) {

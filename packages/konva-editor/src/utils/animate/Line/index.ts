@@ -1,8 +1,8 @@
 import Konva from "konva";
-import { createUUID } from "../../../../../utils";
 import { defaultLineAnimate } from "./default";
 import { flowLineAnimate } from "./flow";
-import { getStage } from "../../../..";
+import { getStage } from "../../../core";
+import { dotAnimate } from "./dot";
 
 export enum LineAnimateType {
   "default", // 默认虚线流动
@@ -15,37 +15,31 @@ export const createAnimateLine = (opt: {
   lineId: string;
   speed: number;
   type: LineAnimateType;
+  // 动画的颜色
+  animColor?: string;
 }) => {
   const targetLine = getStage()?.findOne(`#${opt.lineId}`) as Konva.Line;
+
+  if (!targetLine) return;
   // 获取当前线的layer
   const layer = targetLine.getLayer();
+
   if (!layer) return;
-  // 获取当前线的points
-  const points = targetLine.points();
-  // 创建一个线的动画节点
-  const animateLine = new Konva.Line({
-    points,
-    id: createUUID(),
-  });
-
-  // 给targetLine设置一下绑定的动画节点
-  targetLine.setAttrs({
-    animateLineId: animateLine.getAttr("id"),
-  });
-
+  let animateLineGroup: Konva.Group | null = null;
+  // 创建动画线
   if (opt.type === LineAnimateType.default) {
-    defaultLineAnimate(targetLine, animateLine);
+    animateLineGroup = defaultLineAnimate(targetLine, opt.speed, opt.animColor);
   }
 
   if (opt.type === LineAnimateType.flow) {
     // 水流动画
-    flowLineAnimate();
+    flowLineAnimate(targetLine, opt.speed, opt.animColor);
   }
   if (opt.type === LineAnimateType.dot) {
     // 圆点动画
+    dotAnimate(targetLine, opt.speed, opt.animColor);
   }
-
-  layer.add(animateLine);
+  animateLineGroup && layer.add(animateLineGroup);
 };
 
 // 删除线的动画
