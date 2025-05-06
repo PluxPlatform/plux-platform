@@ -57,6 +57,7 @@ class TextShape extends BaseShape<"text"> {
           type: "color",
         },
       ],
+      [...this.advancedFormConfig],
     ];
   }
 }

@@ -35,7 +35,7 @@ class RectShape extends BaseShape<"rect"> {
     node?.draw();
   }
   static getFormConfig() {
-    return [this.defaultFormConfig];
+    return [this.defaultFormConfig, [...this.advancedFormConfig]];
   }
 }
 

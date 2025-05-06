@@ -53,6 +53,15 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     },
   ];
 
+  // 高级属性
+  static advancedFormConfig = [
+    {
+      name: "device_id",
+      label: "设备id",
+      type: "number",
+    },
+  ];
+
   init() {
     // 基础初始化逻辑
   }

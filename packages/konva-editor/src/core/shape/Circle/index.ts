@@ -67,6 +67,7 @@ class CircleShape extends BaseShape<"circle"> {
           type: "number",
         },
       ],
+      [...this.advancedFormConfig],
     ];
   }
 }

@@ -237,5 +237,11 @@ export class KonvaEditor {
     this.stage.clear();
   }
   // 初始化预览器
-  initPreview() {}
+  initPreview() {
+    // 禁止所有元素的拖拽
+    this.stage.draggable(false);
+    this.mainLayer?.children?.forEach((node) => {
+      node.draggable(false);
+    });
+  }
 }

@@ -35,8 +35,9 @@ class StarShape extends BaseShape<"star"> {
   static update(config: Partial<ShapeConfig<"star">>) {}
   static getFormConfig() {
     return [
-      this.defaultFormConfig,
+      [],
       [
+        ...this.advancedFormConfig,
         {
           label: "外半径",
           key: "outerRadius",
