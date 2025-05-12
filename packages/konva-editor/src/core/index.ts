@@ -39,7 +39,6 @@ export const getStageData = () => {
   if (!Stage) return null;
 
   // 遍历所有图片节点，确保 imageSrc 属性存在
-  console.log("images", Stage.find("Image"));
   Stage.find("Image").forEach((imgNode: any) => {
     // 如果节点有 image 对象且没有 imageSrc，则尝试从 image.src 获取
     if (imgNode.image() && !imgNode.attrs.imageSrc) {
@@ -247,6 +246,20 @@ export class KonvaEditor {
     this.stage.draggable(false);
     this.mainLayer?.children?.forEach((node) => {
       node.draggable(false);
+    });
+
+    const nodes = this.mainLayer!.find((node) => {
+      return node.attrs.type;
+    });
+    nodes.forEach((node) => {
+      const attrs = node.attrs;
+
+      if (attrs.hoverEvent) {
+        node.on("mouseenter", () => {
+          document.body.style.cursor = "pointer";
+        });
+        node.on("mouseleave", () => {});
+      }
     });
   }
 }

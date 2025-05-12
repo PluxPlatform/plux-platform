@@ -51,6 +51,29 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       label: "开启拖拽",
       type: "switch",
     },
+    {
+      name: "hoverEvent",
+      label: "Hover动画",
+      type: "radio",
+      values: [
+        {
+          label: "无",
+          name: "none",
+        },
+        {
+          label: "放大",
+          name: "zoom",
+        },
+        {
+          label: "描边",
+          name: "stroke",
+        },
+        {
+          label: "旋转",
+          name: "rotation",
+        },
+      ],
+    },
   ];
 
   // 高级属性

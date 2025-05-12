@@ -85,31 +85,7 @@ class ButtonShape extends BaseShape<"button"> {
   static getFormConfig() {
     return [
       [
-        {
-          label: "x轴",
-          name: "x",
-          type: "number",
-        },
-        {
-          label: "y轴",
-          name: "y",
-          type: "number",
-        },
-        {
-          label: "宽",
-          name: "width",
-          type: "number",
-        },
-        {
-          label: "高",
-          name: "height",
-          type: "number",
-        },
-        {
-          label: "填充色",
-          name: "fill",
-          type: "color",
-        },
+        ...this.defaultFormConfig,
         {
           label: "文本",
           name: "text",

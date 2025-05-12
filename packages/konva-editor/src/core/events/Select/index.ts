@@ -16,17 +16,22 @@ export const getSelectNode = (target: Konva.Shape) => {
 export const getSelectNodeAttrs = (target: Konva.Shape) => {
   let nodeType = target.attrs.type;
   let attrs = {
-    type: "",
+    type: nodeType,
+    hoverEvent: target.attrs.hoverEvent || "none",
   };
+  console.log("attrs", attrs);
   if (!target.attrs.type) {
     const parent = target.parent;
     nodeType = parent?.attrs.type;
     if (parent?.attrs.type === "button") {
-      attrs = ButtonShape.getNodeAttrs(parent as unknown as Konva.Group);
+      attrs = {
+        ...attrs,
+        ...ButtonShape.getNodeAttrs(parent as unknown as Konva.Group),
+      };
       attrs.type = nodeType;
     }
   } else {
-    attrs = target.attrs;
+    attrs = { ...attrs, ...target.attrs };
   }
   return attrs;
 };
