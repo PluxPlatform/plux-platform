@@ -60,7 +60,6 @@ export class ShapeFactory {
     }
   }
   static getFormConfig<T extends shapeType = shapeType>(type: T, id: string) {
-    const Stage = getStage();
     switch (type.toLowerCase()) {
       case "rect":
         return RectShape.getFormConfig();

@@ -37,11 +37,6 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       type: "number",
     },
     {
-      name: "cornerRadius",
-      label: "圆角半径",
-      type: "number",
-    },
-    {
       name: "x",
       label: "x轴位置",
       type: "number",
@@ -50,6 +45,11 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       name: "y",
       label: "y轴位置",
       type: "number",
+    },
+    {
+      name: "draggable",
+      label: "开启拖拽",
+      type: "switch",
     },
   ];
 

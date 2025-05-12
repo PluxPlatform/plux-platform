@@ -1,7 +1,8 @@
 import Konva from "konva";
-import { LAYERNAME } from "../..";
+import { LAYERNAME, OnSelect } from "../..";
 import { PipelineEditor } from "../../components/PipeLineDrawer";
 import { clearPipelineController } from "../../components/PipeLineDrawer/PipelineEditor";
+import ButtonShape from "../../shape/Button";
 
 export const getSelector = (stage: Konva.Stage) => {
   return stage.find("Transformer") as Konva.Transformer[];
@@ -12,10 +13,25 @@ export const getSelectNode = (target: Konva.Shape) => {
   return target;
 };
 
-export const SelectEvent = (
-  stage: Konva.Stage,
-  onSelect?: (node: Konva.Shape | null) => void
-) => {
+export const getSelectNodeAttrs = (target: Konva.Shape) => {
+  let nodeType = target.attrs.type;
+  let attrs = {
+    type: "",
+  };
+  if (!target.attrs.type) {
+    const parent = target.parent;
+    nodeType = parent?.attrs.type;
+    if (parent?.attrs.type === "button") {
+      attrs = ButtonShape.getNodeAttrs(parent as unknown as Konva.Group);
+      attrs.type = nodeType;
+    }
+  } else {
+    attrs = target.attrs;
+  }
+  return attrs;
+};
+
+export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
   const layer = stage
     .getLayers()
     .find((l) => l.attrs.name === LAYERNAME.MAIN) as Konva.Layer;
@@ -29,7 +45,7 @@ export const SelectEvent = (
     }
 
     // 点击节点
-    if (e.target !== stage && e.target.attrs.type !== "pipeline") {
+    if (e.target.getType() !== "Stage" && e.target.attrs.type !== "pipeline") {
       const ntr = new Konva.Transformer();
       layer.add(ntr);
       let node = e.target as any;
@@ -37,9 +53,13 @@ export const SelectEvent = (
       if (e.target.parent?.nodeType === "Group") {
         node = e.target.parent;
       }
+
       ntr.attachTo(node);
-      onSelect &&
-        onSelect(getSelectNode(e.target as Konva.Shape) as Konva.Shape);
+      const params = {
+        target: getSelectNode(e.target as Konva.Shape) as any,
+        attrs: getSelectNodeAttrs(e.target as Konva.Shape),
+      };
+      onSelect && onSelect(params);
       layer.draw();
     }
     // 点击管道
@@ -49,7 +69,7 @@ export const SelectEvent = (
 
     // 点击空白处
     if (e.target === stage) {
-      onSelect && onSelect(null);
+      onSelect && onSelect({ target: null, attrs: null });
     }
   });
 };

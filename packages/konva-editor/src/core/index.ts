@@ -4,6 +4,7 @@ import { bindMoveEvent, DeleteEvent, DropEvent, SelectEvent } from "./events";
 import { Axis } from "./components/Axis";
 import { WheelEvent } from "./events/Wheel";
 import { testAnimateLine } from "../utils/animate/animateLine.test";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
 
 export enum LAYERNAME {
   BG = "bgLayer",
@@ -16,9 +17,13 @@ export enum LAYERNAME {
   PIPELINE = "pipelineLayer",
 }
 
+export type OnSelect = (
+  opt: { target: Shape<ShapeConfig> | null; attrs: any } | null
+) => void;
+
 interface KonvaEditorConfig {
   container: string;
-  onSelect?: (node: Konva.Node | null) => void;
+  onSelect?: OnSelect;
 }
 
 // 全局唯一的编辑器实例

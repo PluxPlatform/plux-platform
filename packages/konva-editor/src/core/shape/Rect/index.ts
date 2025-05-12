@@ -1,6 +1,6 @@
 import Konva from "konva";
 import { BaseShape } from "../defautShape";
-import { ShapeConfig, ShapeSetting } from "../shape";
+import { ShapeSetting } from "../shape";
 import { getStage } from "../..";
 
 // 矩形图形
