@@ -68,9 +68,10 @@ interface ButtonConfig extends CommonConfig {
   type: "button";
   // 按钮文本
   text: string;
-  // 圆角半径
+  // 文本颜色
+  textFill?: number;
+  // 矩形圆角
   cornerRadius?: number;
-  // 填充颜色
 }
 
 // html
