@@ -1,3 +1,10 @@
+// shape HoverAnimation
+export type HoverAnimation = {
+  zoom;
+  stroke;
+  rotation;
+};
+
 // 基础通用配置
 export interface CommonConfig {
   name: string;

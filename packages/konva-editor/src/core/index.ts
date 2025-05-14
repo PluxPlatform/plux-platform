@@ -5,6 +5,7 @@ import { Axis } from "./components/Axis";
 import { WheelEvent } from "./events/Wheel";
 import { testAnimateLine } from "../utils/animate/animateLine.test";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { ShapeHover } from "./events/ShapeHover";
 
 export enum LAYERNAME {
   BG = "bgLayer",
@@ -248,17 +249,13 @@ export class KonvaEditor {
       node.draggable(false);
     });
 
-    const nodes = this.mainLayer!.find((node) => {
+    const nodes = this.mainLayer!.find((node: Konva.Node) => {
       return node.attrs.type;
     });
     nodes.forEach((node) => {
-      const attrs = node.attrs;
-
-      if (attrs.hoverEvent) {
-        node.on("mouseenter", () => {
-          document.body.style.cursor = "pointer";
-        });
-        node.on("mouseleave", () => {});
+      const { hoverEvent } = node.attrs;
+      if (hoverEvent) {
+        ShapeHover(node);
       }
     });
   }
