@@ -1,90 +1,79 @@
 import Konva from "konva";
 import { HoverAnimation } from "../../shape/shape";
-import { LAYERNAME } from "../..";
 
 export function centerScale(node: Konva.Node, scale: number) {
-  // 获取当前的绝对位置
-  const absPos = node.getAbsolutePosition();
+  const box = node.getClientRect({ relativeTo: node.getLayer() }); // 或 Stage，根据你的实际层级
+  const centerX = box.x + box.width / 2;
+  const centerY = box.y + box.height / 2;
 
-  // 设置 offset 为自身中心
-  const width = node.width();
-  const height = node.height();
-  
-  // 获取元素的offset
-  const offset = node.offset();
-  if (!offset.x) {
-    node.offsetX(width / 2);
-    node.offsetY(height / 2);
-    node.x(absPos.x + width / 2);
-    node.y(absPos.y + height / 2);
-  }
+  const oldScale = node.scaleX(); // 假设等比缩放
+  const scaleFactor = scale / oldScale;
 
-  // 使用动画效果进行缩放
+  // 当前 position
+  const pos = node.position();
+
+  // 偏移位置补偿
+  const newX = (pos.x - centerX) * scaleFactor + centerX;
+  const newY = (pos.y - centerY) * scaleFactor + centerY;
+
   new Konva.Tween({
     node,
-    duration: 0.3,
     scaleX: scale,
     scaleY: scale,
+    x: newX,
+    y: newY,
+    duration: 0.3,
   }).play();
 }
 
 // 描边动画
 export function strokeAnimate(node: Konva.Node) {
-  const helperLayer = node
-    .getStage()!
-    .findOne(`.${LAYERNAME.HELPER}`)! as Konva.Layer;
-
-  // 确保辅助层可见
-  helperLayer.visible(true);
-
-  const { x, y, width, height } = node.getClientRect();
-  const rect = new Konva.Rect({
-    x: x - 1,
-    y: y - 1,
-    width: width + 2,
-    height: height + 2,
+  node.setAttrs({
     stroke: "blue",
     strokeWidth: 2,
-    opacity: 0.5,
-    name: "strokeRect",
-    listening: false,
   });
-  helperLayer.add(rect);
-  helperLayer.batchDraw();
 }
 
 // 旋转
 export function rotateAnimate(node: Konva.Node, rotation: number) {
-  // 获取当前的绝对位置
-  const absPos = node.getAbsolutePosition();
+  // 1. 保存当前视觉状态
+  const absolutePosition = node.getAbsolutePosition();
+  const currentRotation = node.rotation();
 
-  // 设置 offset 为自身中心
+  // 2. 设置旋转中心为元素中心
   const width = node.width();
   const height = node.height();
-  // 获取元素的offset
-  const offset = node.offset();
-  if (!offset.x) {
-    node.offsetX(width / 2);
-    node.offsetY(height / 2);
-    node.x(absPos.x + width / 2);
-    node.y(absPos.y + height / 2);
-  }
+  node.offsetX(width / 2);
+  node.offsetY(height / 2);
 
-  // 恢复绝对位置，防止 offset 改变位置
+  // 3. 计算并设置新位置，保持视觉位置不变
+  const newPos = node
+    .getParent()
+    .getAbsoluteTransform()
+    .point({
+      x: absolutePosition.x - (width * node.scaleX()) / 2,
+      y: absolutePosition.y - (height * node.scaleY()) / 2,
+    });
 
-  // 使用动画效果进行旋转
+  node.position(newPos);
+
+  // 4. 执行旋转动画
   new Konva.Tween({
     node,
     duration: 0.3,
     rotation,
+    easing: Konva.Easings.EaseInOut,
   }).play();
 }
-
-export const shapeEventAnomate = (
+let currentNodeAttrs: any;
+export const shapeEventAnimate = (
   node: Konva.Node,
   hoverEvent: keyof HoverAnimation,
   start: boolean
 ) => {
+  if (start) {
+    currentNodeAttrs = JSON.parse(JSON.stringify(node.getAttrs()));
+  }
   if (hoverEvent === "zoom" && start) {
     centerScale(node, 1.1);
   }
@@ -96,14 +85,10 @@ export const shapeEventAnomate = (
     strokeAnimate(node);
   }
   if (hoverEvent === "stroke" && !start) {
-    const helperLayer = node
-      .getStage()!
-      .findOne(`.${LAYERNAME.HELPER}`)! as Konva.Layer;
-    const rect = helperLayer.findOne(".strokeRect") as Konva.Rect;
-    if (rect) {
-      rect.destroy();
-      helperLayer.batchDraw();
-    }
+    node.setAttrs({
+      stroke: currentNodeAttrs.stroke,
+      strokeWidth: currentNodeAttrs.strokeWidth,
+    });
   }
 
   if (hoverEvent === "rotation" && start) {

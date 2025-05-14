@@ -10,6 +10,17 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     this.init();
   }
 
+  // 根据属性名称删除属性
+  static deleteProperty(propertyName: string[]) {
+    const newProps = [];
+    for (const item of BaseShape.defaultFormConfig) {
+      if (!propertyName.includes(item.name)) {
+        newProps.push(item);
+      }
+    }
+    return newProps;
+  }
+
   static defaultFormConfig = [
     {
       name: "width",

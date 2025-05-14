@@ -13,14 +13,10 @@ export const stageTofit = (
     console.warn(
       "Stage content has invalid dimensions (<= 0). Resetting view."
     );
-    // 选择一种处理方式：
-    // 方式一：重置视图到初始状态 (scale=1, position=padding)
+
     const targetScale = 1;
     const targetX = padding;
     const targetY = padding;
-
-    // 方式二：不执行任何操作 (如果希望如此，注释掉下面的 Tween 代码并取消注释 return)
-    // return;
 
     // 执行重置动画 (如果选择方式一)
     const tween = new Konva.Tween({
@@ -58,14 +54,6 @@ export const stageTofit = (
     -contentRect.y * scale +
     padding +
     (availableHeight - contentRect.height * scale) / 2;
-
-  const startScale = stage.scaleX(); // 当前缩放
-  const startX = stage.x(); // 当前偏移
-  const startY = stage.y();
-
-  const deltaScale = scale - startScale;
-  const deltaX = targetX - startX;
-  const deltaY = targetY - startY;
 
   const tween = new Konva.Tween({
     node: stage,

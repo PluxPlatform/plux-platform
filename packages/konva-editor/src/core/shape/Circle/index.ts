@@ -37,35 +37,11 @@ class CircleShape extends BaseShape<"circle"> {
     return [
       [
         {
-          name: "x",
-          label: "x轴位置",
-          type: "number",
-        },
-        {
-          name: "y",
-          label: "y轴位置",
-          type: "number",
-        },
-        {
           name: "radius",
           label: "半径",
           type: "number",
         },
-        {
-          name: "fill",
-          label: "填充颜色",
-          type: "color",
-        },
-        {
-          name: "stroke",
-          label: "描边颜色",
-          type: "color",
-        },
-        {
-          name: "strokeWidth",
-          label: "描边宽度",
-          type: "number",
-        },
+        ...this.deleteProperty(["width", "height"]),
       ],
       [...this.advancedFormConfig],
     ];
