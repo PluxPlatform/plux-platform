@@ -21,7 +21,11 @@ export interface CommonConfig {
   shadowBlur?: number;
   width?: number;
   height?: number;
+  radius?: number;
   visible?: boolean;
+  fontSize?: number;
+  fontFamily?: string;
+  text?: string;
 }
 
 // 每个形状的特定配置

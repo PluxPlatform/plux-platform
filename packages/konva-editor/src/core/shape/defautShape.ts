@@ -156,6 +156,10 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       shadowBlur,
       strokeWidth,
       hidden,
+      radius,
+      fontSize,
+      fontFamily,
+      text,
     } = config;
 
     console.log("attrs config", config);
@@ -165,7 +169,9 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       width,
       height,
       rotation,
+      radius,
       zoom,
+      text,
       opacity: hidden ? 0.1 : opacity || 1,
       scale: { x: zoom || 1, y: zoom || 1 },
       hidden,
@@ -173,6 +179,8 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       stroke,
       shadowBlur,
       strokeWidth,
+      fontSize,
+      fontFamily,
     });
 
     return { node };

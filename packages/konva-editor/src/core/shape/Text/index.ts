@@ -26,11 +26,7 @@ class TextShape extends BaseShape<"text"> {
     layer.add(textNode);
   }
   static update(config: Extract<BaseConfig, { type: "text" }>): void {
-    const { id } = config;
-    const stage = getStage();
-    const node = stage?.findOne(`#${id}`) as Konva.Text;
-    node.setAttrs(config);
-    node.setText(config.text || "");
+    const { node } = this.defaultUpdate(config);
     node?.draw();
   }
   static getFormConfig() {
@@ -47,15 +43,17 @@ class TextShape extends BaseShape<"text"> {
           type: "number",
         },
         {
-          label: "字体",
-          name: "fontFamily",
-          type: "text",
-        },
-        {
           label: "文字颜色",
           name: "fill",
           type: "color",
         },
+        ...this.deleteProperty([
+          "width",
+          "height",
+          "fill",
+          "stroke",
+          "strokeWidth",
+        ]),
       ],
       [...this.advancedFormConfig],
     ];

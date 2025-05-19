@@ -24,13 +24,8 @@ class CircleShape extends BaseShape<"circle"> {
     layer.add(Circle);
   }
   static update(config: Partial<ShapeConfig<"circle">>) {
-    const { id } = config;
-    const stage = getStage();
-    const node = stage?.findOne(`#${id}`) as Konva.Rect;
-    config &&
-      node.setAttrs({
-        ...config,
-      });
+    const { node } = this.defaultUpdate(config as any);
+
     node?.draw();
   }
   static getFormConfig() {
