@@ -1,5 +1,5 @@
 import Konva from "konva";
-import { BaseConfig, ShapeConfig, shapeType } from "./shape";
+import { BaseConfig, FormItem, ShapeConfig, shapeType } from "./shape";
 
 // 基础图形类
 abstract class BaseShape<T extends shapeType = shapeType> {
@@ -11,7 +11,7 @@ abstract class BaseShape<T extends shapeType = shapeType> {
   }
 
   // 根据属性名称删除属性
-  static deleteProperty(propertyName: string[]) {
+  static deleteProperty(propertyName: string[]): FormItem[] {
     const newProps = [];
     for (const item of BaseShape.defaultFormConfig) {
       if (!propertyName.includes(item.name)) {
@@ -21,7 +21,7 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     return newProps;
   }
 
-  static defaultFormConfig = [
+  static defaultFormConfig: FormItem[] = [
     {
       name: "width",
       label: "宽度",
@@ -30,6 +30,16 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     {
       name: "height",
       label: "高度",
+      type: "number",
+    },
+    {
+      name: "x",
+      label: "x轴位置",
+      type: "number",
+    },
+    {
+      name: "y",
+      label: "y轴位置",
       type: "number",
     },
     {
@@ -45,16 +55,6 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     {
       name: "strokeWidth",
       label: "描边宽度",
-      type: "number",
-    },
-    {
-      name: "x",
-      label: "x轴位置",
-      type: "number",
-    },
-    {
-      name: "y",
-      label: "y轴位置",
       type: "number",
     },
     {
@@ -105,7 +105,9 @@ abstract class BaseShape<T extends shapeType = shapeType> {
   // 子类要重写的update
   update(config: Extract<BaseConfig, { type: T }>): void {}
 
-  getFormConfig<T extends shapeType = shapeType>(type: T) {}
+  getFormConfig<T extends shapeType = shapeType>(type: T): FormItem[][] {
+    return [];
+  }
 }
 
 export { BaseShape };

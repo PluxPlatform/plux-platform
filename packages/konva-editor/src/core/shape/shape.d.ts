@@ -88,6 +88,21 @@ interface HtmlConfig extends CommonConfig {
   html: string;
 }
 
+// value shape
+interface ValueConfig extends CommonConfig {
+  type: "value";
+  // 属性值
+  text: string;
+  // 属性值颜色
+  valueColor: string;
+  // 属性值背景色
+  groupFill: string;
+  // 单位
+  unit: string;
+  // 单位颜色
+  unitColor: string;
+}
+
 // 使用联合类型
 type BaseConfig =
   | RectConfig
@@ -97,9 +112,16 @@ type BaseConfig =
   | TextConfig
   | StarConfig
   | HtmlConfig
+  | ValueConfig
   | ImageConfig;
 export type shapeType = BaseConfig["type"];
-
+// 表单配置项item 需要根据类型完善
+export interface FormItem {
+  type: "text" | "number" | "color" | "select" | "radio" | "switch";
+  name: string;
+  label: string;
+  values?: { label: string; name: string }[];
+}
 export type ShapeSetting<T extends shapeType = shapeType> = Extract<
   BaseConfig,
   { type: T }

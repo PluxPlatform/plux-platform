@@ -85,7 +85,7 @@ class ButtonShape extends BaseShape<"button"> {
   static getFormConfig() {
     return [
       [
-        ...this.defaultFormConfig,
+        ...this.deleteProperty(["strokeWidth", "stroke"]),
         {
           label: "文本",
           name: "text",

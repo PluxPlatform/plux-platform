@@ -3,11 +3,11 @@ import { getStage } from "..";
 import { createUUID } from "../../utils";
 import ButtonShape from "./Button";
 import CircleShape from "./Circle";
-import HtmlShape from "./Html";
+import ValueShape from "./Value";
 import ImageShape from "./Image";
 import PolygonShape from "./Polygon";
 import RectShape from "./Rect";
-import { ShapeConfig, shapeType, ShapeSetting } from "./shape";
+import { ShapeConfig, shapeType, ShapeSetting, FormItem } from "./shape";
 import StarShape from "./Star";
 import TextShape from "./Text";
 
@@ -33,8 +33,8 @@ export class ShapeFactory {
         return new ImageShape(config as ShapeConfig<"image">);
       case "button":
         return new ButtonShape(config as ShapeConfig<"button">);
-      case "html":
-        return new HtmlShape(config as ShapeConfig<"html">);
+      case "value":
+        return new ValueShape(config as ShapeConfig<"value">);
       default:
         throw new Error(`不支持的图形类型: ${config.type}`);
     }
@@ -55,6 +55,8 @@ export class ShapeFactory {
         return ImageShape.update(config as ShapeSetting<"image">);
       case "button":
         return ButtonShape.update(config as ShapeSetting<"button">);
+      case "value":
+        return ValueShape.update(config as ShapeSetting<"value">);
       default:
         throw new Error(`不支持的图形类型: ${config.type}`);
     }
@@ -75,6 +77,8 @@ export class ShapeFactory {
         return ImageShape.getFormConfig();
       case "button":
         return ButtonShape.getFormConfig();
+      case "value":
+        return ValueShape.getFormConfig();
       default:
         throw new Error(`不支持的图形类型: ${type}`);
     }

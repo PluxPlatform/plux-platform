@@ -3,6 +3,7 @@ import { LAYERNAME, OnSelect } from "../..";
 import { PipelineEditor } from "../../components/PipeLineDrawer";
 import { clearPipelineController } from "../../components/PipeLineDrawer/PipelineEditor";
 import ButtonShape from "../../shape/Button";
+import ValueShape from "../../shape/Value";
 
 export const getSelector = (stage: Konva.Stage) => {
   return stage.find("Transformer") as Konva.Transformer[];
@@ -19,20 +20,28 @@ export const getSelectNodeAttrs = (target: Konva.Shape) => {
     type: nodeType,
     hoverEvent: target.attrs.hoverEvent || "none",
   };
-  console.log("attrs", attrs);
+
   if (!target.attrs.type) {
-    const parent = target.parent;
-    nodeType = parent?.attrs.type;
-    if (parent?.attrs.type === "button") {
-      attrs = {
-        ...attrs,
-        ...ButtonShape.getNodeAttrs(parent as unknown as Konva.Group),
-      };
-      attrs.type = nodeType;
-    }
-  } else {
-    attrs = { ...attrs, ...target.attrs };
+    nodeType = target.parent?.attrs.type;
   }
+  attrs = { ...attrs, ...target.attrs };
+
+  // 使用映射表简化类型判断
+  const typeHandlers = {
+    button: () => ButtonShape.getNodeAttrs(target as unknown as Konva.Group),
+    value: () => ValueShape.getNodeAttrs(target as unknown as Konva.Group),
+    // 可以添加其他类型的处理函数
+  } as any;
+
+  if (typeHandlers[nodeType]) {
+    const specificAttrs = typeHandlers[nodeType]();
+    attrs = {
+      ...attrs,
+      ...specificAttrs,
+    };
+    attrs.type = nodeType;
+  }
+
   return attrs;
 };
 
@@ -58,11 +67,11 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
       if (e.target.parent?.nodeType === "Group") {
         node = e.target.parent;
       }
-
+      // 绑定t
       ntr.attachTo(node);
       const params = {
-        target: getSelectNode(e.target as Konva.Shape) as any,
-        attrs: getSelectNodeAttrs(e.target as Konva.Shape),
+        target: getSelectNode(node as Konva.Shape) as any,
+        attrs: getSelectNodeAttrs(node as Konva.Shape),
       };
       onSelect && onSelect(params);
       layer.draw();
