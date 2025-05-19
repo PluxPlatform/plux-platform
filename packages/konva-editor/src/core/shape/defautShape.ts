@@ -143,44 +143,13 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     const { id } = config;
     const stage = getStage();
     const node = stage?.findOne(`#${id}`)!;
-    const {
-      x,
-      y,
-      width,
-      height,
-      rotation,
-      opacity,
-      zoom,
-      fill,
-      stroke,
-      shadowBlur,
-      strokeWidth,
-      hidden,
-      radius,
-      fontSize,
-      fontFamily,
-      text,
-    } = config;
+    const { opacity, zoom, hidden } = config;
 
     console.log("attrs config", config);
     node.setAttrs({
-      x,
-      y,
-      width,
-      height,
-      rotation,
-      radius,
-      zoom,
-      text,
+      ...config,
       opacity: hidden ? 0.1 : opacity || 1,
       scale: { x: zoom || 1, y: zoom || 1 },
-      hidden,
-      fill,
-      stroke,
-      shadowBlur,
-      strokeWidth,
-      fontSize,
-      fontFamily,
     });
 
     return { node };

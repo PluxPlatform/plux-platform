@@ -26,6 +26,8 @@ export interface CommonConfig {
   fontSize?: number;
   fontFamily?: string;
   text?: string;
+  draggable?: boolean;
+  data_id?: string;
 }
 
 // 每个形状的特定配置
