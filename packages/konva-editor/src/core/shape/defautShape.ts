@@ -1,5 +1,12 @@
 import Konva from "konva";
-import { BaseConfig, FormItem, ShapeConfig, shapeType } from "./shape";
+import {
+  BaseConfig,
+  FormItem,
+  ShapeConfig,
+  ShapeSetting,
+  shapeType,
+} from "./shape";
+import { getStage } from "..";
 
 // 基础图形类
 abstract class BaseShape<T extends shapeType = shapeType> {
@@ -63,6 +70,26 @@ abstract class BaseShape<T extends shapeType = shapeType> {
       type: "switch",
     },
     {
+      name: "opacity",
+      label: "透明度",
+      type: "number",
+      step: 0.1,
+      min: 0,
+      max: 1,
+      precision: 2,
+    },
+    {
+      name: "hidden",
+      label: "是否隐藏",
+      type: "switch",
+    },
+    {
+      name: "zoom",
+      label: "缩放",
+      type: "number",
+    },
+
+    {
       name: "hoverEvent",
       label: "Hover动画",
       type: "radio",
@@ -90,8 +117,8 @@ abstract class BaseShape<T extends shapeType = shapeType> {
   // 高级属性
   static advancedFormConfig = [
     {
-      name: "device_id",
-      label: "设备id",
+      name: "data_id",
+      label: "点位id",
       type: "number",
     },
   ];
@@ -108,6 +135,48 @@ abstract class BaseShape<T extends shapeType = shapeType> {
   getFormConfig<T extends shapeType = shapeType>(type: T): FormItem[][] {
     return [];
   }
+
+  static defaultUpdate = <T extends shapeType = shapeType>(
+    config: ShapeSetting<T>
+  ) => {
+    // 基础更新逻辑
+    const { id } = config;
+    const stage = getStage();
+    const node = stage?.findOne(`#${id}`)!;
+    const {
+      x,
+      y,
+      width,
+      height,
+      rotation,
+      opacity,
+      zoom,
+      fill,
+      stroke,
+      shadowBlur,
+      strokeWidth,
+      hidden,
+    } = config;
+
+    console.log("attrs config", config);
+    node.setAttrs({
+      x,
+      y,
+      width,
+      height,
+      rotation,
+      zoom,
+      opacity: hidden ? 0.1 : opacity || 1,
+      scale: { x: zoom || 1, y: zoom || 1 },
+      hidden,
+      fill,
+      stroke,
+      shadowBlur,
+      strokeWidth,
+    });
+
+    return { node };
+  };
 }
 
 export { BaseShape };

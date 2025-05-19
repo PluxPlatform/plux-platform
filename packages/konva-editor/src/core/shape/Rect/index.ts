@@ -25,13 +25,8 @@ class RectShape extends BaseShape<"rect"> {
     layer.add(rect);
   }
   static update(config: ShapeSetting<"rect">): void {
-    const { id } = config;
-    const stage = getStage();
-    const node = stage?.findOne(`#${id}`) as Konva.Rect;
-    config &&
-      node.setAttrs({
-        ...config,
-      });
+    const { node } = this.defaultUpdate(config);
+
     node?.draw();
   }
   static getFormConfig() {

@@ -2,8 +2,7 @@ import Konva from "konva";
 import { LAYERNAME, OnSelect } from "../..";
 import { PipelineEditor } from "../../components/PipeLineDrawer";
 import { clearPipelineController } from "../../components/PipeLineDrawer/PipelineEditor";
-import ButtonShape from "../../shape/Button";
-import ValueShape from "../../shape/Value";
+import ShapeFactory from "../../shape";
 
 export const getSelector = (stage: Konva.Stage) => {
   return stage.find("Transformer") as Konva.Transformer[];
@@ -12,37 +11,6 @@ export const getSelector = (stage: Konva.Stage) => {
 export const getSelectNode = (target: Konva.Shape) => {
   if (!target.attrs.type) return target.parent;
   return target;
-};
-
-export const getSelectNodeAttrs = (target: Konva.Shape) => {
-  let nodeType = target.attrs.type;
-  let attrs = {
-    type: nodeType,
-    hoverEvent: target.attrs.hoverEvent || "none",
-  };
-
-  if (!target.attrs.type) {
-    nodeType = target.parent?.attrs.type;
-  }
-  attrs = { ...attrs, ...target.attrs };
-
-  // 使用映射表简化类型判断
-  const typeHandlers = {
-    button: () => ButtonShape.getNodeAttrs(target as unknown as Konva.Group),
-    value: () => ValueShape.getNodeAttrs(target as unknown as Konva.Group),
-    // 可以添加其他类型的处理函数
-  } as any;
-
-  if (typeHandlers[nodeType]) {
-    const specificAttrs = typeHandlers[nodeType]();
-    attrs = {
-      ...attrs,
-      ...specificAttrs,
-    };
-    attrs.type = nodeType;
-  }
-
-  return attrs;
 };
 
 export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
@@ -71,7 +39,7 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
       ntr.attachTo(node);
       const params = {
         target: getSelectNode(node as Konva.Shape) as any,
-        attrs: getSelectNodeAttrs(node as Konva.Shape),
+        attrs: ShapeFactory.getNodeAttrs(node as Konva.Shape),
       };
       onSelect && onSelect(params);
       layer.draw();

@@ -15,11 +15,13 @@ export interface CommonConfig {
   stroke?: string;
   strokeWidth?: number;
   rotation?: number;
-  scale?: number;
+  zoom?: number;
+  hidden?: boolean;
   opacity?: number;
   shadowBlur?: number;
   width?: number;
   height?: number;
+  visible?: boolean;
 }
 
 // 每个形状的特定配置
@@ -121,6 +123,10 @@ export interface FormItem {
   name: string;
   label: string;
   values?: { label: string; name: string }[];
+  max?: number;
+  min?: number;
+  step?: number;
+  precision?: number;
 }
 export type ShapeSetting<T extends shapeType = shapeType> = Extract<
   BaseConfig,

@@ -198,6 +198,57 @@ export class ShapeFactory {
     line.setAttr("startNodeId", startNode.getAttr("id"));
     line.setAttr("endNodeId", endNode.getAttr("id"));
   }
+
+  // 获取当前元素的属性
+  static getNodeAttrs(node: Konva.Node) {
+    let nodeType = node.attrs.type;
+    let attrs: Record<string, any> = {
+      type: nodeType,
+      hoverEvent: node.attrs.hoverEvent || "none",
+    };
+
+    if (!node.attrs.type) {
+      nodeType = node.parent?.attrs.type;
+    }
+    attrs = { ...attrs, ...node.attrs };
+
+    // 使用映射表简化类型判断
+    const typeHandlers = {
+      button: () => ButtonShape.getNodeAttrs(node as unknown as Konva.Group),
+      value: () => ValueShape.getNodeAttrs(node as unknown as Konva.Group),
+      // 可以添加其他类型的处理函数
+    } as any;
+
+    if (typeHandlers[nodeType]) {
+      const specificAttrs = typeHandlers[nodeType]();
+      attrs = {
+        ...attrs,
+        ...specificAttrs,
+      };
+      attrs.type = nodeType;
+    }
+    const hidden = node.attrs.hidden === true ? true : false;
+
+    if (hidden) {
+      node.setAttr("oldOpacity", node.attrs.opacity || 1);
+      attrs = {
+        ...attrs,
+        opacity: 0.1,
+      };
+    } else {
+      attrs = {
+        ...attrs,
+        opacity: node.attrs.oldOpacity || 1,
+      };
+    }
+    attrs = {
+      ...attrs,
+      hidden,
+      zoom: node.scaleX() || 1,
+    };
+    console.log("attrs", attrs);
+    return attrs;
+  }
 }
 
 export default ShapeFactory;
