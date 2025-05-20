@@ -1,5 +1,6 @@
 import Konva from "konva";
 import { getStage, LAYERNAME } from "../../index";
+import { ShapeSetting } from "../../shape/shape";
 
 // 管道编辑器入口
 export const PipelineEditor = (pipeLine: Konva.Line) => {
@@ -28,7 +29,9 @@ export function createPipelineControllerPoint(
     fill: "#fff",
     stroke: "#007bff", // 换个醒目的颜色
     strokeWidth: 2,
+    pipLineId: pipeLine.id(), // 关联的管道线 ID
     draggable: true,
+    type: "pipControllerItem",
     name: "pipelineAnchor", // 统一命名
     _pointIndex: pointIndex, // 存储点索引，方便拖拽时更新
   });
@@ -132,13 +135,13 @@ export function onPipelineClick(pipeLine: Konva.Line) {
         insertIdx = i + 2;
       }
     }
-
+    console.log("insertIdx", insertIdx);
+    console.log("minDist", minDist);
     // 距离足够近才插入（例如小于 10 像素）
     if (insertIdx !== -1 && minDist < 10) {
       const newPoints = points.slice();
       newPoints.splice(insertIdx, 0, mousePos.x, mousePos.y);
       pipeLine!.points(newPoints);
-
       // 更新控制器
       clearPipelineController();
       createPipelineController(pipeLine!);
@@ -221,4 +224,31 @@ function pointToSegmentDistance(
     (px - projectionX) * (px - projectionX) +
       (py - projectionY) * (py - projectionY)
   );
+}
+
+// 更新线段点的配置
+export function updatePipelinePointsConfig(
+  config: ShapeSetting<"pipControllerItem">
+) {
+  const { qPoint, id } = config;
+  console.log("qPoint", id);
+}
+
+export function getPiplineAttrs(node: Konva.Circle) {
+  console.log("node", node);
+  return {
+    qPoint: node.attrs.qPoint || false,
+  };
+}
+// 获取线段点的配置
+export function getPipelinePointsConfig() {
+  return [
+    [
+      {
+        name: "qPoint",
+        label: "桥点",
+        type: "switch",
+      },
+    ],
+  ];
 }

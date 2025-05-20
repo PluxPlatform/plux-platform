@@ -29,6 +29,7 @@ export interface CommonConfig {
   draggable?: boolean;
   data_id?: string;
   hoverEvent?: string;
+  qPoint?: boolean; // 管道控制器属性，是否为桥点
 }
 
 // 每个形状的特定配置
@@ -112,6 +113,11 @@ interface ValueConfig extends CommonConfig {
   unitColor: string;
 }
 
+// 管道控制器点
+interface PipelinePointConfig extends CommonConfig {
+  type: "pipControllerItem";
+}
+
 // 使用联合类型
 type BaseConfig =
   | RectConfig
@@ -122,6 +128,7 @@ type BaseConfig =
   | StarConfig
   | HtmlConfig
   | ValueConfig
+  | PipelinePointConfig
   | ImageConfig;
 export type shapeType = BaseConfig["type"];
 // 表单配置项item 需要根据类型完善

@@ -158,7 +158,7 @@ export class PipelineDrawer {
       lineCap: this.config.lineCap as any,
       name: "pipeline-line",
       draggable: false,
-      tension: 0.01,
+      tension: 0.02,
       id: createUUID(),
     });
 

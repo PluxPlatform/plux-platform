@@ -24,36 +24,32 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
         t.destroy();
       });
     }
-
+    // 点击空白处
+    if (e.target === stage) {
+      onSelect && onSelect({ target: null, attrs: null });
+      return false;
+    }
+    const node = getSelectNode(e.target as Konva.Shape)!;
+    if (node.attrs.type !== "pipControllerItem") {
+      clearPipelineController();
+    }
     // 点击节点
     if (e.target.getType() !== "Stage" && e.target.attrs.type !== "pipeline") {
       const ntr = new Konva.Transformer();
       layer.add(ntr);
-      let node = e.target as any;
-      // 如果target 的父节点是group 则需要将target 改为父节点
-      if (e.target.parent?.nodeType === "Group") {
-        node = e.target.parent;
-      }
+
       // 绑定t
       ntr.attachTo(node);
       const params = {
-        target: getSelectNode(node as Konva.Shape) as any,
+        target: node as any,
         attrs: ShapeFactory.getNodeAttrs(node as Konva.Shape),
       };
       onSelect && onSelect(params);
       layer.draw();
     }
     // 点击管道
-    clearPipelineController();
     if (e.target.attrs.type === "pipeline") {
-      setTimeout(() => {
-        PipelineEditor(e.target as Konva.Line);
-      }, 100);
-    }
-
-    // 点击空白处
-    if (e.target === stage) {
-      onSelect && onSelect({ target: null, attrs: null });
+      PipelineEditor(e.target as Konva.Line);
     }
   });
 };

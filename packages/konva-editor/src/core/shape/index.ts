@@ -10,6 +10,11 @@ import RectShape from "./Rect";
 import { ShapeConfig, shapeType, ShapeSetting, FormItem } from "./shape";
 import StarShape from "./Star";
 import TextShape from "./Text";
+import {
+  getPipelinePointsConfig,
+  getPiplineAttrs,
+  updatePipelinePointsConfig,
+} from "../components/PipeLineDrawer/PipelineEditor";
 
 // 图形工厂类
 export class ShapeFactory {
@@ -57,6 +62,10 @@ export class ShapeFactory {
         return ButtonShape.update(config as ShapeSetting<"button">);
       case "value":
         return ValueShape.update(config as ShapeSetting<"value">);
+      case "pipcontrolleritem":
+        return updatePipelinePointsConfig(
+          config as ShapeSetting<"pipControllerItem">
+        );
       default:
         throw new Error(`不支持的图形类型: ${config.type}`);
     }
@@ -79,6 +88,8 @@ export class ShapeFactory {
         return ButtonShape.getFormConfig();
       case "value":
         return ValueShape.getFormConfig();
+      case "pipcontrolleritem":
+        return getPipelinePointsConfig();
       default:
         throw new Error(`不支持的图形类型: ${type}`);
     }
@@ -216,6 +227,7 @@ export class ShapeFactory {
     const typeHandlers = {
       button: () => ButtonShape.getNodeAttrs(node as unknown as Konva.Group),
       value: () => ValueShape.getNodeAttrs(node as unknown as Konva.Group),
+      pipControllerItem: () => getPiplineAttrs(node as unknown as Konva.Circle),
       // 可以添加其他类型的处理函数
     } as any;
 
@@ -246,7 +258,6 @@ export class ShapeFactory {
       hidden,
       zoom: node.scaleX() || 1,
     };
-    console.log("attrs", attrs);
     return attrs;
   }
 }
