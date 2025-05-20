@@ -28,6 +28,7 @@ export interface CommonConfig {
   text?: string;
   draggable?: boolean;
   data_id?: string;
+  hoverEvent?: string;
 }
 
 // 每个形状的特定配置

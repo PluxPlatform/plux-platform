@@ -40,11 +40,11 @@ export class ValueShape extends BaseShape<"value"> {
       text: "%",
       fontSize: 16,
       fill: "#000",
-      x: 100,
+      x: 105,
       y: 0,
       width: 60,
       height: 30,
-      align: "center",
+      align: "left",
       name: "unit",
       verticalAlign: "middle",
     });

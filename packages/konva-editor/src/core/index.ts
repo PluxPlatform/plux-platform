@@ -6,6 +6,7 @@ import { WheelEvent } from "./events/Wheel";
 import { testAnimateLine } from "../utils/animate/animateLine.test";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { ShapeHover } from "./events/ShapeHover";
+import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
 
 export enum LAYERNAME {
   BG = "bgLayer",
@@ -19,12 +20,22 @@ export enum LAYERNAME {
 }
 
 export type OnSelect = (
-  opt: { target: Shape<ShapeConfig> | null; attrs: any } | null
+  opt: {
+    target: Shape<ShapeConfig> | null;
+    attrs: any;
+    isHover: boolean;
+  } | null
 ) => void;
 
+export type OnHover = (opt: {
+  node: Node<NodeConfig> | null;
+  isHover: boolean;
+  e: KonvaEventObject<MouseEvent>;
+}) => void;
 interface KonvaEditorConfig {
   container: string;
   onSelect?: OnSelect;
+  onHover?: OnHover;
 }
 
 // 全局唯一的编辑器实例
@@ -254,9 +265,7 @@ export class KonvaEditor {
     });
     nodes.forEach((node) => {
       const { hoverEvent } = node.attrs;
-      if (hoverEvent) {
-        ShapeHover(node);
-      }
+      if (hoverEvent) ShapeHover(node, this.config.onHover);
     });
   }
 }

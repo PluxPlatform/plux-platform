@@ -49,7 +49,7 @@ class ButtonShape extends BaseShape<"button"> {
     layer.add(group);
   }
   static update(config: Extract<BaseConfig, { type: "button" }>) {
-    const { x, y, width, height, text } = config;
+    const { x, y, width, height, text, hoverEvent } = config;
     const { id } = config;
     const stage = getStage();
     const node = stage?.findOne(`#${id}`) as Konva.Group;
@@ -71,6 +71,7 @@ class ButtonShape extends BaseShape<"button"> {
       node.setAttrs({
         x,
         y,
+        hoverEvent,
       });
     Rect &&
       Rect.setAttrs({

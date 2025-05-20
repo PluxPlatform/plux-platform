@@ -110,6 +110,10 @@ abstract class BaseShape<T extends shapeType = shapeType> {
           label: "旋转",
           name: "rotation",
         },
+        {
+          label: "用户自定义",
+          name: "custom",
+        },
       ],
     },
   ];
