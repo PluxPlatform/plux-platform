@@ -145,7 +145,6 @@ abstract class BaseShape<T extends shapeType = shapeType> {
     const node = stage?.findOne(`#${id}`)!;
     const { opacity, zoom, hidden } = config;
 
-    console.log("attrs config", config);
     node.setAttrs({
       ...config,
       opacity: hidden ? 0.1 : opacity || 1,

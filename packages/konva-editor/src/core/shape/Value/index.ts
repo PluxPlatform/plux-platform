@@ -5,7 +5,7 @@ import { getStage } from "../..";
 import { toRgba } from "../../../utils";
 
 // 设备属性值图形
-class ValueShape extends BaseShape<"value"> {
+export class ValueShape extends BaseShape<"value"> {
   render(layer: Konva.Layer): void {
     const { x, y } = this.config.defaultProps;
     const groupFill = toRgba("red", 0.3);
@@ -53,15 +53,12 @@ class ValueShape extends BaseShape<"value"> {
     layer.add(Group);
   }
   static update(config: Extract<BaseConfig, { type: "value" }>): void {
-    const { id, text, unit, unitColor, valueColor } = config;
+    const { id, text, unit, unitColor, valueColor, groupFill } = config;
     const stage = getStage();
     const node = stage?.findOne(`#${id}`) as Konva.Group;
     const rect = node.findOne("Rect");
     const value = node.findOne(".value");
     const unitText = node.findOne(".unit");
-    // 原始颜色
-    const groupFill = rect.getAttr("groupFill");
-
     const groupFillColor = toRgba(groupFill, 0.3);
 
     node.setAttrs({
