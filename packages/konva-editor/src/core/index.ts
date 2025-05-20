@@ -23,7 +23,6 @@ export type OnSelect = (
   opt: {
     target: Shape<ShapeConfig> | null;
     attrs: any;
-    isHover: boolean;
   } | null
 ) => void;
 

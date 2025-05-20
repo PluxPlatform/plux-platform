@@ -18,7 +18,6 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
     .getLayers()
     .find((l) => l.attrs.name === LAYERNAME.MAIN) as Konva.Layer;
   stage.on("click tap", (e) => {
-    clearPipelineController();
     let tr = getSelector(stage);
     if (tr && tr.length > 0) {
       tr.forEach((t) => {
@@ -45,8 +44,11 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
       layer.draw();
     }
     // 点击管道
+    clearPipelineController();
     if (e.target.attrs.type === "pipeline") {
-      PipelineEditor(e.target as Konva.Line);
+      setTimeout(() => {
+        PipelineEditor(e.target as Konva.Line);
+      }, 100);
     }
 
     // 点击空白处

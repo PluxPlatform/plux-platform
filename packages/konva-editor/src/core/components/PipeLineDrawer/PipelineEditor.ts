@@ -96,9 +96,9 @@ export function createPipelineControllerPoint(
  */
 export function onPipelineClick(pipeLine: Konva.Line) {
   // 先移除旧的监听器，防止重复添加
-  pipeLine.off("click.addPoint");
+  pipeLine?.off("click.addPoint");
 
-  pipeLine.on("click.addPoint", (e) => {
+  pipeLine!.on("click.addPoint", (e) => {
     // 只响应左键点击，并且可能需要结合 Shift 或其他键，避免误操作
     if (e.evt.button !== 0) return;
 
@@ -107,7 +107,7 @@ export function onPipelineClick(pipeLine: Konva.Line) {
     const mousePos = stage.getPointerPosition();
     if (!mousePos) return;
 
-    const points = pipeLine.points();
+    const points = pipeLine!.points();
     let minDist = Infinity;
     let insertIdx = -1; // 插入位置（数组索引）
 
@@ -137,12 +137,12 @@ export function onPipelineClick(pipeLine: Konva.Line) {
     if (insertIdx !== -1 && minDist < 10) {
       const newPoints = points.slice();
       newPoints.splice(insertIdx, 0, mousePos.x, mousePos.y);
-      pipeLine.points(newPoints);
+      pipeLine!.points(newPoints);
 
       // 更新控制器
       clearPipelineController();
-      createPipelineController(pipeLine);
-      pipeLine.getLayer()?.batchDraw();
+      createPipelineController(pipeLine!);
+      pipeLine!.getLayer()?.batchDraw();
     }
   });
 }
@@ -158,6 +158,7 @@ export function createPipelineController(pipeLine: Konva.Line) {
 
   const controlGroup = new Konva.Group({
     name: "pipelineController", // 控制器组的名称
+    pipeLineId: pipeLine.id(), // 关联的管道线 ID
   });
 
   const points = pipeLine.points();
@@ -177,16 +178,24 @@ export function createPipelineController(pipeLine: Konva.Line) {
 export function clearPipelineController() {
   const stage = getStage();
   if (!stage) return;
-
   // 获取名为 LAYERNAME.PIPELINE 的图层
   const pipelineLayer = stage.findOne(`.${LAYERNAME.PIPELINE}`) as Konva.Layer;
   if (!pipelineLayer) {
     console.warn(`Layer with name "${LAYERNAME.PIPELINE}" not found.`);
     return;
   }
-
+  // 清除旧的控制器
   // 查找并销毁该图层中所有名为 "pipelineController" 的组
   const oldControllers = pipelineLayer.find(".pipelineController");
+  const oldCont = oldControllers[0] as Konva.Group;
+  if (oldCont) {
+    const pipeLineId = oldCont.getAttr("pipeLineId");
+    const pipeLine = stage.findOne(`#${pipeLineId}`) as Konva.Line;
+    if (pipeLine) {
+      pipeLine.off("click.addPoint"); // 移除旧的点击事件监听器
+    }
+  }
+
   if (oldControllers.length > 0) {
     oldControllers.forEach((group) => group.destroy());
     pipelineLayer.batchDraw(); // 清除后绘制
