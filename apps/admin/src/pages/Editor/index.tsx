@@ -6,12 +6,11 @@ import EditorProps from "./components/Props";
 import EditorContext from "./editor-context";
 
 const EditorPage = () => {
-  const [editor, setEditor] = useState<KonvaEditor | null>(null);
+  const [editor, setEditor] = useState<Editor | null>(null);
 
   useEffect(() => {
     const newEditor = new Editor({ container: "#editor" });
-    // newEditor.init("editor");
-    // setEditor(newEditor);
+    setEditor(newEditor);
   }, []);
   return (
     <EditorContext.Provider value={{ editor, setEditor }}>

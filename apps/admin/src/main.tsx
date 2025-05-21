@@ -6,12 +6,11 @@ import App from "./App";
 import { UserProvider } from "./store/UserStore";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <BrowserRouter>
-    <UserProvider>
-      <App />
-    </UserProvider>
-  </BrowserRouter>
-  // <React.StrictMode>
-
-  // </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <UserProvider>
+        <App />
+      </UserProvider>
+    </BrowserRouter>
+  </React.StrictMode>
 );

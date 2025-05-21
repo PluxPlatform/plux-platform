@@ -1,6 +1,5 @@
 import Konva from "konva";
 import { getStage, LAYERNAME } from "../../index";
-import { ShapeSetting } from "../../shape/shape";
 
 // 管道编辑器入口
 export const PipelineEditor = (pipeLine: Konva.Line) => {
@@ -227,9 +226,7 @@ function pointToSegmentDistance(
 }
 
 // 更新线段点的配置
-export function updatePipelinePointsConfig(
-  config: ShapeSetting<"pipControllerItem">
-) {
+export function updatePipelinePointsConfig(config: any) {
   const { qPoint, id } = config;
   console.log("qPoint", id);
 }

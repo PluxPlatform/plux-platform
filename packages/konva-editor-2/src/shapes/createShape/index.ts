@@ -7,7 +7,6 @@ import { Group } from "konva/lib/Group";
 import { createImage } from "./createImage";
 import { Stage } from "konva/lib/Stage";
 import { Layer } from "konva/lib/Layer";
-import { Image } from "konva/lib/shapes/Image";
 
 // 递归创建图形，支持group坐标偏移
 async function createNode(info: ShapeInfo) {
@@ -41,12 +40,8 @@ async function createNode(info: ShapeInfo) {
         node = new Text(nAttrs);
         break;
       case "Image":
-        const img = (await createImage(attrs)) as any;
-        node = new Image({
-          ...attrs,
-          name: "图片",
-          image: img,
-        });
+        node = await createImage(attrs);
+        console.log("图片节点创建完成");
         break;
       default:
         throw new Error(`未知的图形类型: ${type}`);
@@ -62,6 +57,5 @@ export const createShape = async (info: ShapeInfo, stage: Stage) => {
   // 默认添加到主图层
   const layer = stage.findOne(".mainLayer") as Layer;
   layer.add(shape);
-
-  return shape;
+  console.log(layer);
 };

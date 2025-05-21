@@ -1,5 +1,4 @@
 import Konva from "konva";
-import { HoverAnimation } from "../../shape/shape";
 
 export function centerScale(node: Konva.Node, scale: number) {
   const box = node.getClientRect({ relativeTo: node.getLayer() }); // 或 Stage，根据你的实际层级
@@ -68,7 +67,7 @@ export function rotateAnimate(node: Konva.Node, rotation: number) {
 let currentNodeAttrs: any;
 export const shapeEventAnimate = (
   node: Konva.Node,
-  hoverEvent: keyof HoverAnimation,
+  hoverEvent: any,
   start: boolean
 ) => {
   if (start) {

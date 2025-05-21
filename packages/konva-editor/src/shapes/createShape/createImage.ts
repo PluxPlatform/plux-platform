@@ -1,21 +1,18 @@
-import Konva from "konva";
 import { ShapeInfo } from "../defaultShaps";
 
-export const createImage = async (
-  attrs: ShapeInfo["attrs"],
-  callback?: (m: Konva.Image) => void
-) => {
+const ImageMap = new Map<string, HTMLImageElement>();
+
+export const createImage = async (attrs: ShapeInfo["attrs"]) => {
   return new Promise((resolve, reject) => {
+    const src = attrs.src!;
+    if (ImageMap.get(src)) {
+      return resolve(ImageMap.get(src));
+    }
     const ImgObj = new Image();
-    ImgObj.src = attrs.src!;
+    ImgObj.src = src;
     ImgObj.onload = () => {
-      const img = new Konva.Image({
-        ...attrs,
-        type: "image",
-        image: ImgObj,
-      });
-      callback?.(img);
-      resolve(img);
+      ImageMap.set(src, ImgObj);
+      resolve(ImgObj);
     };
   });
 };

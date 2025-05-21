@@ -2,7 +2,6 @@ import Konva from "konva";
 import { LAYERNAME, OnSelect } from "../..";
 import { PipelineEditor } from "../../components/PipeLineDrawer";
 import { clearPipelineController } from "../../components/PipeLineDrawer/PipelineEditor";
-import ShapeFactory from "../../shape";
 
 export const getSelector = (stage: Konva.Stage) => {
   return stage.find("Transformer") as Konva.Transformer[];
@@ -14,10 +13,9 @@ export const getSelectNode = (target: Konva.Shape) => {
 };
 
 export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
-  const layer = stage
-    .getLayers()
-    .find((l) => l.attrs.name === LAYERNAME.MAIN) as Konva.Layer;
   stage.on("click tap", (e) => {
+    console.log(e);
+
     let tr = getSelector(stage);
     if (tr && tr.length > 0) {
       tr.forEach((t) => {
@@ -36,17 +34,6 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
     }
     // 点击节点
     if (e.target.getType() !== "Stage" && e.target.attrs.type !== "pipeline") {
-      const ntr = new Konva.Transformer();
-      layer.add(ntr);
-
-      // 绑定t
-      ntr.attachTo(node);
-      const params = {
-        target: node as any,
-        attrs: ShapeFactory.getNodeAttrs(node as Konva.Shape),
-      };
-      onSelect && onSelect(params);
-      layer.draw();
     }
     // 点击管道
     if (e.target.attrs.type === "pipeline") {

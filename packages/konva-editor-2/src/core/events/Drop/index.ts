@@ -1,20 +1,25 @@
 import Konva from "konva";
-import { computedXY } from "../../../utils";
-import { getDropData } from "../../../utils/dropData";
-import { LayersObj } from "../../type";
-import { createShape } from "../../../shapes/createShape/index";
+import { LAYERNAME } from "../..";
+import { computedXY, getDropData } from "../../../utils";
+import { createShape } from "../../../shapes/createShape";
 
-export const DropEvent = (stage: Konva.Stage, layers: LayersObj) => {
-  const container = stage.container();
-
-  // 阻止默认行为以允许 drop
-  container.addEventListener("dragover", (e) => {
+export const DropEvent = (dom: HTMLElement, stage: Konva.Stage) => {
+  const layer = stage
+    .getLayers()
+    .find((item) => item.attrs.name === LAYERNAME.MAIN) as Konva.Layer;
+  dom.ondragenter = function (e) {
     e.preventDefault();
-  });
+  };
 
-  container.addEventListener("drop", async (e) => {
+  dom.ondragover = function (e) {
     e.preventDefault();
+  };
 
+  dom.ondragleave = function (e) {
+    e.preventDefault();
+  };
+  dom.ondrop = (e) => {
+    e.preventDefault();
     // 获取鼠标在页面上的坐标
     const x = e.offsetX;
     const y = e.offsetY;
@@ -32,5 +37,5 @@ export const DropEvent = (stage: Konva.Stage, layers: LayersObj) => {
       draggable: true,
     };
     createShape(data, stage);
-  });
+  };
 };

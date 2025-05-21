@@ -290,7 +290,7 @@ export const defaultShapes: shapeInfo[] = [
     },
   },
   {
-    name: "图文组件",
+    name: "图片文字",
     type: "Group",
     attrs: {
       x: 0,

@@ -1,7 +1,6 @@
 import Konva from "konva";
 import { getStage, LAYERNAME } from "../..";
 import { createUUID } from "../../../utils";
-import ShapeFactory from "../../shape";
 
 export { PipelineEditor } from "./PipelineEditor";
 
@@ -120,7 +119,7 @@ export class PipelineDrawer {
   private handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
     // 阻止事件冒泡
     e.cancelBubble = true;
-    this.startNode = ShapeFactory.isCustomShape(e.target) as Konva.Node;
+    // this.startNode = ShapeFactory.isCustomShape(e.target) as Konva.Node;
     this.startNode!.setAttr("draggable", false);
     if (!this.startNode) return;
     // 获取鼠标在舞台上的位置，考虑舞台的缩放和平移
@@ -234,7 +233,7 @@ export class PipelineDrawer {
     e.cancelBubble = true;
 
     if (!this.pipe || !this.line || !this.startPoint) return;
-    this.endNode = ShapeFactory.isCustomShape(e.target) as Konva.Node;
+    // this.endNode = ShapeFactory.isCustomShape(e.target) as Konva.Node;
     this.startNode!.setAttr("draggable", true);
     if (!this.endNode) {
       this.pipe.destroy();
@@ -300,9 +299,9 @@ export class PipelineDrawer {
     if (!this.line || !this.startNode || !this.endNode) return;
     // 一条管道只能绑定一个起始点和一个结束点
 
-    ShapeFactory.setPipelineNodes(this.line, this.startNode, this.endNode);
-    ShapeFactory.setNodePipeline(this.startNode, this.line);
-    ShapeFactory.setNodePipeline(this.endNode, this.line);
+    // ShapeFactory.setPipelineNodes(this.line, this.startNode, this.endNode);
+    // ShapeFactory.setNodePipeline(this.startNode, this.line);
+    // ShapeFactory.setNodePipeline(this.endNode, this.line);
   };
 
   /**

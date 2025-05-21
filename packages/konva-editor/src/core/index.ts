@@ -1,9 +1,10 @@
+import Konva from "konva";
+// import { CanvasManager } from "./testCanvasM";
 import { CanvasManager } from "./CanvasManager";
 import { KonvaEditorConfig } from "./type";
 
 export class Editor {
   canvasManager!: CanvasManager;
-  zoomPanController!: any;
   constructor(opt: KonvaEditorConfig) {
     this.canvasManager = new CanvasManager(opt);
     this.init();
