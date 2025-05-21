@@ -1,9 +1,13 @@
 import { Layer } from "konva/lib/Layer";
 import { Stage } from "konva/lib/Stage";
 import { KonvaEditorConfig, LayerName, LayersObj } from "./type";
-import { Click, ZoomPanController, DropEvent } from "./event";
-import Konva from "konva";
+import { Click, ZoomPanController, DropEvent, DeleteEvent } from "./event";
 
+let windowStage: Stage;
+
+export const getStage = () => {
+  return windowStage;
+};
 export class CanvasManager {
   stage!: Stage;
   layers: LayersObj = {} as LayersObj;
@@ -22,6 +26,7 @@ export class CanvasManager {
       height,
     });
     this.stage = stage;
+    windowStage = stage;
     this.initLayers();
   }
   initLayers() {
@@ -40,8 +45,6 @@ export class CanvasManager {
   test() {}
 
   init() {
-    // 为每个 LayerName 创建对应的图层
-
     // 拖入画布
     DropEvent(this.stage, this.layers);
 
@@ -60,6 +63,9 @@ export class CanvasManager {
 
     // 触发画布点击事件
     Click(this.stage, this.layers);
+
+    // 删除元素
+    DeleteEvent(this.stage);
   }
 
   // 调整舞台大小的辅助方法

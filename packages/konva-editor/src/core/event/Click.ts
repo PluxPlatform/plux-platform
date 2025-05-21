@@ -5,6 +5,10 @@ import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { Transformer } from "konva/lib/shapes/Transformer";
 import { Layer } from "konva/lib/Layer";
 
+export const getSelector = (stage: Stage) => {
+  return stage.find("Transformer") as Transformer[];
+};
+
 // 创建选中图形
 const createSelectStyle = (shape: Shape<ShapeConfig>, layer: Layer) => {
   const tr = new Transformer();
@@ -22,7 +26,6 @@ const clearSelectStyle = (stage: Stage) => {
 export const Click = (stage: Stage, layers: LayersObj) => {
   stage.on("click tap", (e) => {
     clearSelectStyle(stage);
-    console.log("舞台上点击的当前元素", e.target);
     const target = getCurrentComponent(e.target);
     if (target) {
       createSelectStyle(target, layers["axisLayer"]);
