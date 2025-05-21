@@ -2,6 +2,7 @@ import { Layer } from "konva/lib/Layer";
 import { KonvaEventObject, Node, NodeConfig } from "konva/lib/Node";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { Stage } from "konva/lib/Stage";
+import { EditorFormData } from "../utils";
 
 // 所有图层
 export enum LayerName {
@@ -34,8 +35,8 @@ export type OnHover = (opt: {
 }) => void;
 // stage 的click事件
 export type OnClick = (opt: {
-  node: Node<NodeConfig> | null;
-  e: KonvaEventObject<MouseEvent>;
+  data: EditorFormData[];
+  e: KonvaEventObject<any>;
 }) => void;
 export interface KonvaEditorConfig {
   container: string;
