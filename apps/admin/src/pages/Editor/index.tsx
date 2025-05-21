@@ -1,4 +1,4 @@
-import { KonvaEditor } from "@plux/konva-editor";
+import { Editor } from "@plux/konva-editor";
 import { useEffect, useState } from "react";
 import SiderMenu from "./components/Sider";
 import EditorHeader from "./components/Header";
@@ -9,9 +9,9 @@ const EditorPage = () => {
   const [editor, setEditor] = useState<KonvaEditor | null>(null);
 
   useEffect(() => {
-    const newEditor = new KonvaEditor({ container: "#editor" });
-    newEditor.init("editor");
-    setEditor(newEditor);
+    const newEditor = new Editor({ container: "#editor" });
+    // newEditor.init("editor");
+    // setEditor(newEditor);
   }, []);
   return (
     <EditorContext.Provider value={{ editor, setEditor }}>

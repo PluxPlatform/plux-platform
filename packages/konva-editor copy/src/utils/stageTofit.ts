@@ -6,6 +6,9 @@ export const stageTofit = (
   duration = 0.3
 ) => {
   const contentRect = stage.getClientRect({ skipTransform: true });
+
+  // --- 添加检查 ---
+  // 如果内容宽度或高度无效（小于或等于0），则无法进行有效缩放
   if (contentRect.width <= 0 || contentRect.height <= 0) {
     console.warn(
       "Stage content has invalid dimensions (<= 0). Resetting view."

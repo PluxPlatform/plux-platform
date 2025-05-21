@@ -1,22 +1,27 @@
-import Konva from "konva";
+import { KonvaEventObject } from "konva/lib/Node";
+import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { Stage } from "konva/lib/Stage";
 
-export * from "./dropData";
-export * from "./uuid";
-export * from "./stageTofit";
-export * from "./animate";
+export * from "./shape";
 
-export const computedXY = (
-  canvas: Konva.Stage,
-  layerX: number,
-  layerY: number
-) => {
-  const zoom = canvas.scaleX();
-  if (canvas.attrs.x || canvas.attrs.y) {
-    layerX = layerX - canvas.attrs.x;
-    layerY = layerY - canvas.attrs.y;
-  } else if (canvas._lastPos) {
-    layerX = layerX - canvas._lastPos.x;
-    layerY = layerY - canvas._lastPos.y;
+// 获取鼠标在画布上的位置
+export function getTransformedPointer(stage: Stage): { x: number; y: number } {
+  const pointer = stage.getPointerPosition();
+  if (!pointer) return { x: 0, y: 0 };
+  const transform = stage.getAbsoluteTransform().copy();
+  transform.invert();
+  return transform.point(pointer);
+}
+
+// 拖入画布时根据x，y计算出在画布上的位置
+export const computedXY = (stage: Stage, layerX: number, layerY: number) => {
+  const zoom = stage.scaleX();
+  if (stage.attrs.x || stage.attrs.y) {
+    layerX = layerX - stage.attrs.x;
+    layerY = layerY - stage.attrs.y;
+  } else if (stage._lastPos) {
+    layerX = layerX - stage._lastPos.x;
+    layerY = layerY - stage._lastPos.y;
   }
   return {
     x: layerX / zoom,
@@ -24,21 +29,11 @@ export const computedXY = (
   };
 };
 
-export function toRgba(color: string, alpha = 1): string {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 1;
-  const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, 1, 1);
-
-  // 设置任意颜色
-  ctx.fillStyle = color;
-  ctx.fillRect(0, 0, 1, 1);
-
-  // 读取像素颜色（rgba）
-  const data = ctx.getImageData(0, 0, 1, 1).data;
-  const r = data[0];
-  const g = data[1];
-  const b = data[2];
-
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
+// 生成唯一id
+export const createUUID = () => {
+  return "xxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};

@@ -27,6 +27,7 @@ export const SelectEvent = (stage: Konva.Stage, onSelect?: OnSelect) => {
     // 点击空白处
     if (e.target === stage) {
       onSelect && onSelect({ target: null, attrs: null });
+      clearPipelineController();
       return false;
     }
     const node = getSelectNode(e.target as Konva.Shape)!;

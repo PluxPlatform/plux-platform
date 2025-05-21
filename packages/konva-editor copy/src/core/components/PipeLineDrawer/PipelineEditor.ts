@@ -235,7 +235,6 @@ export function updatePipelinePointsConfig(
 }
 
 export function getPiplineAttrs(node: Konva.Circle) {
-  console.log("node", node);
   return {
     qPoint: node.attrs.qPoint || false,
   };
