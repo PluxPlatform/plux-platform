@@ -9,7 +9,13 @@ const EditorPage = () => {
   const [editor, setEditor] = useState<Editor | null>(null);
 
   useEffect(() => {
-    const newEditor = new Editor({ container: "#editor" });
+    const newEditor = new Editor({
+      container: "#editor",
+      onClick: (e) => {
+        // 拿着数据去做动态表单
+        console.log(e);
+      },
+    });
     setEditor(newEditor);
   }, []);
   return (
