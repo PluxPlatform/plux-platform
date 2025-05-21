@@ -4,6 +4,7 @@ import { getComponentAttrs, getCurrentComponent } from "../../utils";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { Transformer } from "konva/lib/shapes/Transformer";
 import { Layer } from "konva/lib/Layer";
+import { clearPipelineController } from "../../plugins/PipeLineDrawer";
 
 export const getSelector = (stage: Stage) => {
   return stage.find("Transformer") as Transformer[];
@@ -26,6 +27,8 @@ const clearSelectStyle = (stage: Stage) => {
 export const Click = (stage: Stage, layers: LayersObj) => {
   stage.on("click tap", (e) => {
     clearSelectStyle(stage);
+    clearPipelineController(layers.pipelineLayer);
+    console.log(e.target);
     const target = getCurrentComponent(e.target);
     if (target) {
       createSelectStyle(target, layers["axisLayer"]);

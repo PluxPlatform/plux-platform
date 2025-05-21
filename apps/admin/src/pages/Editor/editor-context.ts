@@ -1,10 +1,10 @@
 import { createContext, useContext } from "react";
-import { KonvaEditor } from "@plux/konva-editor";
+import { Editor } from "@plux/konva-editor";
 
 // 类型定义
 interface EditorContextType {
-  editor: KonvaEditor | null;
-  setEditor: (editor: KonvaEditor) => void;
+  editor: Editor | null;
+  setEditor: (editor: Editor) => void;
 }
 
 // 默认值

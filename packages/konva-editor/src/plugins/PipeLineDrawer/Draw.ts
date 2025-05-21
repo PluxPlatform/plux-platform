@@ -1,7 +1,8 @@
 import Konva from "konva";
-import { getStage } from "../../core/CanvasManager";
-import { LayerName } from "../../core/type";
 import { createUUID, getCurrentComponent } from "../../utils";
+import { Stage } from "konva/lib/Stage";
+import { Group } from "konva/lib/Group";
+import { Line } from "konva/lib/shapes/Line";
 
 export interface PipelineConfig {
   id?: string;
@@ -15,11 +16,16 @@ export interface PipelineConfig {
   flowSpeed?: number;
 }
 
+export const isPipLine = (line: Line) => {
+  if (line.attrs.type === "pipeline") return true;
+  return false;
+};
+
 export class PipelineDrawer {
   // 私有属性 舞台
   private stage: Konva.Stage;
   // 私有属性 管道图层
-  private pipelineLayer: Konva.Layer;
+  private pipelineLayer!: Konva.Layer;
   // 私有属性 当前管道
   private pipe: Konva.Group | null = null;
   // 私有属性 线条
@@ -41,8 +47,8 @@ export class PipelineDrawer {
   // 私有属性 结束点元素
   private endNode!: Konva.Node | null;
 
-  constructor(config: PipelineConfig = {}) {
-    this.stage = getStage()!;
+  constructor(config: PipelineConfig = {}, stage: Stage) {
+    this.stage = stage;
     this.config = {
       pipeColor: "#3498db",
       pipeWidth: 8,
@@ -54,18 +60,6 @@ export class PipelineDrawer {
       flowSpeed: 2,
       ...config,
     };
-
-    // 获取或创建管道图层
-    let pipelineLayer = this.stage.findOne(
-      `.${LayerName.PIPELINE}`
-    ) as Konva.Layer;
-    if (!pipelineLayer) {
-      pipelineLayer = new Konva.Layer({
-        name: LayerName.PIPELINE,
-      });
-      this.stage.add(pipelineLayer);
-    }
-    this.pipelineLayer = pipelineLayer;
   }
 
   /**
@@ -73,9 +67,12 @@ export class PipelineDrawer {
    * @param callback 完成绘制回调
    * @returns 当前实例，支持链式调用
    */
-  startDrawing(callback?: Function): PipelineDrawer {
+  startDrawing(
+    pipelineLayer: Konva.Layer,
+    callback?: (e: Group) => void
+  ): PipelineDrawer {
     if (this.isDrawing) return this;
-
+    this.pipelineLayer = pipelineLayer;
     this.onEndCallback = callback;
     this.isDrawing = true;
 
@@ -138,8 +135,8 @@ export class PipelineDrawer {
     this.pipe = new Konva.Group({
       id: this.config.id || createUUID(),
       name: "pipeline-group",
-      draggable: false, // 设置为可拖动
-      listening: false,
+      draggable: true, // 设置为可拖动
+      listening: true,
     });
 
     // 创建管道主体线条
@@ -156,17 +153,12 @@ export class PipelineDrawer {
       lineCap: this.config.lineCap as any,
       name: "pipeline-line",
       draggable: false,
+      listening: true,
       tension: 0.02,
       id: createUUID(),
     });
 
     this.pipe.add(this.line);
-
-    // 创建箭头
-    if (this.config.showArrow) {
-      this.arrow = this.createArrow();
-      this.pipe.add(this.arrow);
-    }
 
     this.pipelineLayer.add(this.pipe);
     this.pipelineLayer.draw();
@@ -194,37 +186,7 @@ export class PipelineDrawer {
       stagePos.y,
     ];
     this.line.points(newPoints);
-
-    // 更新箭头位置
-    if (this.arrow && this.config.showArrow) {
-      // 计算箭头位置（放在线条中间）
-      const midX = (this.startPoint.x + stagePos.x) / 2;
-      const midY = (this.startPoint.y + stagePos.y) / 2;
-
-      // 计算方向
-      const dx = stagePos.x - this.startPoint.x;
-      const dy = stagePos.y - this.startPoint.y;
-      const angle = Math.atan2(dy, dx);
-
-      // 设置箭头点
-      const arrowLength = this.config.arrowSize! * 2;
-      const arrowX = midX - (Math.cos(angle) * arrowLength) / 2;
-      const arrowY = midY - (Math.sin(angle) * arrowLength) / 2;
-      const arrowEndX = midX + (Math.cos(angle) * arrowLength) / 2;
-      const arrowEndY = midY + (Math.sin(angle) * arrowLength) / 2;
-
-      this.arrow.points([arrowX, arrowY, arrowEndX, arrowEndY]);
-      this.arrow.visible(true);
-    }
-
-    this.pipelineLayer.draw();
   };
-
-  // 私有方法：创建箭头
-  private createArrow(): Konva.Arrow {
-    const arrow = new Konva.Arrow();
-    return arrow;
-  }
 
   // 私有方法：处理鼠标抬起事件
   private handleMouseUp = (e: Konva.KonvaEventObject<MouseEvent>) => {
@@ -236,14 +198,13 @@ export class PipelineDrawer {
     this.startNode!.setAttr("draggable", true);
     if (!this.endNode) {
       this.pipe.destroy();
-      this.pipelineLayer.draw();
+      this.line.destroy();
       this.stopDrawing();
       return;
     }
     // 获取鼠标在舞台上的位置，考虑舞台的缩放和平移
     const pos = this.stage.getPointerPosition();
     if (!pos) return;
-    this.pipe.setAttr("listening", true);
 
     // 转换为舞台坐标系中的位置
     const transform = this.stage.getAbsoluteTransform().copy().invert();
@@ -261,7 +222,7 @@ export class PipelineDrawer {
 
     if (distance < 10) {
       this.pipe.destroy();
-      this.pipelineLayer.draw();
+      this.line.destroy();
       this.stopDrawing();
       return;
     }
@@ -274,13 +235,7 @@ export class PipelineDrawer {
       endPoint.y,
     ];
     this.line.points(finalPoints);
-
-    // 如果启用流动动画
-    if (this.config.flowAnimation) {
-      this.setFlowAnimation(this.pipe.id(), true);
-    }
-
-    this.pipelineLayer.draw();
+    this.line.draggable(true);
 
     const completedPipe = this.pipe;
 
@@ -326,54 +281,6 @@ export class PipelineDrawer {
    * @param enabled 是否启用动画
    * @param speed 流动速度
    */
-  setFlowAnimation(
-    pipeId: string,
-    enabled: boolean,
-    speed?: number
-  ): PipelineDrawer {
-    const pipe = this.pipelineLayer.findOne(`#${pipeId}`) as Konva.Group;
-    if (!pipe) return this;
-
-    const line = pipe.findOne(".pipeline-line") as Konva.Line;
-    if (!line) return this;
-
-    // 停止现有动画
-    const animId = pipe.getAttr("animationId");
-    if (animId) {
-      window.cancelAnimationFrame(animId);
-      pipe.setAttr("animationId", null);
-    }
-
-    if (enabled) {
-      const dashArray = [10, 5];
-      line.dash(dashArray);
-
-      let dashOffset = 0;
-      const flowSpeed = speed || this.config.flowSpeed || 2;
-
-      const anim = new Konva.Animation((frame) => {
-        if (!frame) return;
-        dashOffset -= flowSpeed;
-        line.dashOffset(dashOffset);
-      }, this.pipelineLayer);
-
-      anim.start();
-      pipe.setAttr("animationId", anim.id);
-    } else {
-      line.dash([]);
-      this.pipelineLayer.draw();
-    }
-
-    return this;
-  }
-
-  /**
-   * 获取所有管道
-   * @returns 管道数组
-   */
-  getAllPipelines(): Konva.Group[] {
-    return this.pipelineLayer.find(".pipeline-group") as Konva.Group[];
-  }
 
   /**
    * 判断节点是否为管道

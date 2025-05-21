@@ -3,6 +3,8 @@ import { Stage } from "konva/lib/Stage";
 import { KonvaEditorConfig, LayerName, LayersObj } from "./type";
 import Konva from "konva";
 import { Rect } from "konva/lib/shapes/Rect";
+import { Group } from "konva/lib/Group";
+import { Line } from "konva/lib/shapes/Line";
 
 export class CanvasManager {
   layer!: Layer;
@@ -22,23 +24,20 @@ export class CanvasManager {
     const layer = new Layer({
       name: "main",
     });
-    const rect = new Rect({
-      width: 100,
-      height: 100,
-      x: 100,
-      y: 100,
-      fill: "reds",
+    const Gr = new Group({
+      listening: true,
+      draggable: false,
     });
-    const img = new Image();
-    img.src =
-      "http://39.107.113.96:9090/file/jpg/thumb_20250402195634drii0vqust.png";
-    img.onload = () => {
-      const Img = new Konva.Image({
-        image: img,
-      });
-      layer.add(Img);
-    };
-    layer.add(rect);
+    const line = new Line({
+      points: [0, 0, 100, 100],
+      fill: "red",
+      stroke: "blue",
+      strokeWidth: 8,
+      listening: true,
+      draggable: false,
+    });
+    Gr.add(line);
+    layer.add(Gr);
     stage.add(layer);
     stage.on("click", (e) => {
       console.log(e.target);

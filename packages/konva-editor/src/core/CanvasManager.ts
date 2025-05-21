@@ -1,7 +1,17 @@
 import { Layer } from "konva/lib/Layer";
 import { Stage } from "konva/lib/Stage";
 import { KonvaEditorConfig, LayerName, LayersObj } from "./type";
-import { Click, ZoomPanController, DropEvent, DeleteEvent } from "./event";
+import {
+  Click,
+  ZoomPanController,
+  DropEvent,
+  DeleteEvent,
+  bindMoveEvent,
+} from "./event";
+import { DoubleClick } from "./event/DoubleClick";
+import { PipelineDrawer } from "../plugins/PipeLineDrawer";
+import { Line } from "konva/lib/shapes/Line";
+import { Group } from "konva/lib/Group";
 
 let windowStage: Stage;
 
@@ -12,6 +22,7 @@ export class CanvasManager {
   stage!: Stage;
   layers: LayersObj = {} as LayersObj;
   domId!: string;
+  PipelineDrawer!: PipelineDrawer;
   opt!: KonvaEditorConfig;
   constructor(opt: KonvaEditorConfig) {
     this.domId = opt.container.replace("#", "");
@@ -41,8 +52,39 @@ export class CanvasManager {
       layer.draw();
     }
   }
-
-  test() {}
+  drawPipLine() {
+    // 解决line 无法点击问题
+    this.PipelineDrawer.startDrawing(this.layers.pipelineLayer, (e) => {
+      const group = new Group({
+        ...e.attrs,
+        draggable: false,
+      });
+      const line = e.getChildren()[0] as Line;
+      const nLine = new Line({
+        ...line.attrs,
+        draggable: false,
+      });
+      e.destroy();
+      group.add(nLine);
+      this.layers.pipelineLayer.add(group);
+    });
+  }
+  test() {
+    const Gr = new Group({
+      listening: true,
+      draggable: false,
+    });
+    const line = new Line({
+      points: [0, 0, 100, 100],
+      fill: "red",
+      stroke: "blue",
+      strokeWidth: 8,
+      listening: true,
+      draggable: false,
+    });
+    Gr.add(line);
+    this.layers.pipelineLayer.add(Gr);
+  }
 
   init() {
     // 拖入画布
@@ -66,6 +108,23 @@ export class CanvasManager {
 
     // 删除元素
     DeleteEvent(this.stage);
+
+    // 元素拖动
+    bindMoveEvent(this.layers.mainLayer);
+    // 双击
+    DoubleClick(this.stage);
+
+    this.PipelineDrawer = new PipelineDrawer(
+      {
+        pipeColor: "#3498db",
+        pipeWidth: 10,
+        showArrow: false,
+        arrowColor: "#e74c3c",
+        flowAnimation: false,
+        flowSpeed: 3,
+      },
+      this.stage
+    );
   }
 
   // 调整舞台大小的辅助方法
