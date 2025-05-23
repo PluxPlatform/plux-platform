@@ -120,7 +120,7 @@ export class CanvasManager {
     this.layers.pipelineLayer.add(Gr);
   }
 
-  init(data?: any) {
+  init() {
     // 拖入画布
     DropEvent(this.stage, this.layers);
 
