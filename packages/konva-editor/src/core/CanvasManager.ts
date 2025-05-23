@@ -55,6 +55,7 @@ export class CanvasManager {
   PipelineDrawer!: PipelineDrawer;
   opt!: KonvaEditorConfig;
   constructor(opt: KonvaEditorConfig) {
+    this.opt = opt;
     this.domId = opt.container.replace("#", "");
     const dom = document.getElementById(this.domId);
     if (!dom) return;
@@ -138,7 +139,7 @@ export class CanvasManager {
     this.stage.draw();
 
     // 触发画布点击事件
-    Click(this.stage, this.layers);
+    Click(this.stage, this.layers, this.opt.onClick);
 
     // 删除元素
     DeleteEvent(this.stage);
