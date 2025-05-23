@@ -42,4 +42,5 @@ export interface KonvaEditorConfig {
   container: string;
   onClick?: OnClick;
   onHover?: OnHover;
+  data?: any;
 }

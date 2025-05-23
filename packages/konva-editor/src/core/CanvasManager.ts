@@ -12,12 +12,42 @@ import { DoubleClick } from "./event/DoubleClick";
 import { PipelineDrawer } from "../plugins/PipeLineDrawer";
 import { Line } from "konva/lib/shapes/Line";
 import { Group } from "konva/lib/Group";
+import Konva from "konva";
 
 let windowStage: Stage;
 
 export const getStage = () => {
   return windowStage;
 };
+
+function loadStageFromData(data: any, container: string) {
+  const stage = Konva.Node.create(data, container);
+  const dom = document.getElementById(container.replace("#", ""));
+  if (!dom) return;
+  // 获取dom元素的宽高
+  const height = dom.offsetHeight;
+  const width = dom.offsetWidth;
+  stage.setAttrs({
+    width,
+    height,
+  });
+  // const width = dom.offsetWidth;
+  stage.find("Image").forEach((imgNode: any) => {
+    const imageSrc = imgNode.attrs.imageSrc;
+    if (imageSrc) {
+      const imageObj = new window.Image();
+      imageObj.crossOrigin = "Anonymous"; // 支持跨域图片
+      imageObj.onload = function () {
+        imgNode.image(imageObj);
+        stage.draw();
+      };
+      imageObj.src = imageSrc;
+    }
+  });
+
+  return stage;
+}
+
 export class CanvasManager {
   stage!: Stage;
   layers: LayersObj = {} as LayersObj;
@@ -31,13 +61,17 @@ export class CanvasManager {
     // 创建stage
     const width = dom.offsetWidth;
     const height = dom.offsetHeight;
-    const stage = new Stage({
-      container: opt.container,
-      width,
-      height,
-    });
-    this.stage = stage;
-    windowStage = stage;
+    if (opt.data) {
+      this.stage = loadStageFromData(opt.data, opt.container);
+    } else {
+      const stage = new Stage({
+        container: opt.container,
+        width,
+        height,
+      });
+      this.stage = stage;
+    }
+    windowStage = this.stage;
     this.initLayers();
   }
   initLayers() {
@@ -86,7 +120,7 @@ export class CanvasManager {
     this.layers.pipelineLayer.add(Gr);
   }
 
-  init() {
+  init(data?: any) {
     // 拖入画布
     DropEvent(this.stage, this.layers);
 
