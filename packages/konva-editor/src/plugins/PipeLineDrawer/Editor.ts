@@ -6,8 +6,25 @@ import { Stage } from "konva/lib/Stage";
 import { getStage } from "../../core/CanvasManager";
 import { LayerName } from "../../core/type";
 
+// 是否是当前编辑的线
+let currentEditorLine = "";
+export const isCurrentPipeline = (pipeline: Line) => {
+  console.log("id-c", currentEditorLine);
+  // const id = pipeline.id();
+  // const layer = pipeline.getLayer()!;
+
+  // const isCurrent = id === currentEditorLineId;
+  // if (isCurrent) {
+  //   clearPipelineController(layer);
+  //   createPipelineController(pipeline, layer);
+  // }
+  // return isCurrent;
+};
+
 export const PipelineEditor = (line: Line, stage: Stage) => {
   const layer = line.getLayer()!;
+  if (!layer) return;
+
   clearPipelineController(layer);
   createPipelineController(line, layer);
   onPipelineClick(line, layer);
@@ -31,6 +48,7 @@ export function createPipelineControllerPoint(
     type: "pipControllerItem",
     name: "pipelineAnchor", // 统一命名
     _pointIndex: pointIndex, // 存储点索引，方便拖拽时更新
+    isComponent: true,
   });
 
   // 拖动锚点时更新对应点
@@ -114,7 +132,7 @@ export function onPipelineClick(pipeLine: Line, layer: Layer) {
   pipeLine!.on("click.addPoint", (e) => {
     // 只响应左键点击，并且可能需要结合 Shift 或其他键，避免误操作
     if (e.evt.button !== 0) return;
-
+    console.log("e", e.evt);
     const stage = getStage();
     if (!stage) return;
     const mousePos = stage.getPointerPosition();

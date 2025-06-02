@@ -13,6 +13,8 @@ import { PipelineDrawer } from "../plugins/PipeLineDrawer";
 import { Line } from "konva/lib/shapes/Line";
 import { Group } from "konva/lib/Group";
 import Konva from "konva";
+import { cl } from "../test/line";
+import { Path } from "konva/lib/shapes/Path";
 
 let windowStage: Stage;
 
@@ -94,8 +96,8 @@ export class CanvasManager {
         ...e.attrs,
         draggable: false,
       });
-      const line = e.getChildren()[0] as Line;
-      const nLine = new Line({
+      const line = e.getChildren()[0] as Path;
+      const nLine = new Path({
         ...line.attrs,
         draggable: false,
       });
@@ -109,14 +111,7 @@ export class CanvasManager {
       listening: true,
       draggable: false,
     });
-    const line = new Line({
-      points: [0, 0, 100, 100],
-      fill: "red",
-      stroke: "blue",
-      strokeWidth: 8,
-      listening: true,
-      draggable: false,
-    });
+    const line = cl();
     Gr.add(line);
     this.layers.pipelineLayer.add(Gr);
   }
@@ -147,7 +142,7 @@ export class CanvasManager {
     // 元素拖动
     bindMoveEvent(this.layers.mainLayer);
     // 双击
-    DoubleClick(this.stage);
+    // DoubleClick(this.stage);
 
     this.PipelineDrawer = new PipelineDrawer(
       {
@@ -160,6 +155,8 @@ export class CanvasManager {
       },
       this.stage
     );
+
+    this.test();
   }
 
   // 调整舞台大小的辅助方法
