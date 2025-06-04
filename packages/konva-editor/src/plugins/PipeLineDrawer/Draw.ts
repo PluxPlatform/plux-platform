@@ -10,19 +10,13 @@ export const drawPath = (stage: Stage, layer: Layer, end: () => void) => {
   let isDrawing = false;
   let startPoint: Vector2d | null;
   let path: Path | null;
-  let prevDraggable: (Shape<ShapeConfig> | Group)[] = [];
 
   stage.on("mousedown", (e) => {
-    if (isDrawing) return;
+    if (isDrawing) {
+      end();
+      return;
+    }
     isDrawing = true;
-    // 禁止其他元素拖动
-    prevDraggable = [];
-    layer.getChildren().forEach((node) => {
-      if (node !== path && node.draggable()) {
-        prevDraggable.push(node);
-        node.draggable(false);
-      }
-    });
     // 获取相对于 layer 的 pointer 坐标
     const pos = layer.getRelativePointerPosition()!;
     startPoint = pos;
@@ -39,7 +33,10 @@ export const drawPath = (stage: Stage, layer: Layer, end: () => void) => {
   });
 
   stage.on("mousemove", (e) => {
-    if (!isDrawing || !path) return;
+    if (!isDrawing || !path) {
+      end();
+      return;
+    }
     // 获取相对于 layer 的 pointer 坐标
     const pos = layer.getRelativePointerPosition();
     const data = `M${startPoint?.x},${startPoint?.y} L${pos?.x},${pos?.y}`;
@@ -51,11 +48,9 @@ export const drawPath = (stage: Stage, layer: Layer, end: () => void) => {
     end();
     stage.off("mousedown");
     stage.off("mouseup");
+    stage.off("mousemove");
     if (!isDrawing) return;
     isDrawing = false;
-    // 恢复其他元素可拖动
-    prevDraggable.forEach((node) => node.draggable(true));
-    prevDraggable = [];
     path = null;
     startPoint = null;
   });

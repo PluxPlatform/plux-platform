@@ -4,8 +4,6 @@ import { getComponentAttrs, getCurrentComponent } from "../../utils";
 import { Shape, ShapeConfig } from "konva/lib/Shape";
 import { Transformer } from "konva/lib/shapes/Transformer";
 import { Layer } from "konva/lib/Layer";
-import { PipelineEditor } from "../../plugins/PipeLineDrawer";
-import { Line } from "konva/lib/shapes/Line";
 
 export const getSelector = (stage: Stage) => {
   return stage.find("Transformer") as Transformer[];
