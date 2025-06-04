@@ -8,13 +8,10 @@ import {
   DeleteEvent,
   bindMoveEvent,
 } from "./event";
-import { DoubleClick } from "./event/DoubleClick";
-import { PipelineDrawer } from "../plugins/PipeLineDrawer";
-import { Line } from "konva/lib/shapes/Line";
+import { drawPath } from "../plugins/PipeLineDrawer";
 import { Group } from "konva/lib/Group";
 import Konva from "konva";
 import { cl } from "../test/line";
-import { Path } from "konva/lib/shapes/Path";
 
 let windowStage: Stage;
 
@@ -54,7 +51,6 @@ export class CanvasManager {
   stage!: Stage;
   layers: LayersObj = {} as LayersObj;
   domId!: string;
-  PipelineDrawer!: PipelineDrawer;
   opt!: KonvaEditorConfig;
   constructor(opt: KonvaEditorConfig) {
     this.opt = opt;
@@ -90,20 +86,16 @@ export class CanvasManager {
     }
   }
   drawPipLine() {
-    // 解决line 无法点击问题
-    this.PipelineDrawer.startDrawing(this.layers.pipelineLayer, (e) => {
-      const group = new Group({
-        ...e.attrs,
-        draggable: false,
+    this.stage.draggable(false);
+    const children = this.layers.mainLayer.getChildren();
+    this.layers.mainLayer.getChildren().forEach((node) => {
+      node.draggable(false);
+    });
+    drawPath(this.stage, this.layers["pipelineLayer"], () => {
+      this.stage.draggable(true);
+      children.forEach((node) => {
+        node.draggable(true);
       });
-      const line = e.getChildren()[0] as Path;
-      const nLine = new Path({
-        ...line.attrs,
-        draggable: false,
-      });
-      e.destroy();
-      group.add(nLine);
-      this.layers.pipelineLayer.add(group);
     });
   }
   test() {
@@ -143,19 +135,6 @@ export class CanvasManager {
     bindMoveEvent(this.layers.mainLayer);
     // 双击
     // DoubleClick(this.stage);
-
-    this.PipelineDrawer = new PipelineDrawer(
-      {
-        pipeColor: "#3498db",
-        pipeWidth: 10,
-        showArrow: false,
-        arrowColor: "#e74c3c",
-        flowAnimation: false,
-        flowSpeed: 3,
-      },
-      this.stage
-    );
-
     this.test();
   }
 
