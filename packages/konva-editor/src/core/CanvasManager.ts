@@ -91,7 +91,7 @@ export class CanvasManager {
     this.layers.mainLayer.getChildren().forEach((node) => {
       node.draggable(false);
     });
-    drawPath(this.stage, this.layers["pipelineLayer"], () => {
+    drawPath(this.stage, this.layers, () => {
       this.stage.draggable(true);
       children.forEach((node) => {
         node.draggable(true);

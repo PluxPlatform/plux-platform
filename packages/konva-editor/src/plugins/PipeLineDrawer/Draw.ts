@@ -1,24 +1,27 @@
-import { Layer } from "konva/lib/Layer";
 import { Path } from "konva/lib/shapes/Path";
 import { Stage } from "konva/lib/Stage";
 import { createUUID } from "../../utils";
 import { Vector2d } from "konva/lib/types";
-import { Group } from "konva/lib/Group";
-import { Shape, ShapeConfig } from "konva/lib/Shape";
+import { LayersObj } from "../../core/type";
 
-export const drawPath = (stage: Stage, layer: Layer, end: () => void) => {
+export enum PipeLineNameSpace {
+  pathName = "pipeline",
+  anchorName = "anchor",
+  anchorGroup = "anchorGroup",
+}
+
+export const drawPath = (stage: Stage, layers: LayersObj, end: () => void) => {
   let isDrawing = false;
   let startPoint: Vector2d | null;
   let path: Path | null;
 
   stage.on("mousedown", (e) => {
     if (isDrawing) {
-      end();
       return;
     }
     isDrawing = true;
     // 获取相对于 layer 的 pointer 坐标
-    const pos = layer.getRelativePointerPosition()!;
+    const pos = layers.pipelineLayer.getRelativePointerPosition()!;
     startPoint = pos;
     path = new Path({
       x: 0,
@@ -27,18 +30,19 @@ export const drawPath = (stage: Stage, layer: Layer, end: () => void) => {
       stroke: "blue",
       strokeWidth: 4,
       data: `M${pos.x},${pos.y} L${pos.x},${pos.y}`,
+      isComponent: true,
+      name: PipeLineNameSpace.pathName,
     });
-    layer.add(path);
+    layers.pipelineLayer.add(path);
     stage.draw();
   });
 
   stage.on("mousemove", (e) => {
     if (!isDrawing || !path) {
-      end();
       return;
     }
     // 获取相对于 layer 的 pointer 坐标
-    const pos = layer.getRelativePointerPosition();
+    const pos = layers.pipelineLayer.getRelativePointerPosition();
     const data = `M${startPoint?.x},${startPoint?.y} L${pos?.x},${pos?.y}`;
     path.data(data);
     stage.draw();

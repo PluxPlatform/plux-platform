@@ -3,6 +3,7 @@ import { Path } from "konva/lib/shapes/Path";
 import { Stage } from "konva/lib/Stage";
 import { LayerName } from "../../core/type";
 import { Vector2d } from "konva/lib/types";
+import { PipeLineNameSpace } from "./Draw";
 
 function getClosestSegmentIndex(
   commands: {
@@ -63,6 +64,20 @@ function pointToSegmentDistance(
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+const createPoint = (x: number, y: number) => {
+  return new Konva.Circle({
+    x,
+    y,
+    radius: 7,
+    fill: "white",
+    draggable: true,
+    stroke: "blue",
+    name: PipeLineNameSpace.anchorName,
+    strokeWidth: 2,
+    isComponent: true,
+  });
+};
+
 // 简单解析SVG路径字符串，提取命令和点
 const parsePath = (d: string) => {
   const regex = /([MLC])([^MLC]*)/g;
@@ -81,12 +96,12 @@ const parsePath = (d: string) => {
 };
 // 当点击的元素是Path时，对Path进行编辑
 export const editPath = (stage: Stage, path: Path) => {
-  const layer = stage.findOne(`${LayerName.PIPELINE}`) as Konva.Layer;
+  const layer = stage.findOne(`.${LayerName.PIPELINE}`) as Konva.Layer;
   let data = path.data();
   // 清空之前的锚点
   const Group = new Konva.Group({
     pathId: path.getAttr("id"),
-    name: "anchorGroup",
+    name: PipeLineNameSpace.anchorGroup,
   });
 
   let commands = parsePath(data);
@@ -104,16 +119,8 @@ export const editPath = (stage: Stage, path: Path) => {
       ];
     }
     points.forEach((pt, i) => {
-      const anchor = new Konva.Circle({
-        x: pt[0],
-        y: pt[1],
-        radius: 7,
-        fill: i === points.length - 1 ? "red" : "orange",
-        draggable: true,
-        stroke: "white",
-        name: "anchor",
-        strokeWidth: 2,
-      });
+      const anchor = createPoint(pt[0], pt[1]);
+
       Group.add(anchor);
       anchor.on("dragmove", () => {
         if (item.cmd === "M" || item.cmd === "L") {
@@ -137,10 +144,11 @@ export const editPath = (stage: Stage, path: Path) => {
 
   // Path点击插入新锚点（以L为例）
   path.on("mousedown.add", (e) => {
-    const mousePos = stage.getPointerPosition()!;
+    // 获取相对于 layer 的 pointer 坐标
+    const mousePos = layer.getRelativePointerPosition()!;
     const insertIndex = getClosestSegmentIndex(commands, mousePos);
     const newCmd = { cmd: "L", nums: [mousePos.x, mousePos.y] };
-
+    console.log("points", layer);
     if (insertIndex >= 0) {
       commands.splice(insertIndex, 0, newCmd);
     } else {
@@ -154,16 +162,7 @@ export const editPath = (stage: Stage, path: Path) => {
 
     if (Group) {
       // 添加锚点
-      const anchor = new Konva.Circle({
-        x: mousePos.x,
-        y: mousePos.y,
-        radius: 7,
-        fill: "red",
-        draggable: true,
-        stroke: "white",
-        strokeWidth: 2,
-        name: "anchor",
-      });
+      const anchor = createPoint(mousePos.x, mousePos.y);
 
       anchor.on("dragmove", () => {
         newCmd.nums[0] = anchor.x();
@@ -182,9 +181,9 @@ export const editPath = (stage: Stage, path: Path) => {
 };
 
 export const clearEditPath = (stage: Stage) => {
-  const layer = stage.findOne(`${LayerName.PIPELINE}`) as Konva.Layer;
+  const layer = stage.findOne(`.${LayerName.PIPELINE}`) as Konva.Layer;
   // 移除所有锚点
-  const anchorGroup = layer.findOne(".anchorGroup");
+  const anchorGroup = layer.findOne(PipeLineNameSpace.anchorGroup);
   if (anchorGroup) {
     const path = layer.findOne(`#${anchorGroup.getAttr("pathId")}`);
     path.off(`mousedown.add`);

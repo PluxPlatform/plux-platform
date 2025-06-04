@@ -8,8 +8,6 @@ export const getCurrentComponent = (
   const nodeType = target.nodeType;
 
   if (nodeType === "Stage") return false;
-  if (nodeType === "pipeline") return false;
-  console.log(target);
   // @ts-ignore
   // 递归向上查找到第一个isComponent为true的节点
   if (target.attrs.isComponent) {
