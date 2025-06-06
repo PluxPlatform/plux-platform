@@ -5,6 +5,7 @@ import UserManage from "../pages/UserManage";
 import MenuManage from "../pages/MenuManage";
 import { Navigate } from "react-router-dom";
 import EditorPage from "@/pages/Editor";
+import EditorNewPage from '@/pages/EditorNew';
 
 const routes = [
   { path: "/login", element: <Login /> },
@@ -17,6 +18,7 @@ const routes = [
       { path: "user", element: <UserManage /> },
       { path: "menu", element: <MenuManage /> },
       { path: "editor", element: <EditorPage /> },
+      { path: 'editorNew', element: <EditorNewPage /> },
     ],
   },
   { path: "*", element: <Navigate to="/login" /> },

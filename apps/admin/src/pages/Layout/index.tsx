@@ -9,6 +9,7 @@ const menuItems = [
   { key: "user", label: "人员管理" },
   { key: "menu", label: "菜单管理" },
   { key: "editor", label: "编辑器" },
+  { key: 'editorNew', label: '编辑器(new)' },
 ];
 
 const BasicLayout: React.FC = () => {
