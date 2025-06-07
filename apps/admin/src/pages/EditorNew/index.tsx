@@ -1,6 +1,6 @@
-import * as konvaeditor from '@plux/koneditor';
+import { test } from '@plux/koneditor';
 
-console.log(konvaeditor.test);
+test();
 
 const EditorNewPage = () => {
   return (

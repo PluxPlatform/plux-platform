@@ -1,5 +1,5 @@
 export const test = () => {
-  alert(1);
+  console.log(1);
 };
 
 export default test;
