@@ -20,7 +20,7 @@ const createStage = () => {
 
   setTimeout(() => {
     // startPathAnimate(path);
-    f(path, 1);
+    setPathCurveAt(path, 1);
   }, 200);
 };
 
