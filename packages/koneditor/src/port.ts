@@ -6,8 +6,8 @@ import {
   extend,
 } from 'lodash';
 import type Node from './node';
-import Line from './line.ts';
-import { PortType } from './types/enums.ts';
+import Line from './line';
+import { PortType } from './types/enums';
 
 type Options = {
   onDestroy: (port: Port) => void;
@@ -24,7 +24,7 @@ class Port {
 
   node: Node;
 
-  lines: LineGroup[];
+  lines: Line[];
 
   options: Options;
 
@@ -38,7 +38,7 @@ class Port {
 
   position?: 'top' | 'bottom' | 'left' | 'right';
 
-  constructor(node: Node, pos: number[], line: LineGroup | FixedPortConfig, options: Options) {
+  constructor(node: Node, pos: number[], line: Line | FixedPortConfig, options: Options) {
     this.destroyed = false;
     this.options = extend({
       onDestroy: () => {},
@@ -48,7 +48,7 @@ class Port {
     let x: number;
     let y: number;
     let stroke = '#87cefa';
-    if (line instanceof LineGroup) {
+    if (line instanceof Line) {
       this.isFixed = false;
       this.lines.push(line);
       line.onDestroy((currentLine) => {
