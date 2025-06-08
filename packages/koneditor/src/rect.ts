@@ -1,32 +1,17 @@
 import Konva from 'konva';
 import { omit } from 'lodash';
 import Node from './node';
-import { uuid } from './uuid';
-import type Editor from './editor';
 import type Group from './group';
-import type { NodeAttrs, NodeType } from './types';
-
-interface RectConfig {
-  nodeId?: string;
-  attrs?: NodeAttrs;
-  layer: Group;
-}
+import type { NodeType, NodeConfig } from './types';
 
 class Rect extends Node {
   className: NodeType = 'Rect';
-  rect: Konva.Rect;
+  imageGroup: Konva.Rect;
 
-  constructor({
-    nodeId = uuid(),
-    attrs = {},
-    layer,
-  }: RectConfig, editor: Editor) {
-    super(editor, layer);
+  constructor(config: NodeConfig) {
+    super(config);
     this.minWidth = 1;
     this.minHeight = 1;
-    this.editor = editor;
-    this.layer = layer;
-    this.nodeId = nodeId;
     const {
       x = 0,
       y = 0,
@@ -36,18 +21,18 @@ class Rect extends Node {
       strokeWidth = 1,
       fill = '#d8d8d8',
       cornerRadius = 0,
-    } = attrs;
+    } = config.attrs;
     this.group = new Konva.Group({
-      ...attrs,
+      ...config.attrs,
       x,
       y,
       width,
       height,
     });
-    layer.add(this);
+    (config.layer as Group).add(this);
     this.init();
     this.editing();
-    this.rect = new Konva.Rect({
+    this.imageGroup = new Konva.Rect({
       name: 'rect',
       x: 0,
       y: 0,
@@ -58,7 +43,7 @@ class Rect extends Node {
       fill,
       cornerRadius,
     });
-    this.group.add(this.rect);
+    this.group.add(this.imageGroup);
   }
 
   setTransformer() {
@@ -73,7 +58,7 @@ class Rect extends Node {
     this.group.skewX(0);
     this.group.skewY(0);
     this.group.width(v);
-    this.rect.width(v);
+    this.imageGroup.width(v);
     this.editor.tr.update();
     this.dr.set(oldValue, v, groupId).then((step) => {
       this.editor.history.add({
@@ -98,7 +83,7 @@ class Rect extends Node {
     this.group.skewX(0);
     this.group.skewY(0);
     this.group.height(v);
-    this.rect.height(v);
+    this.imageGroup.height(v);
     this.editor.tr.update();
     this.dr.set(oldValue, v, groupId).then((step) => {
       this.editor.history.add({
@@ -117,13 +102,13 @@ class Rect extends Node {
   }
 
   getFill() {
-    return this.rect.fill() as string;
+    return this.imageGroup.fill() as string;
   }
 
   setFill(color: string, groupId?: string) {
     const oldValue = this.getFill();
     const { nodeId } = this;
-    this.rect.fill(color);
+    this.imageGroup.fill(color);
     this.dr.set(oldValue, color, groupId).then((step) => {
       this.editor.history.add({
         title: '修改矩形填充颜色',
@@ -141,13 +126,13 @@ class Rect extends Node {
   }
 
   getStroke() {
-    return this.rect.stroke() as string;
+    return this.imageGroup.stroke() as string;
   }
 
   setStroke(color: string, groupId?: string) {
     const oldValue = this.getStroke();
     const { nodeId } = this;
-    this.rect.stroke(color);
+    this.imageGroup.stroke(color);
     this.dr.set(oldValue, color, groupId).then((step) => {
       this.editor.history.add({
         title: '修改矩形边框颜色',
@@ -165,13 +150,13 @@ class Rect extends Node {
   }
 
   getStrokeWidth() {
-    return this.rect.strokeWidth();
+    return this.imageGroup.strokeWidth();
   }
 
   setStrokeWidth(strokeWidth: number, groupId?: string) {
     const oldValue = this.getStrokeWidth();
     const { nodeId } = this;
-    this.rect.strokeWidth(strokeWidth);
+    this.imageGroup.strokeWidth(strokeWidth);
     this.editor.tr.update();
     this.dr.set(oldValue, strokeWidth, groupId).then((step) => {
       this.editor.history.add({
@@ -190,13 +175,13 @@ class Rect extends Node {
   }
 
   getCornerRadius() {
-    return this.rect.cornerRadius() as number;
+    return this.imageGroup.cornerRadius() as number;
   }
 
   setCornerRadius(cornerRadius: number, groupId?: string) {
     const oldValue = this.getCornerRadius();
     const { nodeId } = this;
-    this.rect.cornerRadius(cornerRadius);
+    this.imageGroup.cornerRadius(cornerRadius);
     this.dr.set(oldValue, cornerRadius, groupId).then((step) => {
       this.editor.history.add({
         title: '修改矩形圆角',
@@ -214,7 +199,7 @@ class Rect extends Node {
   }
 
   getAttrs() {
-    return omit(this.rect.getAttrs(), ['x', 'y']);
+    return omit(this.imageGroup.getAttrs(), ['x', 'y']);
   }
 }
 

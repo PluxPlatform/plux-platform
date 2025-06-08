@@ -9,6 +9,7 @@ import type {
   Value,
   NodeAttrs,
   ExportObject,
+  NodeConfig,
 } from './types';
 import type Editor from './editor';
 import type Group from './group';
@@ -23,11 +24,11 @@ type Start = {
 
 abstract class Node {
   abstract className: NodeType;
-  nodeId: NodeId = uuid();
+  nodeId: NodeId;
   isNode: boolean = false;
-  layer: Group;
+  layer: Konva.Group | Group;
   group!: Konva.Group;
-  imageGroup?: Konva.Group | Konva.Image;
+  imageGroup!: Konva.Group | Konva.Image | Konva.Text | Konva.Rect;
   editor: Editor;
   selected: boolean = false;
   minWidth: number | (() => number) = 10;
@@ -40,6 +41,7 @@ abstract class Node {
   constructor(attrs: NodeConfig) {
     this.editor = attrs.editor;
     this.layer = attrs.layer;
+    this.nodeId = attrs.nodeId || uuid();
     this.events = {
       move: [],
     };
@@ -61,7 +63,7 @@ abstract class Node {
         const { mode } = this.editor.options;
         if (mode === 'A') {
           this.editor.tr.checkSelected(this, event.evt).then(() => {
-            this.layer.click(this, event);
+            (this.layer as Group).click(this, event);
           });
         } else if (mode === 'R') {
           if (this.className === 'Rect') {
@@ -426,7 +428,7 @@ abstract class Node {
     }));
   }
 
-  getData(parentId?: NodeId): ExportObject {
+  getData(parentId?: NodeId): ExportObject | ExportObject[] {
     return {
       type: this.className,
       nodeId: this.nodeId,
@@ -483,8 +485,8 @@ abstract class Node {
   flipX() {
     const flipX = !this.group.getAttr('flipX');
     this.group.setAttr('flipX', flipX);
-    this.imageGroup.scaleX(flipX ? -1 : 1);
-    this.imageGroup.offsetX(flipX ? this.group.width() : 0);
+    this.imageGroup?.scaleX(flipX ? -1 : 1);
+    this.imageGroup?.offsetX(flipX ? this.group.width() : 0);
     this.updatePorts();
   }
 
@@ -506,7 +508,7 @@ abstract class Node {
     if (this.selected) {
       return this;
     }
-    return this.layer.getSelected();
+    return (this.layer as Group).getSelected();
   }
 }
 

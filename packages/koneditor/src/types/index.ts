@@ -1,4 +1,6 @@
 import type Konva from 'konva';
+import type Group from '../group';
+import type Editor from '../editor';
 
 export type NodeId = string;
 
@@ -126,8 +128,9 @@ export interface NodeAttrs extends Konva.ShapeConfig {
 
 export type NodeConfig = {
   nodeId?: string;
-  attrs?: NodeAttrs;
-  layer: Group;
+  attrs: NodeAttrs;
+  layer: Konva.Group | Group;
+  editor: Editor;
 };
 
 export type ExportObject = {

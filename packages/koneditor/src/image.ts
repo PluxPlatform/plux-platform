@@ -1,49 +1,34 @@
 import Konva from 'konva';
 import { createImage } from './createImage.ts';
-import { uuid } from './uuid.ts';
 import Node from './node.ts';
-import type Editor from './editor';
 import type Group from './group';
-import type { NodeAttrs, NodeType } from './types';
-
-interface ImageConfig {
-  nodeId?: string;
-  attrs?: NodeAttrs;
-  layer: Group;
-}
+import type { NodeAttrs, NodeType, NodeConfig } from './types';
 
 class Image extends Node {
   className: NodeType = 'Image';
   attrs: NodeAttrs;
 
-  constructor({
-    nodeId = uuid(),
-    attrs = {},
-    layer,
-  }: ImageConfig, editor: Editor) {
-    super(editor, layer);
+  constructor(config: NodeConfig) {
+    super(config);
     this.attrs = {
-      src: attrs.src,
+      src: config.attrs.src,
     };
-    this.editor = editor;
-    this.layer = layer;
-    this.nodeId = nodeId;
     const {
       src = '/micro-assets/platform-web/close.png',
       x = 0,
       y = 0,
-    } = attrs;
+    } = config.attrs;
     this.group = new Konva.Group({
-      ...attrs,
+      ...config.attrs,
       x,
       y,
     });
-    layer.add(this);
+    (config.layer as Group).add(this);
     this.init();
     this.editing();
     createImage(src, {
-      width: attrs.width,
-      height: attrs.height,
+      width: config.attrs.width,
+      height: config.attrs.height,
     }, this.group).then((image) => {
       this.imageGroup = image;
       this.group.add(image);

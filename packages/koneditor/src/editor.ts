@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import _ from 'lodash';
+import { uuid } from './uuid';
 import Group from './group';
 import Line from './line';
 import Rect from './rect';
@@ -16,9 +17,16 @@ import type {
   EditorMode,
   ExportData,
   NodeType,
+  ClickEvent,
+  ImageSrc,
+  GridConfig,
+  GuideLineConfig,
+  ExportObject,
 } from './types';
+import { type PositionEnum } from './types/enums';
 import type Node from './node';
 import type Port from './port';
+import type Anchor from './anchor';
 
 type EditorOptions = Options<Node, Group, Line>;
 
@@ -38,6 +46,40 @@ function getCenter(x1: number, y1: number, x2: number, y2: number) {
 
 function getDistance(x1: number, y1: number, x2: number, y2: number) {
   return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+}
+
+type Closest = [number, number, string] | undefined;
+
+function getClosest(
+  val: number,
+  guideList: GuideItem[],
+  type: string,
+  threshold = 5
+): Closest {
+  const index = _.sortedIndexBy(guideList, { val, nodeId: '' }, 'val');
+  let ln: GuideItem | null = null;
+  let rn: GuideItem | null = null;
+  if (index !== 0) {
+    ln = guideList[index - 1];
+  }
+  if (index !== guideList.length) {
+    rn = guideList[index];
+  }
+  const l = (ln && Math.abs(ln.val - val) < threshold) ? ln.val : undefined;
+  const r = (rn && Math.abs(rn.val - val) < threshold) ? rn.val : undefined;
+  if (!_.isUndefined(l) && !_.isUndefined(r)) {
+    if (Math.abs(l - val) <= Math.abs(r - val)) {
+      return [l, Math.abs(l - val), type];
+    }
+    return [r, Math.abs(r - val), type];
+  }
+  if (!_.isUndefined(l)) {
+    return [l, Math.abs(l - val), type];
+  }
+  if (!_.isUndefined(r)) {
+    return [r, Math.abs(r - val), type];
+  }
+  return undefined;
 }
 
 class Editor {
@@ -120,6 +162,8 @@ class Editor {
     this.editorContainer = container;
     this.stage = new Konva.Stage({
       container,
+      width: container.clientWidth,
+      height: container.clientHeight,
     });
     this.mainLayer = new Konva.Layer();
     this.stage.add(this.mainLayer);
@@ -329,38 +373,49 @@ class Editor {
       });
       container.addEventListener('drop', (e) => {
         e.preventDefault();
-        const thingData = e.dataTransfer?.getData('thing');
-        const templateData = e.dataTransfer?.getData('template');
-        const cancelDrop = e.dataTransfer?.getData('cancelDrop');
-        if (cancelDrop !== 'cancelDrop') {
-          const { offsetX, offsetY } = e;
-          if (thingData) {
-            try {
-              const thing = JSON.parse(thingData || '');
-              this.dropNode(thing, offsetX, offsetY);
-            } catch {
-              console.warn('拖入数据异常', e);
-            }
-          } else if (templateData) {
-            this.options.onDrop({
-              type: 'template',
-              id: templateData,
-              offsetX,
-              offsetY,
-            });
-          } else if (e.dataTransfer?.files.length) {
-            this.options.onDrop({
-              type: 'files',
-              files: e.dataTransfer.files,
-              offsetX,
-              offsetY,
-            });
-          }
+        const { offsetX, offsetY } = e;
+        if (e.dataTransfer?.files.length) {
+          this.options.onDrop({
+            type: 'files',
+            files: e.dataTransfer.files,
+            offsetX,
+            offsetY,
+          });
         }
       });
       this.gridGroup = new Konva.Group();
       this.mainLayer.add(this.gridGroup);
       this.renderGrid();
+    }
+    this.nodeLayer = new Group({
+      root: true,
+      layer: this.mainLayer,
+      editor: this,
+      attrs: {},
+    });
+    this.lineLayer = new Group({
+      root: true,
+      layer: this.mainLayer,
+      editor: this,
+      attrs: {},
+    });
+    if (!this.options.isEdit && !this.options.lineTop) {
+      this.nodeLayer.moveUp();
+    }
+    this.tr = new Transformer(this.mainLayer, this);
+    this.stage.on('click', ({ target }) => {
+      if (target === this.stage) {
+        this.tr.clear();
+        this.clearSelect();
+      }
+    });
+  }
+
+  setLineTop(isTop: boolean) {
+    if (isTop) {
+      this.lineLayer.moveUp();
+    } else {
+      this.nodeLayer.moveUp();
     }
   }
 
@@ -418,7 +473,8 @@ class Editor {
         nodeId,
         attrs,
         layer,
-      }, this);
+        editor: this,
+      });
       this.nodeIds[nodeId] = group;
       return group;
     }
@@ -450,10 +506,8 @@ class Editor {
       to,
       toPort,
       layer: this.lineLayer,
-    }, this);
-    if (thing && thing.iu) {
-      this.lineMap[lineKey(thing.iu)] = line;
-    }
+      editor: this,
+    });
     this.nodeIds[nodeId] = line;
   }
 
@@ -475,6 +529,10 @@ class Editor {
         }
       }
     });
+  }
+
+  offWheel() {
+    this.stage.off('wheel');
   }
 
   getTouchPos(clientX: number, clientY: number) {
@@ -533,6 +591,26 @@ class Editor {
       }
       this.options.onTouch();
     });
+  }
+
+  offTouch() {
+    this.stage.off('touchstart');
+  }
+
+  enableScroll(scroll: boolean) {
+    if (scroll) {
+      this.onWheel();
+    } else {
+      this.offWheel();
+    }
+  }
+
+  enableTouch(touch: boolean) {
+    if (touch) {
+      this.onTouch();
+    } else {
+      this.offTouch();
+    }
   }
 
   getPositionInLayer(offsetX: number, offsetY: number) {
@@ -608,7 +686,8 @@ class Editor {
         y: startY,
       },
       layer: this.nodeLayer,
-    }, this);
+      editor: this,
+    });
     this.tempMover = new Mover(this.stage, ({ offsetX: ox, offsetY: oy }) => {
       if (this.tempRect) {
         const { x: endX, y: endY } = this.getPositionInLayer(ox, oy);
@@ -702,7 +781,8 @@ class Editor {
       nodeId,
       attrs,
       layer,
-    }, this);
+      editor: this,
+    });
     this.nodeIds[rect.nodeId] = rect;
     return rect;
   }
@@ -712,7 +792,8 @@ class Editor {
       nodeId,
       attrs,
       layer,
-    }, this);
+      editor: this,
+    });
     this.nodeIds[image.nodeId] = image;
     return image;
   }
@@ -722,17 +803,10 @@ class Editor {
       nodeId,
       attrs,
       layer,
-    }, this);
+      editor: this,
+    });
     this.nodeIds[text.nodeId] = text;
     return text;
-  }
-
-  createLineOver() {
-    if (this.tempLine) {
-      this.tempLine.destroy();
-      this.tempLine = null;
-      this.blockSave = false;
-    }
   }
 
   selectionEnd() {
@@ -753,13 +827,6 @@ class Editor {
         this.tempMover?.stop();
       }, 20);
     }
-  }
-
-  clearGuide() {
-    this.guideXLine?.hide();
-    this.guideYLine?.hide();
-    this.guideXTransform?.nodes([]);
-    this.guideYTransform?.nodes([]);
   }
 
   exportCanvas() {
@@ -828,6 +895,665 @@ class Editor {
         });
       });
     });
+  }
+
+  copy() {
+    this.copied = _.map(this.tr.cache, 'nodeId');
+  }
+
+  paste(/* pos?: { x: number; y: number } */) {
+    const offsetX = 50;
+    const offsetY = 50;
+    if (this.copied.length && !_.some(this.copied, (nodeId) => {
+      const node = this.nodeIds[nodeId];
+      if (node) {
+        if (node.className === 'Group') {
+          return (node as Group).checkCopy();
+        }
+        return _.includes(['Node', 'Belt', 'Scraper', 'TextGroup', 'Line'], node.className);
+      }
+      return true;
+    })) {
+      this.exportData().then((/* oldData */) => {
+        // const layer = this.nodeIds[this.copied[0]].layer as Group;
+        _.each(this.copied, (nodeId) => {
+          const node = this.nodeIds[nodeId];
+          if (node.className === 'Group') {
+            console.log(node.getData());
+          }
+        });
+      });
+      const layer = this.nodeIds[this.copied[0]].layer as Group;
+      const pasted: Node[] = [];
+      _.each(this.copied, (nodeId) => {
+        const node = this.nodeIds[nodeId];
+        if (node.className === 'Group') {
+          const check = (node as Group).checkCopy();
+          if (check) {
+            this.message(check);
+          } else {
+            // Todo
+          }
+        } else {
+          const { attrs } = node.getData() as ExportObject;
+          if (attrs.x) {
+            attrs.x += offsetX;
+          }
+          if (attrs.y) {
+            attrs.y += offsetY;
+          }
+          const newNode = this.addNode(
+            node.className,
+            uuid(),
+            layer.root ? undefined : layer.nodeId,
+            attrs,
+          );
+          if (newNode) {
+            pasted.push(newNode);
+          }          
+        }
+      });
+      this.clearSelect(layer);
+      this.tr.setList(pasted);
+      this.copied = _.map(pasted, 'nodeId');
+    }
+  }
+
+  message(msg: string) {
+    this.options.onMessage(msg);
+  }
+
+  selectAll(event: KeyboardEvent) {
+    this.clearSelect();
+    this.tr.selectAll(this.nodeLayer.children, event);
+  }
+
+  selectAllType(type: string) {
+    this.clearSelect();
+    this.tr.setList(_.filter(this.nodeIds, (item) => item.className === type), true);
+  }
+
+  undo() {
+    this.history.undo();
+  }
+
+  redo() {
+    this.history.redo();
+  }
+
+  getGridSize() {
+    let size = 0;
+    if (this.options.grid) {
+      if (this.options.grid === true) {
+        size = 30;
+      } else {
+        size = this.options.grid.size;
+      }
+    } else {
+      size = 0;
+    }
+    if (size && size < 30) {
+      size = 30;
+    }
+    return size;
+  }
+
+  getGridFixed() {
+    if (this.options.grid) {
+      if (this.options.grid === true || !this.getGridSize()) {
+        return false;
+      }
+      return this.options.grid.fixed;
+    }
+    return false;
+  }
+
+  renderGrid() {}
+
+  pointer(isPointer: boolean) {
+    const container = this.stage.container();
+    if (isPointer) {
+      if (!this.cursor) {
+        container.style.cursor = 'pointer';
+      }
+    } else {
+      container.style.cursor = 'default';
+    }
+  }
+
+  setCursor(cursor?: string) {
+    this.cursor = cursor;
+    const container = this.stage.container();
+    container.style.cursor = cursor || 'default';
+  }
+
+  fitStage() {
+    const { clientWidth, clientHeight } = this.editorContainer;
+    if (clientWidth && clientHeight) {
+      this.stage.setAttrs({
+        width: clientWidth,
+        height: clientHeight,
+      });
+    }
+  }
+
+  fit() {}
+
+  changeBackground(background: string) {
+    this.options.background = background;
+  }
+
+  onClick(event: ClickEvent) {
+    this.options.onClick(event);
+  }
+
+  destroy() {
+    this.clearAll();
+    this.stage.destroy();
+  }
+
+  getParentIds(target: Node, arr: NodeId[] = []): NodeId[] {
+    if ((target.layer as Group).root) {
+      return arr;
+    }
+    return this.getParentIds((target.layer as Group), _.concat(arr, [target.nodeId]));
+  }
+
+  getChildrenIds(target: Node) {
+    if (target.className === 'Group') {
+      const re: NodeId[] = [];
+      _.each((target as Group).children, (child) => {
+        if (child.className === 'Group') {
+          re.push(...this.getChildrenIds(child as Group));
+        } else {
+          re.push(child.nodeId);
+        }
+      });
+      return re;
+    }
+    return [];
+  }
+
+  select(target: Node[] | null) {
+    this.options.onSelect(target ? [...target] : null);
+    if (target?.length === 1) {
+      if (target[0].className !== 'Line' && this.options.guideLine.enable) {
+        const parentIds = this.getParentIds(target[0]);
+        const childrenIds = this.getChildrenIds(target[0]);
+        _.each(this.nodeIds, (node, nodeId) => {
+          if (
+            node.className !== 'Line'
+            && nodeId !== target[0].nodeId
+            && !_.includes(parentIds, nodeId)
+            && !_.includes(childrenIds, nodeId)
+            && (
+              !this.options.guideLine.sameType
+              || (
+                (target[0].isNode && node.isNode)
+                || target[0].className === node.className
+              )
+            )
+          ) {
+            const {
+              width, height, minX, minY, maxX, maxY,
+            } = node.getGroupSize();
+            const cx = minX + width / 2;
+            const cy = minY + height / 2;
+            if (!this.guideXMap[minX]) {
+              this.guideXMap[minX] = {
+                val: minX,
+                nodeId,
+              };
+            }
+            if (!this.guideXMap[cx]) {
+              this.guideXMap[cx] = {
+                val: cx,
+                nodeId,
+              };
+            }
+            if (!this.guideXMap[maxX]) {
+              this.guideXMap[maxX] = {
+                val: maxX,
+                nodeId,
+              };
+            }
+            if (!this.guideYMap[minY]) {
+              this.guideYMap[minY] = {
+                val: minY,
+                nodeId,
+              };
+            }
+            if (!this.guideYMap[cy]) {
+              this.guideYMap[cy] = {
+                val: cy,
+                nodeId,
+              };
+            }
+            if (!this.guideYMap[maxY]) {
+              this.guideYMap[maxY] = {
+                val: maxY,
+                nodeId,
+              };
+            }
+          }
+        });
+        this.guideXList = _.sortBy(this.guideXMap, 'val');
+        this.guideYList = _.sortBy(this.guideYMap, 'val');
+      }
+    } else {
+      this.guideXMap = {};
+      this.guideYMap = {};
+      this.guideXList = [];
+      this.guideYList = [];
+    }
+  }
+
+  dragmove() {
+    this.options.onDragmove();
+  }
+
+  dropImage(src: ImageSrc, offsetX: number, offsetY: number) {
+    const { x, y } = this.getPositionInLayer(offsetX, offsetY);
+    const image = this.createImage({
+      x,
+      y,
+      src,
+    }, this.nodeLayer);
+    this.history.add({
+      title: '拖入图片',
+      undo: () => {
+        this.removeNode(image.nodeId);
+      },
+      redo: () => {
+        this.createImage({
+          x,
+          y,
+          src,
+        }, this.nodeLayer, image.nodeId);
+      },
+    });
+  }
+
+  getGroupSize(group: Konva.Group, options: {
+    scale?: number;
+    filterFunc?: (item: Konva.Node) => boolean;
+    getClientRectConfig?: {
+      skipTransform?: boolean;
+      skipShadow?: boolean;
+      skipStroke?: boolean;
+      relativeTo?: Konva.Container;
+    };
+  } = {}) {
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    const scale = options.scale || this.mainLayer.scaleX();
+    const stageX = this.mainLayer.x();
+    const stageY = this.mainLayer.y();
+    const childs = group.getChildren(options.filterFunc);
+    if (childs.length) {
+      _.each(childs, (child) => {
+        const {
+          x, y, width, height,
+        } = child.getClientRect(_.extend({
+          skipShadow: true,
+        }, options.getClientRectConfig));
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x + width);
+        maxY = Math.max(maxY, y + height);
+      });
+      return {
+        width: (maxX - minX) / scale,
+        height: (maxY - minY) / scale,
+        minX: (minX - stageX) / scale,
+        minY: (minY - stageY) / scale,
+        maxX: (maxX - stageX) / scale,
+        maxY: (maxY - stageY) / scale,
+      };
+    }
+    const { x, y } = group.getAbsolutePosition(this.stage);
+    return {
+      width: 0,
+      height: 0,
+      minX: (x - stageX) / scale,
+      minY: (y - stageY) / scale,
+      maxX: (x - stageX) / scale,
+      maxY: (y - stageY) / scale,
+    };
+  }
+
+  deleteNodeId(nodeId: NodeId) {
+    if (this.nodeIds[nodeId]) {
+      delete this.nodeIds[nodeId];
+    }
+  }
+
+  setPort(nodeId: NodeId | undefined, pos: number[], line: Line) {
+    if (pos && pos.length && nodeId) {
+      const node = this.nodeIds[nodeId];
+      if (node) {
+        return node.setPort(pos, line);
+      }
+      return undefined;
+    }
+    return undefined;
+  }
+
+  selectAnchor(anchor: Anchor) {
+    this.cacheAnchor = anchor;
+  }
+
+  createLine(from: NodeId, offsetX: number, offsetY: number) {
+    this.blockSave = true;
+    this.clearSelect();
+    this.tr.clear();
+    const { x, y } = this.getPositionInLayer(offsetX, offsetY);
+    let showArrow = true;
+    let lineWidth = 4;
+    this.tempLine = new Line({
+      attrs: {
+        tid: uuid(),
+        showArrow,
+        type: 'CLEAN_COAL',
+        lineWidth,
+        points: [x, y, x, y, x, y],
+      },
+      from,
+      layer: this.lineLayer,
+      editor: this,
+    }, this);
+    let t = 0;
+    this.tempMover = new Mover(this.stage, ({
+      offsetX: ox,
+      offsetY: oy,
+      movementX,
+      movementY,
+    }) => {
+      if (this.tempLine) {
+        if (!t) {
+          t = Math.abs(movementX) > Math.abs(movementY) ? 1 : 2;
+        }
+        const { x: lx, y: ly } = this.getPositionInLayer(ox, oy);
+        const points = _.chunk(this.tempLine.attrs.points, 2);
+        if (t === 1) {
+          const endY = ly < points[0][1] ? ly + 5 : ly - 5;
+          points[1][0] = lx;
+          points[2][0] = lx;
+          points[2][1] = endY;
+        } else {
+          const endX = lx < points[0][0] ? lx + 5 : lx - 5;
+          points[1][1] = ly;
+          points[2][0] = endX;
+          points[2][1] = ly;
+        }
+        this.tempLine.setPoints(_.flatten(points));
+      }
+    }, true);
+  }
+
+  createLineDone(to: NodeId, port?: Port) {
+    if (this.tempLine) {
+      if (this.tempLine.from !== to) {
+        if (port) {
+          const portPos = port.port.getAbsolutePosition();
+          const pos = this.getPositionInLayer(portPos.x, portPos.y);
+          this.tempLine.setTo(to, port.id, pos);
+        } else {
+          this.tempLine.setTo(to);
+        }
+        this.tempLine.init();
+        this.options.onCreateLine(this.tempLine).then(() => {
+          this.blockSave = false;
+        });
+        this.tempLine = null;
+      }
+    }
+  }
+
+  createLineOver() {
+    if (this.tempLine) {
+      this.tempLine.destroy();
+      this.tempLine = null;
+      this.blockSave = false;
+    }
+  }
+
+  saveLine(line: Line) {
+    this.nodeIds[line.nodeId] = line;
+    line.select();
+  }
+
+  changeElementsPosition(type: PositionEnum) {
+    this.tr.changeElementPosition(type);
+  }
+
+  groupByIds(ids: NodeId[], nodeId?: NodeId) {
+    const list: Node[] = [];
+    _.each(ids, (id) => {
+      const finded = this.findNode(id);
+      if (finded) {
+        list.push(finded);
+      }
+    });
+    if (list.length) {
+      const first = list[0];
+      const layer = first.layer as Group;
+      const group = new Group({
+        nodeId,
+        layer,
+        editor: this,
+        attrs: {},
+      });
+      this.nodeIds[group.nodeId] = group;
+      _.each(list, (node) => {
+        node.moveTo(group);
+      });
+      group.select();
+      return group.nodeId;
+    }
+    return null;
+  }
+
+  group() {
+    const ids = _.map(this.tr.cache, 'nodeId');
+    const groupId = this.groupByIds(ids);
+    if (groupId) {
+      this.history.add({
+        title: '组合',
+        undo: () => {
+          this.cancelGroupById(groupId);
+        },
+        redo: () => {
+          this.groupByIds(ids, groupId);
+        },
+      });
+    }
+  }
+
+  cancelGroupById(groupId: NodeId) {
+    const group = this.findNode(groupId) as Group;
+    const layer = group.layer as Group;
+    const ids = _.map(group.children, 'nodeId');
+    _.each(group.children, (node) => {
+      node.get().moveTo(layer.get());
+      node.layer = layer;
+      node.get().x(node.get().x() + group.get().x());
+      node.get().y(node.get().y() + group.get().y());
+    });
+    layer.children.push(...group.children);
+    layer.remove(group);
+    this.deleteNodeId(groupId);
+    this.tr.clear();
+    this.clearSelect();
+    return ids;
+  }
+
+  cancelGroup(group: Group) {
+    const groupId = group.nodeId;
+    const ids = this.cancelGroupById(groupId);
+    this.history.add({
+      title: '取消组合',
+      undo: () => {
+        this.groupByIds(ids, groupId);
+      },
+      redo: () => {
+        this.cancelGroupById(groupId);
+      },
+    });
+  }
+
+  pull(nodes: Node[]) {
+    this.saveHistory('移出组', () => {
+      const group = nodes[0].layer as Group;
+      const layer = group.layer as Group;
+      _.each(nodes, (node) => {
+        node.get().moveTo(layer.get());
+        node.layer = layer;
+        node.get().x(node.get().x() + group.get().x());
+        node.get().y(node.get().y() + group.get().y());
+      });
+      layer.children.push(...nodes);
+      _.remove(group.children, (item) => _.includes(nodes, item));
+      this.tr.clear();
+      this.clearSelect();
+    }, 'deleteNodeUndo', 'deleteNodeRedo');
+  }
+  
+  setGrid(gridConfig: GridConfig) {
+    this.options.grid = gridConfig;
+    this.renderGrid();
+  }
+
+  setGuideLine(config: GuideLineConfig) {
+    this.options.guideLine = config;
+    if (!config.enable) {
+      this.guideXMap = {};
+      this.guideYMap = {};
+      this.guideXList = [];
+      this.guideYList = [];
+    }
+  }
+
+  clearGuide() {
+    this.guideXLine?.hide();
+    this.guideYLine?.hide();
+    this.guideXTransform?.nodes([]);
+    this.guideYTransform?.nodes([]);
+  }
+
+  showGuideX(item: Closest) {
+    const { clientHeight } = this.editorContainer;
+    if (item) {
+      const [x] = item;
+      const guideItem = this.guideXMap[x];
+      if (guideItem) {
+        const node = this.nodeIds[guideItem.nodeId];
+        if (node) {
+          this.guideXTransform?.nodes([node.get()]);
+        }
+      }
+      const { x: lx } = this.getPositionInStage(x, 0);
+      this.guideXLine?.points([lx, 0, lx, clientHeight]);
+      this.guideXLine?.show();
+    } else {
+      this.guideXLine?.hide();
+      this.guideXTransform?.nodes([]);
+    }
+  }
+
+  showGuideY(item: Closest) {
+    const { clientWidth } = this.editorContainer;
+    if (item) {
+      const [y] = item;
+      const guideItem = this.guideYMap[y];
+      if (guideItem) {
+        const node = this.nodeIds[guideItem.nodeId];
+        if (node) {
+          this.guideYTransform?.nodes([node.get()]);
+        }
+      }
+      const { y: ly } = this.getPositionInStage(0, y);
+      this.guideYLine?.points([0, ly, clientWidth, ly]);
+      this.guideYLine?.show();
+    } else {
+      this.guideYLine?.hide();
+      this.guideYTransform?.nodes([]);
+    }
+  }
+
+  move(node: Node) {
+    if (_.size(this.guideXMap) || _.size(this.guideYMap)) {
+      const {
+        width, height, minX, minY, maxX, maxY,
+      } = node.getGroupSize();
+      const cx = minX + width / 2;
+      const l = getClosest(minX, this.guideXList, 'l');
+      const c = getClosest(cx, this.guideXList, 'c');
+      const r = getClosest(maxX, this.guideXList, 'r');
+      const x = _.minBy(_.compact([l, c, r]), 1);
+      this.showGuideX(x);
+      const cy = minY + height / 2;
+      const t = getClosest(minY, this.guideYList, 't');
+      const m = getClosest(cy, this.guideYList, 'm');
+      const b = getClosest(maxY, this.guideYList, 'b');
+      const y = _.minBy(_.compact([t, m, b]), 1);
+      this.showGuideY(y);
+      if (this.options.guideLine.enable && this.options.guideLine.fixed) {
+        if (x) {
+          if (x[2] === 'l') {
+            node.setX(x[0]);
+          } else if (x[2] === 'r') {
+            node.setX(x[0] - width);
+          } else {
+            node.setX(x[0] - width / 2);
+          }
+        }
+        if (y) {
+          if (y[2] === 't') {
+            node.setY(y[0]);
+          } else if (y[2] === 'b') {
+            node.setY(y[0] - height);
+          } else {
+            node.setY(y[0] - height / 2);
+          }
+        }
+      }
+    }
+    const size = this.getGridSize();
+    const isFixed = this.getGridFixed();
+    if (size && isFixed && this.tr.cache.length === 1 && node === this.tr.cache[0]) {
+      const {
+        width, height, minX, minY, maxX, maxY,
+      } = node.getGroupSize();
+      const closestMinX = Math.round(minX / size) * size;
+      const offsetMinX = Math.abs(minX - closestMinX);
+      const closestMaxX = Math.round(maxX / size) * size;
+      const offsetMaxX = Math.abs(maxX - closestMaxX);
+      const closestMinY = Math.round(minY / size) * size;
+      const offsetMinY = Math.abs(minY - closestMinY);
+      const closestMaxY = Math.round(maxY / size) * size;
+      const offsetMaxY = Math.abs(maxY - closestMaxY);
+      let x = minX;
+      let y = minY;
+      if (offsetMinX < 5) {
+        x = closestMinX;
+      } else if (offsetMaxX < 5) {
+        x = closestMaxX - width;
+      }
+      if (offsetMinY < 5) {
+        y = closestMinY;
+      } else if (offsetMaxY < 5) {
+        y = closestMaxY - height;
+      }
+      node.setX(x);
+      node.setY(y);
+    }
+  }
+
+  contextMenu(x: number, y: number, menuList: any[]) {
+    this.options.onContextMenu(x, y, menuList);
   }
 }
 

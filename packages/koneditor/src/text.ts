@@ -1,31 +1,15 @@
 import Konva from 'konva';
 import Node from './node.ts';
-import { uuid } from './uuid.ts';
-import type Editor from './editor';
 import type Group from './group';
-import type { NodeAttrs, NodeType, TextDecoration } from './types';
-
-interface TextConfig {
-  nodeId?: string;
-  attrs?: NodeAttrs;
-  layer: Group;
-}
+import type { NodeAttrs, NodeConfig, NodeType, TextDecoration } from './types';
 
 class Text extends Node {
   className: NodeType = 'Text';
-  text: Konva.Text;
   attrs: NodeAttrs;
+  imageGroup: Konva.Text;
 
-  constructor({
-    nodeId = uuid(),
-    attrs = {},
-    layer,
-  }: TextConfig, editor: Editor) {
-    super(editor, layer);
-    this.className = 'Text';
-    this.editor = editor;
-    this.layer = layer;
-    this.nodeId = nodeId;
+  constructor(config: NodeConfig) {
+    super(config);
     const {
       width,
       fill = '#000',
@@ -35,7 +19,7 @@ class Text extends Node {
       textDecoration = '',
       text = '文本',
       fontSize = 14,
-    } = attrs;
+    } = config.attrs;
     this.attrs = {
       fill,
       fontFamily,
@@ -47,7 +31,7 @@ class Text extends Node {
     };
     this.minWidth = () => this.attrs.fontSize || 14;
     this.group = new Konva.Group({
-      ...attrs,
+      ...config.attrs,
       width,
     });
     let fontStyle = 'normal';
@@ -60,10 +44,10 @@ class Text extends Node {
     } else if (italic) {
       fontStyle = 'italic';
     }
-    layer.add(this);
+    (config.layer as Group).add(this);
     this.init();
     this.editing();
-    this.text = new Konva.Text({
+    this.imageGroup = new Konva.Text({
       name: 'text',
       x: 0,
       y: 0,
@@ -75,9 +59,9 @@ class Text extends Node {
       text,
       fontSize,
     });
-    this.group.width(this.text.width());
-    this.group.height(this.text.height());
-    this.group.add(this.text);
+    this.group.width(this.imageGroup.width());
+    this.group.height(this.imageGroup.height());
+    this.group.add(this.imageGroup);
   }
 
   setTransformer() {
@@ -90,14 +74,14 @@ class Text extends Node {
     this.group.width(v);
     this.group.skewX(0);
     this.group.skewY(0);
-    this.text.width(v);
+    this.imageGroup.width(v);
     this.editor.tr.update();
   }
 
   getAttrs() {
     return {
       ...this.attrs,
-      width: this.text.width(),
+      width: this.imageGroup.width(),
     };
   }
 
@@ -109,8 +93,8 @@ class Text extends Node {
     const oldValue = this.getText();
     const { nodeId } = this;
     this.attrs.text = text;
-    this.text.text(text);
-    this.group.width(this.text.width());
+    this.imageGroup.text(text);
+    this.group.width(this.imageGroup.width());
     this.editor.tr.update();
     this.dr.set(oldValue, text, groupId).then((step) => {
       this.editor.history.add({
@@ -136,7 +120,7 @@ class Text extends Node {
     const oldValue = this.getFontFamily();
     const { nodeId } = this;
     this.attrs.fontFamily = fontFamily;
-    this.text.fontFamily(fontFamily);
+    this.imageGroup.fontFamily(fontFamily);
     this.dr.set(oldValue, fontFamily, groupId).then((step) => {
       this.editor.history.add({
         title: '修改文字字体',
@@ -165,7 +149,7 @@ class Text extends Node {
     } else if (italic) {
       fontStyle = 'italic';
     }
-    this.text.fontStyle(fontStyle);
+    this.imageGroup.fontStyle(fontStyle);
   }
 
   getBold() {
@@ -226,8 +210,8 @@ class Text extends Node {
     const oldValue = this.getFontSize();
     const { nodeId } = this;
     this.attrs.fontSize = fontSize;
-    this.text.fontSize(fontSize);
-    this.setWidth(this.text.width());
+    this.imageGroup.fontSize(fontSize);
+    this.setWidth(this.imageGroup.width());
     this.dr.set(oldValue, fontSize, groupId).then((step) => {
       this.editor.history.add({
         title: '修改文字字体大小',
@@ -252,7 +236,7 @@ class Text extends Node {
     const oldValue = this.getFill();
     const { nodeId } = this;
     this.attrs.fill = fill;
-    this.text.fill(fill);
+    this.imageGroup.fill(fill);
     this.dr.set(oldValue, fill, groupId).then((step) => {
       this.editor.history.add({
         title: '修改文字颜色',
@@ -277,7 +261,7 @@ class Text extends Node {
     const oldValue = this.getTextDecoration();
     const { nodeId } = this;
     this.attrs.textDecoration = textDecoration;
-    this.text.textDecoration(textDecoration);
+    this.imageGroup.textDecoration(textDecoration);
     this.dr.set(oldValue, textDecoration, groupId).then((step) => {
       let title = '';
       if (textDecoration === 'underline') {
