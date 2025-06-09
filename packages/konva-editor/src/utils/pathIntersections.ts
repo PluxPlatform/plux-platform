@@ -141,7 +141,7 @@ function createArcAtIntersection(
   radius: number
 ): void {
   const pathData: string = path.data();
-  const segments: Segment[] = parsePathToSegments(pathData);
+  // const segments: Segment[] = parsePathToSegments(pathData);
 
   // 找到包含相交点的线段
   const targetSegment: Segment = intersection.segment;
@@ -213,7 +213,7 @@ function reconstructPathWithArc(
   let newPathData: string = "";
   let currentSegmentIndex: number = -1;
 
-  commands.forEach((cmd: string, index: number) => {
+  commands.forEach((cmd: string, _index: number) => {
     const type: string = cmd[0].toUpperCase();
 
     if (type === "M") {

@@ -82,7 +82,7 @@ function getClosest(
   return undefined;
 }
 
-class Editor {
+export class Editor {
   stage: Konva.Stage;
   gridGroup?: Konva.Group;
   mainLayer: Konva.Layer;
@@ -119,7 +119,7 @@ class Editor {
   guideXTransform: Konva.Transformer | null = null;
   guideYTransform: Konva.Transformer | null = null;
 
-  constructor(container: HTMLDivElement, opt: EditorOptions) {
+  constructor(container: HTMLDivElement, opt: Partial<EditorOptions>) {
     this.lastCenter = {
       x: 0,
       y: 0,

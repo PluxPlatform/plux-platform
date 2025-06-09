@@ -8,7 +8,7 @@ import {
 import Konva from 'konva';
 import Node from './node';
 import { DebounceRecord } from './util';
-import type Port from './port';
+// import type Port from './port';
 import type {
   NodeId,
   ExportObject,
@@ -36,7 +36,7 @@ class Group extends Node {
 
   dr: DebounceRecord;
 
-  ports: Port[];
+  // ports: Port[];
 
   constructor(config: GroupConfig) {
     super(config);
@@ -52,7 +52,7 @@ class Group extends Node {
     this.group = new Konva.Group(attrs);
     this.dr = new DebounceRecord();
     this.isNode = false;
-    this.ports = [];
+    // this.ports = [];
     if (this.layer instanceof Group) {
       this.layer.add(this);
     } else {

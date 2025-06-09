@@ -1,7 +1,7 @@
 import Konva from 'konva';
 import * as _ from 'lodash';
 import { uuid } from './uuid';
-import Port from './port';
+// import Port from './port';
 
 import type {
   NodeType,
@@ -13,7 +13,7 @@ import type {
 } from './types';
 import type Editor from './editor';
 import type Group from './group';
-import type Line from './line';
+// import type Line from './line';
 import { DebounceRecord } from './util';
 
 type Start = {
@@ -34,7 +34,7 @@ abstract class Node {
   minWidth: number | (() => number) = 10;
   minHeight: number = 10;
   portsGroup?: Konva.Group;
-  ports?: Port[];
+  // ports?: Port[];
   events: Record<string, ((node: Node, mechanical?: boolean) => void)[]>;
   dr: DebounceRecord;
   
@@ -279,7 +279,7 @@ abstract class Node {
             || this.className === 'Text'
           )
           && this.editor.options.mode === 'E'
-          && !_.some(this.ports, (port) => port.isFixed)
+          // && !_.some(this.ports, (port) => port.isFixed)
         ) {
           // this.editor.createLine(this.nodeId, evt.offsetX, evt.offsetY);
         }
@@ -292,7 +292,7 @@ abstract class Node {
             || this.className === 'Text'
           )
           && this.editor.options.mode === 'E'
-          && !_.some(this.ports, (port) => port.isFixed)
+          // && !_.some(this.ports, (port) => port.isFixed)
         ) {
           // this.editor.createLineDone(this.nodeId);
         }
@@ -379,28 +379,28 @@ abstract class Node {
     if (!skipClear) {
       this.layer.remove(this);
     }
-    if (this.ports?.length) {
-      _.each(this.ports, (port) => {
-        port.destroy(true);
-      });
-      this.ports = [];
-    }
+    // if (this.ports?.length) {
+    //   _.each(this.ports, (port) => {
+    //     port.destroy(true);
+    //   });
+    //   this.ports = [];
+    // }
     this.editor.tr.clear();
     this.editor.pointer(false);
   }
 
-  setPort(pos: number[], line: Line) {
-    const port = new Port(this, pos, line, {
-      onDestroy: (p) => {
-        if (this.ports) {
-          const index = this.ports.indexOf(p);
-          this.ports.splice(index, 1);
-        }
-      },
-    });
-    this.ports?.push(port);
-    return port;
-  }
+  // setPort(pos: number[], line: Line) {
+  //   const port = new Port(this, pos, line, {
+  //     onDestroy: (p) => {
+  //       if (this.ports) {
+  //         const index = this.ports.indexOf(p);
+  //         this.ports.splice(index, 1);
+  //       }
+  //     },
+  //   });
+  //   this.ports?.push(port);
+  //   return port;
+  // }
 
   onMove(mechanical?: boolean) {
     this.trigger('move', mechanical);
@@ -460,34 +460,34 @@ abstract class Node {
     this.layer.moveToBottom(this);
   }
 
-  updatePorts() {
-    const { flipX, flipY } = this.group.getAttrs();
-    const width = this.imageGroup!.width();
-    const height = this.imageGroup!.height();
-    const orientation = {
-      top: [width / 2, -24],
-      bottom: [width / 2, height],
-      left: [15, 5],
-      right: [width - 15, 5],
-    };
-    _.each(this.ports, ({ isFixed, position, port }) => {
-      if (isFixed && position) {
-        const pos = [
-          flipX ? (width - orientation[position][0]) : orientation[position][0],
-          flipY ? (height - orientation[position][1]) : orientation[position][1],
-        ];
-        port.x(pos[0]);
-        port.y(pos[1]);
-      }
-    });
-  }
+  // updatePorts() {
+  //   const { flipX, flipY } = this.group.getAttrs();
+  //   const width = this.imageGroup!.width();
+  //   const height = this.imageGroup!.height();
+  //   const orientation = {
+  //     top: [width / 2, -24],
+  //     bottom: [width / 2, height],
+  //     left: [15, 5],
+  //     right: [width - 15, 5],
+  //   };
+  //   _.each(this.ports, ({ isFixed, position, port }) => {
+  //     if (isFixed && position) {
+  //       const pos = [
+  //         flipX ? (width - orientation[position][0]) : orientation[position][0],
+  //         flipY ? (height - orientation[position][1]) : orientation[position][1],
+  //       ];
+  //       port.x(pos[0]);
+  //       port.y(pos[1]);
+  //     }
+  //   });
+  // }
 
   flipX() {
     const flipX = !this.group.getAttr('flipX');
     this.group.setAttr('flipX', flipX);
     this.imageGroup?.scaleX(flipX ? -1 : 1);
     this.imageGroup?.offsetX(flipX ? this.group.width() : 0);
-    this.updatePorts();
+    // this.updatePorts();
   }
 
   flipY() {
@@ -495,7 +495,7 @@ abstract class Node {
     this.group.setAttr('flipY', flipY);
     this.imageGroup?.scaleY(flipY ? -1 : 1);
     this.imageGroup?.offsetY(flipY ? this.group.height() : 0);
-    this.updatePorts();
+    // this.updatePorts();
   }
 
   moveTo(group: Group) {

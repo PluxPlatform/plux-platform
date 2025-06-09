@@ -1,11 +1,10 @@
-import Editor from '@plux/editor';
+import type React from 'react';
+import { Button } from 'antd';
 
-test();
-
-const EditorNewPage = () => {
+const EditorNewPage: React.FC = () => {
   return (
-    <div className="flex-1">
-      1
+    <div className='editor-wrap'>
+      <Button>11</Button>
     </div>
   );
 };
