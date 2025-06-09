@@ -1,0 +1,84 @@
+{
+  "type": "page",
+  "title": "表单",
+  "regions": ["body", "toolbar", "header"],
+  "body": [
+    {
+      "id": "u:63bb52df32d6",
+      "type": "form",
+      "title": "表单",
+      "mode": "flex",
+      "labelAlign": "top",
+      "dsType": "api",
+      "feat": "Insert",
+      "body": [
+        {
+          "name": "name",
+          "label": "名字",
+          "row": 0,
+          "type": "input-text",
+          "id": "u:a0b62bd9a2d4"
+        },
+        {
+          "type": "radios",
+          "label": "单选框",
+          "name": "radios",
+          "options": [
+            {
+              "label": "选项A",
+              "value": "A"
+            },
+            {
+              "label": "选项B",
+              "value": "B"
+            }
+          ],
+          "row": 1,
+          "id": "u:1c73f7f0010f"
+        }
+      ],
+      "actions": [
+        {
+          "type": "button",
+          "label": "取消",
+          "onEvent": {
+            "click": {
+              "actions": [
+                {
+                  "actionType": "cancel",
+                  "componentId": "u:63bb52df32d6"
+                }
+              ]
+            }
+          },
+          "level": "default",
+          "id": "u:11a2a01bb830"
+        },
+        {
+          "type": "button",
+          "label": "提交",
+          "onEvent": {
+            "click": {
+              "actions": [
+                {
+                  "actionType": "submit",
+                  "componentId": "u:63bb52df32d6"
+                }
+              ]
+            }
+          },
+          "level": "primary",
+          "id": "u:3f1fb41b1f28"
+        }
+      ],
+      "resetAfterSubmit": true
+    }
+  ],
+  "id": "u:7e38121ae825",
+  "themeCss": {
+    "toolbarControlClassName": {},
+    "baseControlClassName": {
+      "background:default": "#b66262"
+    }
+  }
+}
