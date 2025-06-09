@@ -66,7 +66,7 @@ export type Menu = {
 
 export type MenuList = Menu[];
 
-export type Options<Node, Group, Line> = {
+export type Options<Node, Group> = {
   background: string;
   isEdit: boolean;
   mode: EditorMode;
@@ -83,7 +83,7 @@ export type Options<Node, Group, Line> = {
   onDrop: (event: DropEvent<Group>) => void;
   onSelect: (event: SelectEvent<Node>) => void;
   onDragmove: () => void;
-  onCreateLine: (line: Line) => Promise<boolean>;
+  // onCreateLine: (line: Line) => Promise<boolean>;
   onRemove: () => void;
   onMessage: (message: string) => void;
   onDo: (event: DoEvent) => void;

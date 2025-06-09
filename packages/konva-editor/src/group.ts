@@ -6,8 +6,8 @@ import {
   omit,
 } from 'lodash';
 import Konva from 'konva';
-import Node from './node.ts';
-import { DebounceRecord } from './util.ts';
+import Node from './node';
+import { DebounceRecord } from './util';
 import type Port from './port';
 import type {
   NodeId,
@@ -21,6 +21,8 @@ interface GroupConfig extends NodeConfig {
 }
 
 class Group extends Node {
+
+  highlight() {}
 
   className: NodeType = 'Group';
 

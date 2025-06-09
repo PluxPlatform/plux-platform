@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import type Group from './group';
 
 type OnRemoveFunc = (anchor: Anchor, index?: number, type?: boolean) => void;

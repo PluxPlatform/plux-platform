@@ -8,6 +8,8 @@ class Rect extends Node {
   className: NodeType = 'Rect';
   imageGroup: Konva.Rect;
 
+  highlight() {}
+
   constructor(config: NodeConfig) {
     super(config);
     this.minWidth = 1;

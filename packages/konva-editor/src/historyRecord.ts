@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import * as _ from 'lodash';
 import type Editor from './editor';
 import type Node from './node';
 

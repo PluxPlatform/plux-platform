@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import Node from './node.ts';
+import Node from './node';
 import type Group from './group';
 import type { NodeAttrs, NodeConfig, NodeType, TextDecoration } from './types';
 
@@ -7,6 +7,10 @@ class Text extends Node {
   className: NodeType = 'Text';
   attrs: NodeAttrs;
   imageGroup: Konva.Text;
+
+  setHeight() {}
+
+  highlight() {}
 
   constructor(config: NodeConfig) {
     super(config);

@@ -1,12 +1,14 @@
 import Konva from 'konva';
-import { createImage } from './createImage.ts';
-import Node from './node.ts';
+import { createImage } from './createImage';
+import Node from './node';
 import type Group from './group';
 import type { NodeAttrs, NodeType, NodeConfig } from './types';
 
 class Image extends Node {
   className: NodeType = 'Image';
   attrs: NodeAttrs;
+
+  highlight() {}
 
   constructor(config: NodeConfig) {
     super(config);

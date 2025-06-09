@@ -1,5 +1,5 @@
 import Konva from 'konva';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { uuid } from './uuid';
 import Port from './port';
 
@@ -212,13 +212,13 @@ abstract class Node {
     return this.group.width();
   }
 
-  setWidth(width: number, groupId?: string) {}
+  abstract setWidth(width: number, groupId?: string): void;
 
   getHeight() {
     return this.group.height();
   }
 
-  setHeight(height: number, groupId?: string) {}
+  abstract setHeight(height: number, groupId?: string): void;
 
   transformChange(callback: (start: Start, movementX: number, movementY: number) => void) {
     let start: Start = null;
@@ -253,7 +253,7 @@ abstract class Node {
     });
   }
 
-  highlight(highlight: boolean | string) {}
+  abstract highlight(highlight: boolean | string): void;
 
   editing() {
     if (this.editor.options.isEdit) {
@@ -271,7 +271,7 @@ abstract class Node {
         this.highlight(false);
         this.editor.pointer(false);
       });
-      this.group.on('mousedown', ({ evt }) => {
+      this.group.on('mousedown', (/* { evt } */) => {
         if (
           (
             this.isNode
@@ -281,7 +281,7 @@ abstract class Node {
           && this.editor.options.mode === 'E'
           && !_.some(this.ports, (port) => port.isFixed)
         ) {
-          this.editor.createLine(this.nodeId, evt.offsetX, evt.offsetY);
+          // this.editor.createLine(this.nodeId, evt.offsetX, evt.offsetY);
         }
       });
       this.group.on('mouseup', () => {
@@ -294,7 +294,7 @@ abstract class Node {
           && this.editor.options.mode === 'E'
           && !_.some(this.ports, (port) => port.isFixed)
         ) {
-          this.editor.createLineDone(this.nodeId);
+          // this.editor.createLineDone(this.nodeId);
         }
       });
       this.transformChange((start, movementX, movementY) => {

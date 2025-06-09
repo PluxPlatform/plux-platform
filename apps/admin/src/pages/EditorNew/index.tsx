@@ -1,4 +1,4 @@
-import { test } from '@plux/koneditor';
+import Editor from '@plux/editor';
 
 test();
 

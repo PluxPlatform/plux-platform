@@ -1,8 +1,8 @@
 import Konva from 'konva';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { uuid } from './uuid';
 import Group from './group';
-import Line from './line';
+// import Line from './line';
 import Rect from './rect';
 import Text from './text';
 import Image from './image';
@@ -25,10 +25,10 @@ import type {
 } from './types';
 import { type PositionEnum } from './types/enums';
 import type Node from './node';
-import type Port from './port';
+// import type Port from './port';
 import type Anchor from './anchor';
 
-type EditorOptions = Options<Node, Group, Line>;
+type EditorOptions = Options<Node, Group>;
 
 type GuideItem = {
   val: number;
@@ -90,12 +90,12 @@ class Editor {
   lineLayer: Group;
   editorContainer: HTMLElement;
   options: EditorOptions;
-  lineMap: Record<string, Line>;
+  // lineMap: Record<string, Line>;
   nodeIds: Record<string, Node>;
   tr: Transformer;
   cursor?: string;
   cacheAnchor: Anchor | null;
-  tempLine: Line | null;
+  // tempLine: Line | null;
   tempRect: Rect | null;
   tempMover?: Mover;
   blockSave: boolean;
@@ -126,7 +126,7 @@ class Editor {
     };
     this.lastDistance = 0;
     this.blockSave = false;
-    this.tempLine = null;
+    // this.tempLine = null;
     this.tempRect = null;
     this.cacheAnchor = null;
     this.copied = [];
@@ -167,7 +167,7 @@ class Editor {
     });
     this.mainLayer = new Konva.Layer();
     this.stage.add(this.mainLayer);
-    this.lineMap = {};
+    // this.lineMap = {};
     this.nodeIds = {};
     if (this.options.scroll) {
       this.onWheel();
@@ -300,13 +300,13 @@ class Editor {
         }
       });
       this.stage.on('mouseup dragend', () => {
-        this.createLineOver();
+        // this.createLineOver();
         this.createRectEnd();
         this.selectionEnd();
         this.clearGuide();
       });
       container.addEventListener('mouseout', () => {
-        this.createLineOver();
+        // this.createLineOver();
         this.createRectEnd();
         this.selectionEnd();
         if (mover.enable) {
@@ -490,26 +490,26 @@ class Editor {
     return null;
   }
 
-  protected addLine(
-    nodeId: NodeId,
-    attrs: NodeAttrs,
-    from: NodeId,
-    to: NodeId,
-    fromPort?: string | null,
-    toPort?: string | null,
-  ) {
-    const line = new Line({
-      nodeId,
-      attrs,
-      from,
-      fromPort,
-      to,
-      toPort,
-      layer: this.lineLayer,
-      editor: this,
-    });
-    this.nodeIds[nodeId] = line;
-  }
+  // protected addLine(
+  //   nodeId: NodeId,
+  //   attrs: NodeAttrs,
+  //   from: NodeId,
+  //   to: NodeId,
+  //   fromPort?: string | null,
+  //   toPort?: string | null,
+  // ) {
+  //   const line = new Line({
+  //     nodeId,
+  //     attrs,
+  //     from,
+  //     fromPort,
+  //     to,
+  //     toPort,
+  //     layer: this.lineLayer,
+  //     editor: this,
+  //   });
+  //   this.nodeIds[nodeId] = line;
+  // }
 
   onWheel() {
     this.stage.on('wheel', ({ evt }) => {
@@ -650,22 +650,22 @@ class Editor {
     this.nodeLayer.children = [];
   }
 
-  protected reload({ nodes, lines }: ExportData) {
+  protected reload({ nodes/* , lines */ }: ExportData) {
     this.clearAll();
     _.each(nodes, ({
       type, nodeId, parentId, attrs
     }) => {
       this.addNode(type, nodeId, parentId, attrs);
     });
-    _.each(lines, ({ nodeId, attrs }) => {
-      const {
-        from,
-        to,
-        fromPort,
-        toPort,
-      } = attrs;
-      this.addLine(nodeId, attrs, from, to, fromPort, toPort);
-    });
+    // _.each(lines, ({ nodeId, attrs }) => {
+    //   const {
+    //     from,
+    //     to,
+    //     fromPort,
+    //     toPort,
+    //   } = attrs;
+    //   this.addLine(nodeId, attrs, from, to, fromPort, toPort);
+    // });
   }
 
   clearSelect(currentGroup?: Group) {
@@ -818,7 +818,7 @@ class Editor {
         this.clearSelect();
       }
       setTimeout(() => {
-        this.tr.setList(_.map(this.selectionRectMap, (rect, nodeId) => this.findNode(nodeId)));
+        this.tr.setList(_.map(this.selectionRectMap, (_rect, nodeId) => this.findNode(nodeId)));
         _.each(this.selectionRectMap, (rect) => {
           rect.destroy();
         });
@@ -1230,100 +1230,100 @@ class Editor {
     }
   }
 
-  setPort(nodeId: NodeId | undefined, pos: number[], line: Line) {
-    if (pos && pos.length && nodeId) {
-      const node = this.nodeIds[nodeId];
-      if (node) {
-        return node.setPort(pos, line);
-      }
-      return undefined;
-    }
-    return undefined;
-  }
+  // setPort(nodeId: NodeId | undefined, pos: number[], line: Line) {
+  //   if (pos && pos.length && nodeId) {
+  //     const node = this.nodeIds[nodeId];
+  //     if (node) {
+  //       return node.setPort(pos, line);
+  //     }
+  //     return undefined;
+  //   }
+  //   return undefined;
+  // }
 
   selectAnchor(anchor: Anchor) {
     this.cacheAnchor = anchor;
   }
 
-  createLine(from: NodeId, offsetX: number, offsetY: number) {
-    this.blockSave = true;
-    this.clearSelect();
-    this.tr.clear();
-    const { x, y } = this.getPositionInLayer(offsetX, offsetY);
-    let showArrow = true;
-    let lineWidth = 4;
-    this.tempLine = new Line({
-      attrs: {
-        tid: uuid(),
-        showArrow,
-        type: 'CLEAN_COAL',
-        lineWidth,
-        points: [x, y, x, y, x, y],
-      },
-      from,
-      layer: this.lineLayer,
-      editor: this,
-    }, this);
-    let t = 0;
-    this.tempMover = new Mover(this.stage, ({
-      offsetX: ox,
-      offsetY: oy,
-      movementX,
-      movementY,
-    }) => {
-      if (this.tempLine) {
-        if (!t) {
-          t = Math.abs(movementX) > Math.abs(movementY) ? 1 : 2;
-        }
-        const { x: lx, y: ly } = this.getPositionInLayer(ox, oy);
-        const points = _.chunk(this.tempLine.attrs.points, 2);
-        if (t === 1) {
-          const endY = ly < points[0][1] ? ly + 5 : ly - 5;
-          points[1][0] = lx;
-          points[2][0] = lx;
-          points[2][1] = endY;
-        } else {
-          const endX = lx < points[0][0] ? lx + 5 : lx - 5;
-          points[1][1] = ly;
-          points[2][0] = endX;
-          points[2][1] = ly;
-        }
-        this.tempLine.setPoints(_.flatten(points));
-      }
-    }, true);
-  }
+  // createLine(from: NodeId, offsetX: number, offsetY: number) {
+  //   this.blockSave = true;
+  //   this.clearSelect();
+  //   this.tr.clear();
+  //   const { x, y } = this.getPositionInLayer(offsetX, offsetY);
+  //   let showArrow = true;
+  //   let lineWidth = 4;
+  //   this.tempLine = new Line({
+  //     attrs: {
+  //       tid: uuid(),
+  //       showArrow,
+  //       type: 'CLEAN_COAL',
+  //       lineWidth,
+  //       points: [x, y, x, y, x, y],
+  //     },
+  //     from,
+  //     layer: this.lineLayer,
+  //     editor: this,
+  //   }, this);
+  //   let t = 0;
+  //   this.tempMover = new Mover(this.stage, ({
+  //     offsetX: ox,
+  //     offsetY: oy,
+  //     movementX,
+  //     movementY,
+  //   }) => {
+  //     if (this.tempLine) {
+  //       if (!t) {
+  //         t = Math.abs(movementX) > Math.abs(movementY) ? 1 : 2;
+  //       }
+  //       const { x: lx, y: ly } = this.getPositionInLayer(ox, oy);
+  //       const points = _.chunk(this.tempLine.attrs.points, 2);
+  //       if (t === 1) {
+  //         const endY = ly < points[0][1] ? ly + 5 : ly - 5;
+  //         points[1][0] = lx;
+  //         points[2][0] = lx;
+  //         points[2][1] = endY;
+  //       } else {
+  //         const endX = lx < points[0][0] ? lx + 5 : lx - 5;
+  //         points[1][1] = ly;
+  //         points[2][0] = endX;
+  //         points[2][1] = ly;
+  //       }
+  //       this.tempLine.setPoints(_.flatten(points));
+  //     }
+  //   }, true);
+  // }
 
-  createLineDone(to: NodeId, port?: Port) {
-    if (this.tempLine) {
-      if (this.tempLine.from !== to) {
-        if (port) {
-          const portPos = port.port.getAbsolutePosition();
-          const pos = this.getPositionInLayer(portPos.x, portPos.y);
-          this.tempLine.setTo(to, port.id, pos);
-        } else {
-          this.tempLine.setTo(to);
-        }
-        this.tempLine.init();
-        this.options.onCreateLine(this.tempLine).then(() => {
-          this.blockSave = false;
-        });
-        this.tempLine = null;
-      }
-    }
-  }
+  // createLineDone(to: NodeId, port?: Port) {
+  //   if (this.tempLine) {
+  //     if (this.tempLine.from !== to) {
+  //       if (port) {
+  //         const portPos = port.port.getAbsolutePosition();
+  //         const pos = this.getPositionInLayer(portPos.x, portPos.y);
+  //         this.tempLine.setTo(to, port.id, pos);
+  //       } else {
+  //         this.tempLine.setTo(to);
+  //       }
+  //       this.tempLine.init();
+  //       this.options.onCreateLine(this.tempLine).then(() => {
+  //         this.blockSave = false;
+  //       });
+  //       this.tempLine = null;
+  //     }
+  //   }
+  // }
 
-  createLineOver() {
-    if (this.tempLine) {
-      this.tempLine.destroy();
-      this.tempLine = null;
-      this.blockSave = false;
-    }
-  }
+  // createLineOver() {
+  //   if (this.tempLine) {
+  //     this.tempLine.destroy();
+  //     this.tempLine = null;
+  //     this.blockSave = false;
+  //   }
+  // }
 
-  saveLine(line: Line) {
-    this.nodeIds[line.nodeId] = line;
-    line.select();
-  }
+  // saveLine(line: Line) {
+  //   this.nodeIds[line.nodeId] = line;
+  //   line.select();
+  // }
 
   changeElementsPosition(type: PositionEnum) {
     this.tr.changeElementPosition(type);
