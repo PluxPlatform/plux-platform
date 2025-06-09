@@ -1,5 +1,5 @@
 {
-  "name": "@plux/koneditor",
+  "name": "@plux/editor",
   "version": "1.0.0",
   "description": "基于Konva的绘图工具",
   "main": "dist/index.mjs",
