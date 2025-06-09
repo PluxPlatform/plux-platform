@@ -1,4 +1,4 @@
-import { Editor } from "@plux/konva-editor";
+import { Editor } from "@plux/editor";
 import { useEffect, useState } from "react";
 import SiderMenu from "./components/Sider";
 import EditorHeader from "./components/Header";
