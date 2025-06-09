@@ -1,39 +1,31 @@
 {
-  "name": "@plux/konva-editor-v1",
+  "name": "@plux/editor",
   "version": "1.0.0",
   "description": "基于Konva的绘图工具",
-  "main": "konvaEditor/index.js",
-  "module": "konvaEditor/index.esm.js",
-  "types": "konvaEditor/index.d.ts",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
-    "serve": "serve -s konvaEditor"
+    "dev": "tsc && vite build --watch",
+    "vite:build": "tsc && vite build",
+    "build": "rollup -c"
   },
   "keywords": [
     "konva",
     "editor",
-    "drawing",
     "canvas"
   ],
-  "author": "",
   "license": "MIT",
+  "devDependencies": {
+    "@types/lodash": "^4.17.17",
+    "@types/node": "^22.14.1",
+    "@types/omggif": "^1.0.5",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.1",
+    "vite-plugin-dts": "^4.5.4"
+  },
   "dependencies": {
     "konva": "^8.4.3",
-    "uuid": "^11.1.0"
-  },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^22.0.0",
-    "@rollup/plugin-html": "^0.2.4",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@rollup/plugin-typescript": "^8.3.2",
-    "rollup": "^2.75.5",
-    "rollup-plugin-copy": "^3.4.0",
-    "rollup-plugin-livereload": "^2.0.5",
-    "rollup-plugin-serve": "^1.1.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "serve": "^13.0.2",
-    "tslib": "^2.4.0",
-    "typescript": "^4.7.3"
+    "lodash": "^4.17.21",
+    "omggif": "^1.0.10"
   }
 }
