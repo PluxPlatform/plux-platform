@@ -9,7 +9,7 @@
   "scripts": {
     "dev:admin": "pnpm --filter admin dev",
     "dev:server": "pnpm --filter server start:dev",
-    "dev:editor": "pnpm --filter editor dev",
+    "dev:editor": "pnpm --filter konva-editor dev",
     "dev:site": "pnpm --filter site dev",
     "dev:kon": "pnpm --filter koneditor dev",
     "build:kon": "pnpm --filter koneditor build",

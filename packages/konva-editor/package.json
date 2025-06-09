@@ -5,9 +5,10 @@
   "main": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "tsc && vite build --watch",
-    "vite:build": "tsc && vite build",
-    "build": "rollup -c"
+    "dev:vite": "tsc && vite build --watch",
+    "build:vite": "tsc && vite build",
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
   },
   "keywords": [
     "konva",
