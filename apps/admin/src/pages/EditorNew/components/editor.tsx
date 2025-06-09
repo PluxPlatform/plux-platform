@@ -386,6 +386,9 @@ const FlowchartEditor = forwardRef(
         <div
           ref={editorRef}
           className="inl-flowchart-editor-main w-full h-full" /* style={{ backgroundColor: background }} */
+          style={{
+            outline: 'none',
+          }}
         />
       </div>
     );

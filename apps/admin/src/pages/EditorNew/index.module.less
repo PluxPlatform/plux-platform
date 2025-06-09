@@ -1,3 +1,63 @@
-.bg {
-  background: red;
+.editorWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorHeader {
+  height: 48px;
+  border-bottom: 1px solid #c8c8c8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+.editorTitle {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.editorContent {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.editorMenu {
+  width: 54px;
+  border-right: 1px solid #c8c8c8;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorToolsGroup {
+  border-bottom: 1px solid #e7e7e7;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+
+  &:last-child {
+    border-bottom: 0 none;
+  }
+}
+
+.editorToolsBtn {
+  width: 40px;
+  height: 40px;
+  background: #e7e7e7;
+  color: #000;
+  font-weight: bold;
+
+  &.is-active {
+    background-color: #4096ff;
+    color: #fff;
+  }
+}
+
+.editorMain {
+  flex: 1;
 }
