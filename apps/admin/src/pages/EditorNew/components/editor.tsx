@@ -1,4 +1,4 @@
-import type React from "react"
+import type React from "react";
 import {
   useRef,
   useEffect,
@@ -7,35 +7,35 @@ import {
   useCallback,
   forwardRef,
   useImperativeHandle,
-} from "react"
-import { Modal } from "antd"
-import _ from "lodash"
-import { Editor } from "@plux/editor"
+} from "react";
+import { Modal } from "antd";
+import _ from "lodash";
+import { Editor } from "@plux/editor";
 
 // Custom hook to replace useElementSize from @vueuse/core
 const useElementSize = (elementRef: React.RefObject<HTMLElement | null>) => {
-  const [size, setSize] = useState({ width: 0, height: 0 })
+  const [size, setSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const element = elementRef.current
-    if (!element) return
+    const element = elementRef.current;
+    if (!element) return;
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        const { width, height } = entry.contentRect
-        setSize({ width, height })
+        const { width, height } = entry.contentRect;
+        setSize({ width, height });
       }
-    })
+    });
 
-    resizeObserver.observe(element)
+    resizeObserver.observe(element);
 
     return () => {
-      resizeObserver.disconnect()
-    }
-  }, [])
+      resizeObserver.disconnect();
+    };
+  }, []);
 
-  return size
-}
+  return size;
+};
 
 const FlowchartEditor = forwardRef(
   (
@@ -74,38 +74,38 @@ const FlowchartEditor = forwardRef(
       modeValue,
       onModeValueChange,
     },
-    ref,
+    ref
   ) => {
-    const editorRef = useRef<HTMLDivElement>(null)
-    const editorWrapRef = useRef<HTMLDivElement>(null)
-    const editorInstance = useRef<Editor | null>(null)
+    const editorRef = useRef<HTMLDivElement>(null);
+    const editorWrapRef = useRef<HTMLDivElement>(null);
+    const editorInstance = useRef<Editor | null>(null);
 
-    const { width, height } = useElementSize(editorRef)
+    const { width, height } = useElementSize(editorRef);
 
     // Debounced fit function
     const debounceToFit = useMemo(
       () =>
         _.debounce(() => {
           if (editorInstance.current) {
-            editorInstance.current.fitStage()
+            editorInstance.current.fitStage();
           }
         }, 300),
-      [],
-    )
+      []
+    );
 
     // Watch for size changes
     useEffect(() => {
-      debounceToFit()
-    }, [width, height, debounceToFit])
+      debounceToFit();
+    }, [width, height, debounceToFit]);
 
     // Computed values for two-way binding
     const currentMode = useMemo(() => {
-      return modeValue !== undefined ? modeValue : mode
-    }, [modeValue, mode])
+      return modeValue !== undefined ? modeValue : mode;
+    }, [modeValue, mode]);
 
     const currentSelected = useMemo(() => {
-      return selectedValue !== undefined ? selectedValue : selected
-    }, [selectedValue, selected])
+      return selectedValue !== undefined ? selectedValue : selected;
+    }, [selectedValue, selected]);
 
     // Background color computation
     // const background = useMemo(() => {
@@ -134,7 +134,7 @@ const FlowchartEditor = forwardRef(
           isEdit,
           mode: currentMode,
           intersection,
-          background: '',
+          background: "",
           scroll,
           touch,
           history,
@@ -144,38 +144,38 @@ const FlowchartEditor = forwardRef(
             fixed: gridFixed,
           },
           onKeydown: (event) => {
-            onKeydown?.(event)
+            onKeydown?.(event);
           },
           onModeChange: (newMode) => {
-            onModeValueChange?.(newMode)
-            onModeChange?.(newMode)
+            onModeValueChange?.(newMode);
+            onModeChange?.(newMode);
           },
           onClick: (event) => {
-            onClick?.(event)
+            onClick?.(event);
           },
           onDrop: (event) => {
-            onDrop?.(event)
+            onDrop?.(event);
           },
           onSelect: (event) => {
-            onSelectedChange?.(event)
-            onSelect?.(event)
+            onSelectedChange?.(event);
+            onSelect?.(event);
           },
           onDragmove: () => {
-            onDragmove?.()
+            onDragmove?.();
           },
           onRemove: () => {
-            onRemove?.()
+            onRemove?.();
           },
           onMessage: (message) => {
-            onMessage?.(message)
+            onMessage?.(message);
           },
           onDo: (event) => {
-            onDo?.(event)
+            onDo?.(event);
           },
           onTouch: () => {
-            onTouch?.()
+            onTouch?.();
           },
-        })
+        });
       }
     }, [
       isEdit,
@@ -205,12 +205,12 @@ const FlowchartEditor = forwardRef(
       onMessage,
       onDo,
       onTouch,
-    ])
+    ]);
 
     // Initialize on mount
     useEffect(() => {
-      init()
-    }, [init])
+      init();
+    }, [init]);
 
     // Watch theme changes
     // useEffect(() => {
@@ -223,15 +223,15 @@ const FlowchartEditor = forwardRef(
     useEffect(() => {
       if (editorInstance.current) {
         if (gridSize === 0) {
-          editorInstance.current.setGrid(false)
+          editorInstance.current.setGrid(false);
         } else {
           editorInstance.current.setGrid({
             size: gridSize,
             fixed: gridFixed,
-          })
+          });
         }
       }
-    }, [gridSize, gridFixed])
+    }, [gridSize, gridFixed]);
 
     // Watch view style changes
     // useEffect(() => {
@@ -243,37 +243,37 @@ const FlowchartEditor = forwardRef(
     // Watch line top changes
     useEffect(() => {
       if (editorInstance.current) {
-        editorInstance.current.setLineTop(lineTop)
+        editorInstance.current.setLineTop(lineTop);
       }
-    }, [lineTop])
+    }, [lineTop]);
 
     // Watch scroll changes
     useEffect(() => {
       if (editorInstance.current) {
-        editorInstance.current.enableScroll(scroll)
+        editorInstance.current.enableScroll(scroll);
       }
-    }, [scroll])
+    }, [scroll]);
 
     // Watch touch changes
     useEffect(() => {
       if (editorInstance.current) {
-        editorInstance.current.enableTouch(touch)
+        editorInstance.current.enableTouch(touch);
       }
-    }, [touch])
+    }, [touch]);
 
     // Watch mode changes
     useEffect(() => {
       if (editorInstance.current) {
-        editorInstance.current.setMode(currentMode)
+        editorInstance.current.setMode(currentMode);
       }
-    }, [currentMode])
+    }, [currentMode]);
 
     // Watch intersection changes
     useEffect(() => {
       if (editorInstance.current) {
-        editorInstance.current.options.intersection = intersection
+        editorInstance.current.options.intersection = intersection;
       }
-    }, [intersection])
+    }, [intersection]);
 
     // Watch default pipeline changes
     // useEffect(() => {
@@ -322,7 +322,10 @@ const FlowchartEditor = forwardRef(
 
     const cancelGroup = useCallback(() => {
       if (currentSelected && editorInstance.current) {
-        const group = currentSelected.length === 1 ? (currentSelected[0]) : (currentSelected[0].layer)
+        const group =
+          currentSelected.length === 1
+            ? currentSelected[0]
+            : currentSelected[0].layer;
         if (group.tid()) {
           Modal.confirm({
             title: "提示",
@@ -331,15 +334,15 @@ const FlowchartEditor = forwardRef(
             cancelText: "我再考虑考虑",
             onOk: () => {
               if (editorInstance.current) {
-                editorInstance.current.cancelGroup(group)
+                editorInstance.current.cancelGroup(group);
               }
             },
-          })
+          });
         } else {
-          editorInstance.current.cancelGroup(group)
+          editorInstance.current.cancelGroup(group);
         }
       }
-    }, [currentSelected])
+    }, [currentSelected]);
 
     // Expose methods via ref
     useImperativeHandle(
@@ -348,25 +351,31 @@ const FlowchartEditor = forwardRef(
         fit: () => editorInstance.current?.fit(),
         destroy: () => editorInstance.current?.destroy(),
         dragIn: (event, data) => {
-          event.dataTransfer?.setData("thing", JSON.stringify(data))
+          event.dataTransfer?.setData("thing", JSON.stringify(data));
         },
-        dropImage: (src, offsetX, offsetY) => editorInstance.current?.dropImage(src, offsetX, offsetY),
+        dropImage: (src, offsetX, offsetY) =>
+          editorInstance.current?.dropImage(src, offsetX, offsetY),
         exportPNG: () => editorInstance.current?.exportPNG(),
         exportData: () => editorInstance.current?.exportData(),
         findNode: (nodeId) => editorInstance.current?.findNode(nodeId),
         getAllNodes: () => editorInstance.current?.nodeIds,
-        changeElementsPosition: (type) => editorInstance.current?.changeElementsPosition(type),
+        changeElementsPosition: (type) =>
+          editorInstance.current?.changeElementsPosition(type),
         group: () => editorInstance.current?.group(),
         cancelGroup,
         pull: (group) => editorInstance.current?.pull(group),
         undo: () => editorInstance.current?.undo(),
         redo: () => editorInstance.current?.redo(),
       }),
-      [cancelGroup],
-    )
+      [cancelGroup]
+    );
 
     return (
-      <div ref={editorWrapRef} className="inl-flowchart-editor flex-1" style={{ height: "100%" }}>
+      <div
+        ref={editorWrapRef}
+        className="inl-flowchart-editor flex-1"
+        style={{ height: "100%" }}
+      >
         {(tools || title || extra) && (
           <div className="inl-flowchart-editor-header">
             {title && <div className="inl-flowchart-editor-title">{title}</div>}
@@ -374,12 +383,15 @@ const FlowchartEditor = forwardRef(
             {extra && <div className="inl-flowchart-editor-extra">{extra}</div>}
           </div>
         )}
-        <div ref={editorRef} className="inl-flowchart-editor-main w-full h-full"/* style={{ backgroundColor: background }} */ />
+        <div
+          ref={editorRef}
+          className="inl-flowchart-editor-main w-full h-full" /* style={{ backgroundColor: background }} */
+        />
       </div>
-    )
-  },
-)
+    );
+  }
+);
 
-FlowchartEditor.displayName = "FlowchartEditor"
+FlowchartEditor.displayName = "FlowchartEditor";
 
-export default FlowchartEditor
+export default FlowchartEditor;
