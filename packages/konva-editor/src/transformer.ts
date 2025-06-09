@@ -1,17 +1,10 @@
-import Konva from 'konva';
-import {
-  debounce,
-  map,
-  each,
-  min,
-  max,
-  sortBy,
-  sumBy,
-} from 'lodash';
-import HistoryRecord from './historyRecord';
-import { PositionEnum } from './types/enums';
-import type Editor from './editor';
-import type Node from './node';
+import Konva from "konva";
+import { debounce, map, each, min, max, sortBy, sumBy } from "lodash";
+import HistoryRecord from "./historyRecord";
+import { PositionEnum } from "./types/enums";
+import type Editor from "./editor";
+import type Node from "./node";
+import Group from "./group";
 
 type MoveHistory = {
   nodeId: string;
@@ -42,16 +35,16 @@ class Transformer {
     const debounceDragmoveHandler = debounce(() => {
       this.editor.dragmove();
     }, 100);
-    this.transformer.on('dragstart transformstart', () => {
+    this.transformer.on("dragstart transformstart", () => {
       this.dragStart();
     });
-    this.transformer.on('dragend transformend', (event) => {
+    this.transformer.on("dragend transformend", (event) => {
       if (this.moveHistory) {
         this.dragEnd(event.type, [...this.moveHistory]);
       }
     });
-    this.transformer.on('dragmove', debounceDragmoveHandler);
-    this.transformer.on('transform', debounceDragmoveHandler);
+    this.transformer.on("dragmove", debounceDragmoveHandler);
+    this.transformer.on("transform", debounceDragmoveHandler);
     layer.add(this.transformer);
   }
 
@@ -67,11 +60,11 @@ class Transformer {
       nodeId: node.nodeId,
       attrs: node.getTemplate(),
     }));
-    let title = '';
-    if (type === 'dragend') {
-      title = '移动位置';
-    } else if (type === 'transformend') {
-      title = '变形';
+    let title = "";
+    if (type === "dragend") {
+      title = "移动位置";
+    } else if (type === "transformend") {
+      title = "变形";
     }
     this.editor.history.add({
       title,
@@ -122,7 +115,8 @@ class Transformer {
         this.setTransformer();
       }
     } else {
-      const group = target.layer.className === 'Group' ? target.layer : undefined;
+      const group =
+        target.layer.className === "Group" ? target.layer : undefined;
       this.editor.clearSelect(group as Group | undefined);
       this.cache = [target];
       this.transformer.nodes([target.get()]);
@@ -133,7 +127,7 @@ class Transformer {
 
   setList(nodes: Node[], force = false) {
     this.clear();
-    const evt = new KeyboardEvent('keydown', { ctrlKey: true });
+    const evt = new KeyboardEvent("keydown", { ctrlKey: true });
     each(nodes, (node) => {
       node.select(evt, force);
     });
@@ -169,8 +163,12 @@ class Transformer {
   saveHistory(title: string, his: HistoryRecord) {
     this.editor.history.add({
       title,
-      undo() { his.undo(); },
-      redo() { his.redo(); },
+      undo() {
+        his.undo();
+      },
+      redo() {
+        his.redo();
+      },
     });
   }
 
@@ -187,7 +185,7 @@ class Transformer {
     if (this.cache.length === 1) {
       this.cache[0].setTransformer();
     }
-    this.saveHistory('水平翻转', his);
+    this.saveHistory("水平翻转", his);
   }
 
   flipY() {
@@ -203,7 +201,7 @@ class Transformer {
     if (this.cache.length === 1) {
       this.cache[0].setTransformer();
     }
-    this.saveHistory('垂直翻转', his);
+    this.saveHistory("垂直翻转", his);
   }
 
   leftAlign() {
@@ -216,7 +214,7 @@ class Transformer {
       his.set(node.nodeId, oldX, x);
       node.setX(x, undefined, true);
     });
-    this.saveHistory('左对齐', his);
+    this.saveHistory("左对齐", his);
   }
 
   rightAlign() {
@@ -230,7 +228,7 @@ class Transformer {
       his.set(node.nodeId, oldX, newX);
       node.setX(newX, undefined, true);
     });
-    this.saveHistory('右对齐', his);
+    this.saveHistory("右对齐", his);
   }
 
   topAlign() {
@@ -243,7 +241,7 @@ class Transformer {
       his.set(node.nodeId, oldY, y);
       node.setY(y, undefined, true);
     });
-    this.saveHistory('顶对齐', his);
+    this.saveHistory("顶对齐", his);
   }
 
   bottomAlign() {
@@ -257,7 +255,7 @@ class Transformer {
       his.set(node.nodeId, oldY, newY);
       node.setY(newY, undefined, true);
     });
-    this.saveHistory('底对齐', his);
+    this.saveHistory("底对齐", his);
   }
 
   centerX() {
@@ -273,7 +271,7 @@ class Transformer {
       his.set(node.nodeId, oldX, newX);
       node.setX(newX, undefined, true);
     });
-    this.saveHistory('水平居中对齐', his);
+    this.saveHistory("水平居中对齐", his);
   }
 
   centerY() {
@@ -289,7 +287,7 @@ class Transformer {
       his.set(node.nodeId, oldY, newY);
       node.setY(newY, undefined, true);
     });
-    this.saveHistory('垂直居中对齐', his);
+    this.saveHistory("垂直居中对齐", his);
   }
 
   distributionX() {
@@ -316,7 +314,7 @@ class Transformer {
       }
       temp = node.getGroupSize().maxX;
     });
-    this.saveHistory('水平分布对齐', his);
+    this.saveHistory("水平分布对齐", his);
   }
 
   distributionY() {
@@ -343,7 +341,7 @@ class Transformer {
       }
       temp = node.getGroupSize().maxY;
     });
-    this.saveHistory('垂直分布对齐', his);
+    this.saveHistory("垂直分布对齐", his);
   }
 
   up(ten: boolean) {
@@ -357,7 +355,7 @@ class Transformer {
       his.set(node.nodeId, oldY, newY);
       node.setY(newY);
     });
-    this.saveHistory('上移', his);
+    this.saveHistory("上移", his);
   }
 
   down(ten: boolean) {
@@ -371,7 +369,7 @@ class Transformer {
       his.set(node.nodeId, oldY, newY);
       node.setY(newY);
     });
-    this.saveHistory('下移', his);
+    this.saveHistory("下移", his);
   }
 
   left(ten: boolean) {
@@ -385,7 +383,7 @@ class Transformer {
       his.set(node.nodeId, oldX, newX);
       node.setX(newX);
     });
-    this.saveHistory('左移', his);
+    this.saveHistory("左移", his);
   }
 
   right(ten: boolean) {
@@ -399,34 +397,34 @@ class Transformer {
       his.set(node.nodeId, oldX, newX);
       node.setX(newX);
     });
-    this.saveHistory('右移', his);
+    this.saveHistory("右移", his);
   }
 
   changeElementPosition(type: PositionEnum) {
     switch (type) {
       case PositionEnum.MOVE_UP:
-        this.editor.saveHistory('上层', () => {
+        this.editor.saveHistory("上层", () => {
           this.iterator((node) => {
             node.moveUp();
           });
         });
         break;
       case PositionEnum.MOVE_DOWN:
-        this.editor.saveHistory('下层', () => {
+        this.editor.saveHistory("下层", () => {
           this.iterator((node) => {
             node.moveDown();
           });
         });
         break;
       case PositionEnum.MOVE_TO_TOP:
-        this.editor.saveHistory('置于顶层', () => {
+        this.editor.saveHistory("置于顶层", () => {
           this.iterator((node) => {
             node.moveToTop();
           });
         });
         break;
       case PositionEnum.MOVE_TO_BOTTOM:
-        this.editor.saveHistory('置于底层', () => {
+        this.editor.saveHistory("置于底层", () => {
           this.iterator((node) => {
             node.moveToBottom();
           });
