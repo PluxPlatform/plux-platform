@@ -82,7 +82,6 @@ const FlowchartEditor = forwardRef(
 
     const { width, height } = useElementSize(editorRef);
 
-    // Debounced fit function
     const debounceToFit = useMemo(
       () =>
         _.debounce(() => {
@@ -93,12 +92,10 @@ const FlowchartEditor = forwardRef(
       []
     );
 
-    // Watch for size changes
     useEffect(() => {
       debounceToFit();
     }, [width, height, debounceToFit]);
 
-    // Computed values for two-way binding
     const currentMode = useMemo(() => {
       return modeValue !== undefined ? modeValue : mode;
     }, [modeValue, mode]);
@@ -107,27 +104,6 @@ const FlowchartEditor = forwardRef(
       return selectedValue !== undefined ? selectedValue : selected;
     }, [selectedValue, selected]);
 
-    // Background color computation
-    // const background = useMemo(() => {
-    //   if (isEdit) {
-    //     if (theme === "dark") {
-    //       return "#000f37"
-    //     }
-    //     if (theme === "light") {
-    //       return "#eff2f6"
-    //     }
-    //     return "#ffffff"
-    //   }
-    //   if (theme === "dark") {
-    //     return "#1b2c55"
-    //   }
-    //   if (theme === "light") {
-    //     return "#ffffff"
-    //   }
-    //   return theme
-    // }, [isEdit, theme])
-
-    // Initialize editor
     const init = useCallback(() => {
       if (!editorInstance.current && editorRef.current) {
         editorInstance.current = new Editor(editorRef.current, {
@@ -207,19 +183,10 @@ const FlowchartEditor = forwardRef(
       onTouch,
     ]);
 
-    // Initialize on mount
     useEffect(() => {
       init();
     }, [init]);
 
-    // Watch theme changes
-    // useEffect(() => {
-    //   if (editorInstance.current) {
-    //     editorInstance.current.changeTheme(theme)
-    //   }
-    // }, [theme])
-
-    // Watch grid size changes
     useEffect(() => {
       if (editorInstance.current) {
         if (gridSize === 0) {
@@ -232,93 +199,35 @@ const FlowchartEditor = forwardRef(
         }
       }
     }, [gridSize, gridFixed]);
-
-    // Watch view style changes
-    // useEffect(() => {
-    //   if (editorInstance.current) {
-    //     editorInstance.current.options.viewStyle = viewStyle
-    //   }
-    // }, [viewStyle])
-
-    // Watch line top changes
     useEffect(() => {
       if (editorInstance.current) {
         editorInstance.current.setLineTop(lineTop);
       }
     }, [lineTop]);
 
-    // Watch scroll changes
     useEffect(() => {
       if (editorInstance.current) {
         editorInstance.current.enableScroll(scroll);
       }
     }, [scroll]);
 
-    // Watch touch changes
     useEffect(() => {
       if (editorInstance.current) {
         editorInstance.current.enableTouch(touch);
       }
     }, [touch]);
 
-    // Watch mode changes
     useEffect(() => {
       if (editorInstance.current) {
         editorInstance.current.setMode(currentMode);
       }
     }, [currentMode]);
 
-    // Watch intersection changes
     useEffect(() => {
       if (editorInstance.current) {
         editorInstance.current.options.intersection = intersection;
       }
     }, [intersection]);
-
-    // Watch default pipeline changes
-    // useEffect(() => {
-    //   if (editorInstance.current) {
-    //     editorInstance.current.options.defaultPipeline = defaultPipeline
-    //   }
-    // }, [defaultPipeline])
-
-    // Exposed methods
-    // const loadJson = useCallback(
-    //   (style: KonvaStyle, thingMap: ThingMap, instanceMap: InstanceMap) =>
-    //     new Promise<boolean>((resolve) => {
-    //       if (editorInstance.current) {
-    //         editorInstance.current.stopAnimate()
-    //         editorInstance.current.clearAll()
-    //         editorInstance.current.startAnimate()
-    //         editorInstance.current.loadJson(style, thingMap, instanceMap).then(() => {
-    //           resolve(true)
-    //         })
-    //       }
-    //     }),
-    //   [],
-    // )
-
-    // const load = useCallback(
-    //   (
-    //     style: Konva.LayerConfig,
-    //     thingMap: ThingMap,
-    //     nodeList: TopoNodeEntity[],
-    //     lineList: TopoLineEntity[],
-    //     width: number,
-    //     height: number,
-    //   ) =>
-    //     new Promise<boolean>((resolve) => {
-    //       if (editorInstance.current) {
-    //         editorInstance.current.stopAnimate()
-    //         editorInstance.current.clearAll()
-    //         editorInstance.current.startAnimate()
-    //         editorInstance.current.load(style, thingMap, nodeList, lineList, width, height).then(() => {
-    //           resolve(true)
-    //         })
-    //       }
-    //     }),
-    //   [],
-    // )
 
     const cancelGroup = useCallback(() => {
       if (currentSelected && editorInstance.current) {
@@ -387,7 +296,7 @@ const FlowchartEditor = forwardRef(
           ref={editorRef}
           className="inl-flowchart-editor-main w-full h-full" /* style={{ backgroundColor: background }} */
           style={{
-            outline: 'none',
+            outline: "none",
           }}
         />
       </div>
