@@ -5,6 +5,7 @@ const pathCurveController = (path, pointIndex, options = {}) => {
     height: 20, // 曲线高度（偏移距离）
     direction: "up", // 曲线方向：'up' 或 'down'
     curveType: "quadratic", // 曲线类型：'quadratic' 或 'cubic'
+    type: "circle", // 直角 还是 圆弧right-angle or circle
     ...options,
   };
 
@@ -38,6 +39,15 @@ const pathCurveController = (path, pointIndex, options = {}) => {
 
   return true;
 };
+
+// 根据两个点生成一个中点并添加偏移
+function toQuadraticCurve(from, to, offsetY = -20) {
+  const [x1, y1] = from;
+  const [x2, y2] = to;
+  const cx = (x1 + x2) / 2;
+  const cy = (y1 + y2) / 2 + offsetY;
+  return `Q ${cx} ${cy}, ${x2} ${y2}`;
+}
 // 创建局部曲线路径（只修改指定点）
 const createLocalCurvedPath = (points, curvePointIndex, config) => {
   if (points.length < 3) {
@@ -66,13 +76,42 @@ const createLocalCurvedPath = (points, curvePointIndex, config) => {
       newPoints.push(points[i]);
     }
   }
+  // 半径
+  const radius = 30;
+  // 计算新的点位置
+  let newPoint = getPointOnLine(
+    prevPoint,
+    currentPoint,
+    totalDistance * ratioFromPrev
+  );
+  // 计算currentPoint到新的点的距离
+  const distanceToNewPoint = calculateDistance(prevPoint, newPoint) - radius;
+  // 计算新的点位置
+  const newPoint1 = getPointOnLine(prevPoint, newPoint, distanceToNewPoint);
+  const newPoint2 = getPointOnLine(newPoint, nextPoint, radius);
+
+  // 直角
+  if (config.type !== "circle") {
+    newPoint = getPointWithHeight(
+      prevPoint,
+      nextPoint,
+      newPoint,
+      config.height
+    );
+    // 插入新的点
+    newPoints.splice(curvePointIndex, 0, newPoint1, newPoint, newPoint2);
+  } else {
+  }
 
   // 构建基础路径（暂时不添加曲线）
   let pathData = `M ${newPoints[0].x} ${newPoints[0].y}`;
   for (let i = 1; i < newPoints.length; i++) {
-    pathData += ` L ${newPoints[i].x} ${newPoints[i].y}`;
+    if (config.type !== "circle") {
+      pathData += ` L ${newPoints[i].x} ${newPoints[i].y}`;
+    } else {
+      // 组装圆弧
+    }
   }
-
   return pathData;
 };
 
@@ -101,56 +140,6 @@ const parsePathPoints = (pathData) => {
   return points;
 };
 
-// 计算高度点（曲线的顶点）
-const calculateHeightPoint = (prevPoint, currentPoint, nextPoint, config) => {
-  // 计算前后两点连线的中点
-  const midX = (prevPoint.x + nextPoint.x) / 2;
-  const midY = (prevPoint.y + nextPoint.y) / 2;
-
-  // 计算垂直方向
-  const dx = nextPoint.x - prevPoint.x;
-  const dy = nextPoint.y - prevPoint.y;
-  const length = Math.sqrt(dx * dx + dy * dy);
-
-  // 垂直单位向量
-  let perpX = -dy / length;
-  let perpY = dx / length;
-
-  // 根据方向调整
-  if (config.direction === "down") {
-    perpX = -perpX;
-    perpY = -perpY;
-  }
-
-  // 返回高度点
-  return {
-    x: midX + perpX * config.height,
-    y: midY + perpY * config.height,
-  };
-};
-
-// 计算三次贝塞尔曲线的控制点
-const calculateCubicControlPoints = (
-  startPoint,
-  heightPoint,
-  endPoint,
-  config
-) => {
-  // 第一个控制点：从起点向高度点方向的1/3处
-  const cp1 = {
-    x: startPoint.x + (heightPoint.x - startPoint.x) * 0.33,
-    y: startPoint.y + (heightPoint.y - startPoint.y) * 0.33,
-  };
-
-  // 第二个控制点：从终点向高度点方向的1/3处
-  const cp2 = {
-    x: endPoint.x + (heightPoint.x - endPoint.x) * 0.33,
-    y: endPoint.y + (heightPoint.y - endPoint.y) * 0.33,
-  };
-
-  return { cp1, cp2 };
-};
-
 // 计算两点间距离
 const calculateDistance = (point1, point2) => {
   const dx = point2.x - point1.x;
@@ -158,39 +147,99 @@ const calculateDistance = (point1, point2) => {
   return Math.sqrt(dx * dx + dy * dy);
 };
 
-// 获取路径点数量
-const getPathPointCount = (path) => {
-  const data = path.data();
-  return parsePathPoints(data).length;
-};
-
-// 获取可设置曲线的点索引范围
-const getCurveablePointRange = (path) => {
-  const pointCount = getPathPointCount(path);
-  return {
-    min: 1,
-    max: pointCount - 2,
-    total: pointCount,
-  };
-};
-
-// 重置指定点的曲线（恢复为直线）
-const resetPointCurve = (path, pointIndex) => {
+// 复制一个Path，新的path整体向下移动指定的距离
+const copyPathAndMoveDown = (path, distance) => {
   const data = path.data();
   const points = parsePathPoints(data);
+  // 移动所有点的y坐标
+  const newPoints = points.map((point) => ({
+    x: point.x + distance,
+    y: point.y + distance,
+  }));
+  // 重新构建路径数据
+  let pathData = `M ${newPoints[0].x} ${newPoints[0].y}`;
+  for (let i = 1; i < newPoints.length; i++) {
+    pathData += ` L ${newPoints[i].x} ${newPoints[i].y}`;
+  }
+  // 创建新的Path
+  const newPath = new Konva.Path({
+    data: pathData,
+    stroke: path.stroke(),
+    strokeWidth: path.strokeWidth(),
+    fill: path.fill(),
+    opacity: path.opacity(),
+  });
+  return newPath;
+};
 
-  // 重新构建为纯直线路径
-  let pathData = `M ${points[0].x} ${points[0].y}`;
-  for (let i = 1; i < points.length; i++) {
-    pathData += ` L ${points[i].x} ${points[i].y}`;
+// 根据开始点、结束点和距离开始点的距离，计算线上新点的位置
+const getPointOnLine = (startPoint, endPoint, distanceFromStart) => {
+  // 计算两点间的总距离
+  const totalDistance = calculateDistance(startPoint, endPoint);
+
+  // 如果距离超出线段范围，返回null或边界点
+  if (distanceFromStart < 0) {
+    return startPoint;
+  }
+  if (distanceFromStart > totalDistance) {
+    return endPoint;
   }
 
-  path.data(pathData);
+  // 计算在线段上的比例
+  const ratio = distanceFromStart / totalDistance;
 
-  const layer = path.getLayer();
-  if (layer) {
-    layer.batchDraw();
+  // 使用线性插值计算新点位置
+  const newPoint = {
+    x: startPoint.x + (endPoint.x - startPoint.x) * ratio,
+    y: startPoint.y + (endPoint.y - startPoint.y) * ratio,
+  };
+
+  return newPoint;
+};
+
+// 获取线段上某点垂直偏移指定高度后的新点
+const getPointWithHeight = (
+  startPoint,
+  endPoint,
+  pointOnLine,
+  height,
+  direction = "down"
+) => {
+  if (!pointOnLine) {
+    return null;
   }
 
-  return true;
+  // 计算线段的方向向量
+  const lineVector = {
+    x: endPoint.x - startPoint.x,
+    y: endPoint.y - startPoint.y,
+  };
+
+  // 计算线段长度
+  const lineLength = Math.sqrt(
+    lineVector.x * lineVector.x + lineVector.y * lineVector.y
+  );
+
+  // 归一化线段方向向量
+  const normalizedLine = {
+    x: lineVector.x / lineLength,
+    y: lineVector.y / lineLength,
+  };
+
+  // 计算垂直向量（逆时针旋转90度）
+  const perpendicular = {
+    x: -normalizedLine.y,
+    y: normalizedLine.x,
+  };
+
+  // 根据方向调整垂直向量
+  const directionMultiplier = direction === "down" ? -1 : 1;
+
+  // 计算偏移后的新点
+  const newPoint = {
+    x: pointOnLine.x + perpendicular.x * height * directionMultiplier,
+    y: pointOnLine.y + perpendicular.y * height * directionMultiplier,
+  };
+
+  return newPoint;
 };
