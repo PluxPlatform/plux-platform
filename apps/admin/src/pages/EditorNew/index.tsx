@@ -1,12 +1,30 @@
 import type React from "react";
 import style from "./index.module.less";
-import { useState } from 'react';
-import { Divider, Button, Tooltip } from "antd";
+import { useState, useRef } from 'react';
+import {
+  Divider,
+  Button,
+  Tooltip,
+  message,
+} from "antd";
 import { UndoOutlined, RedoOutlined, ExpandOutlined } from '@ant-design/icons';
 import Editor from './components/editor';
 
 const EditorNewPage: React.FC = () => {
+  const editorRef = useRef(null);
   const [mode, setMode] = useState('A');
+  const [intersection, setIntersection] = useState(false);
+  const onKeydown = ({ key }: KeyboardEvent) => {
+    if (key === 'a') {
+      if (mode === 'A') {
+        setIntersection(!intersection);
+      } else {
+        setMode('A');
+      }
+      message.info(intersection ? '相交选择' : '包含选择');
+    }
+  };
+
   return (
     <div className={style.editorWrap}>
       <div className={style.editorHeader}>
@@ -39,9 +57,11 @@ const EditorNewPage: React.FC = () => {
         </div>
         <div className={style.editorMain}>
           <Editor
+            ref={editorRef}
             isEdit={true}
             mode={mode}
-            onModeChange={(mode) => setMode(mode)}
+            onKeydown={onKeydown}
+            onModeChange={setMode}
           ></Editor>
         </div>
       </div>
