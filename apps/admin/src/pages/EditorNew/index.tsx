@@ -90,7 +90,16 @@ const EditorNewPage: React.FC = () => {
           </div>
         </div>
         <div className={style.editorMain}>
-          <Editor ref={editorRef} {...{ tools: "", mode, isEdit: true }} />
+          <Editor
+            ref={editorRef}
+            {...{
+              tools: "",
+              mode,
+              isEdit: true,
+              onKeydown: onKeydown,
+              onModeChange: setMode,
+            }}
+          />
         </div>
       </div>
     </div>
