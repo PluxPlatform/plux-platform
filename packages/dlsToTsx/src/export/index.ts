@@ -1,5 +1,6 @@
 import { ExportConfig, NodeInfo } from "../pageInfo";
 import { exportReactTsx } from "./React";
+import { exportUniApp } from "./UniApp";
 import { exportVueTsx } from "./Vue";
 import { exportVueTemplate } from "./VueTemplate";
 
@@ -7,6 +8,7 @@ enum ExportType {
   react = "react",
   vue = "vue",
   vueTemplate = "vueTemplate",
+  UniApp = "UniApp",
   all = "all",
 }
 export const exportCode = (
@@ -14,22 +16,29 @@ export const exportCode = (
   json: NodeInfo,
   config: ExportConfig
 ) => {
-  const prarms = {
+  const prams = {
     json,
     config,
   };
   if (type === "all") {
     return {
-      react: exportReactTsx(prarms),
-      vue: exportVueTsx(prarms),
-      vueTemplate: exportVueTemplate(prarms),
+      react: exportReactTsx(prams),
+      vue: exportVueTsx(prams),
+      vueTemplate: exportVueTemplate(prams),
+      UniApp: exportUniApp(prams),
     };
   }
-  if (type === "vue") {
-    return exportVueTsx(prarms);
-  } else if (type === "react") {
-    return exportReactTsx(prarms);
-  } else {
-    return exportVueTemplate(prarms);
+
+  switch (type) {
+    case "react":
+      return exportReactTsx(prams);
+    case "vue":
+      return exportVueTsx(prams);
+    case "vueTemplate":
+      return exportVueTemplate(prams);
+    case "UniApp":
+      return exportUniApp(prams);
+    default:
+      return exportVueTsx(prams);
   }
 };

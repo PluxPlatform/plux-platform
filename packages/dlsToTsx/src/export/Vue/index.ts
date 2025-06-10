@@ -7,5 +7,5 @@ export const exportVueTsx = ({
   json: NodeInfo;
   config: ExportConfig;
 }) => {
-  return "";
+  return "exportVueTsx";
 };

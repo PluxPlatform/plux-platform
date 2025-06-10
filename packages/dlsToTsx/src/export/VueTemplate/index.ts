@@ -7,5 +7,5 @@ export const exportVueTemplate = ({
   json: NodeInfo;
   config: ExportConfig;
 }) => {
-  return "";
+  return "exportVueTemplate";
 };

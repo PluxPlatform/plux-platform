@@ -1,11 +1,11 @@
 import { ExportConfig, NodeInfo } from "../../pageInfo";
 
-export const exportReactTsx = ({
+export const exportUniApp = ({
   json,
   config,
 }: {
   json: NodeInfo;
   config: ExportConfig;
 }) => {
-  return "exportReactTsx";
+  return "exportUniApp";
 };
