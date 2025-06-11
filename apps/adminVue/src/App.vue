@@ -1,30 +1,323 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import {
+  useTemplateRef,
+  ref,
+  provide,
+  onMounted,
+  onUnmounted,
+} from 'vue';
+import _ from 'lodash';
+import { ElMessage } from 'element-plus';
+import {
+  ArrowLeft,
+  ArrowRight,
+  FullScreen,
+  Pointer,
+} from '@element-plus/icons-vue';
+import Editor from './components/editor.vue';
+import { base64toFile } from './utils/base64toFile';
+
+const editor = useTemplateRef('editor');
+
+provide('editor', editor);
+
+const background = ref('');
+const gridSize = ref(30);
+const gridFixed = ref(false);
+const alignLineFlag = ref(false);
+const alignLineOnlySameType = ref(false);
+const alignLineFixed = ref(false);
+const selected = ref<any>(null);
+provide('selected', selected);
+const mode = ref('A');
+const intersection = ref(false);
+const setSelectionMode = (inter?: boolean) => {
+  mode.value = 'A';
+  if (_.isBoolean(inter)) {
+    intersection.value = inter;
+  }
+};
+const onKeydown = ({ key }: KeyboardEvent) => {
+  if (key === 'a') {
+    if (mode.value === 'A') {
+      intersection.value = !intersection.value;
+    } else {
+      editor.value?.setMode('A');
+    }
+  } else if (key === 'e') {
+    editor.value?.setMode('E');
+  } else if (key === 'r') {
+    editor.value?.setMode('R');
+  } else if (key === 't') {
+    editor.value?.setMode('T');
+  } else if (key === 'g') {
+    if (selected.value) {
+      if (selected.value.length === 1) {
+        if (selected.value[0].className === 'Group') {
+          editor.value?.cancelGroup();
+        }
+      } else {
+        editor.value?.group();
+      }
+    }
+  }
+};
+const keydown = (event: KeyboardEvent) => {
+  if (
+    event.target instanceof HTMLElement
+    && event.target.tagName !== 'INPUT'
+    && event.target.tagName !== 'TEXTAREA'
+  ) {
+    onKeydown(event);
+  }
+};
+const bindEvent = _.debounce(() => {
+  document.addEventListener('keydown', keydown);
+}, 100);
+const unBindEvent = _.debounce(() => {
+  document.removeEventListener('keydown', keydown);
+}, 100);
+onMounted(() => {
+  bindEvent();
+});
+onUnmounted(() => {
+  unBindEvent();
+});
+const operation = useTemplateRef('operation');
+const snapshot = () => {
+  editor.value?.exportPNG().then((img) => {
+    const file = base64toFile(img, 'snapshot.png');
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+};
+// const onDrop = (event) => {
+//   console.log(event);
+//   const { type } = event;
+//   if (type === 'files') {
+//     const { files, offsetX, offsetY } = event;
+//     _.each(files, (file) => {
+//       uploadImage(file).then(({ data }) => {
+//         editor.value?.dropImage(data, offsetX, offsetY);
+//       });
+//     });
+//   }
+// };
+const onDragMove = _.debounce(() => {
+  operation.value?.getPosition();
+}, 500);
+const onMessage = (msg: string) => {
+  ElMessage.warning(msg);
+};
+const onDo = () => {
+  operation.value?.getPosition();
+};
+const lineTop = ref(true);
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="demo">
+    <header class="demo-header">
+      <div class="demo-header-left">
+        <h1 class="demo-title">设计工具</h1>
+        <div class="demo-divider"></div>
+        <div class="demo-his-btns">
+          <el-button :icon="ArrowLeft" circle size="small" plain></el-button>
+          <el-button :icon="ArrowRight" circle size="small" plain></el-button>
+        </div>
+      </div>
+      <div class="demo-header-right">
+        <el-tooltip content="适应画布">
+          <el-button :icon="FullScreen" size="small"></el-button>
+        </el-tooltip>
+      </div>
+    </header>
+    <div class="demo-content">
+      <div class="demo-left-toolbar">
+        <el-tooltip content="选择工具" placement="right" :show-after="500">
+          <div class="demo-tool-item">
+            <el-icon><Pointer></Pointer></el-icon>
+          </div>
+        </el-tooltip>
+        <div class="demo-divider-horizontal"></div>
+        <el-tooltip content="矩形" placement="right" :show-after="500">
+          <div class="demo-tool-item">R</div>
+        </el-tooltip>
+        <el-tooltip content="圆形" placement="right" :show-after="500">
+          <div class="demo-tool-item">C</div>
+        </el-tooltip>
+        <el-tooltip content="文字" placement="right" :show-after="500">
+          <div class="demo-tool-item">T</div>
+        </el-tooltip>
+        <el-tooltip content="按钮" placement="right" :show-after="500">
+          <div class="demo-tool-item">B</div>
+        </el-tooltip>
+        <el-tooltip content="输入框" placement="right" :show-after="500">
+          <div class="demo-tool-item">I</div>
+        </el-tooltip>
+        <el-tooltip content="图片" placement="right" :show-after="500">
+          <div class="demo-tool-item">P</div>
+        </el-tooltip>
+        <el-tooltip content="开关" placement="right" :show-after="500">
+          <div class="demo-tool-item">S</div>
+        </el-tooltip>
+      </div>
+      <div class="demo-main">
+        <Editor
+          ref="editor"
+          is-edit
+          scroll
+          history
+          :intersection
+          :background
+          :gridSize
+          :gridFixed
+          :lineTop
+          :alignLineFlag
+          :alignLineOnlySameType
+          :alignLineFixed
+          @keydown="onKeydown"
+          @do="onDo"
+          @dragmove="onDragMove"
+          @message="onMessage"
+        ></Editor>
+      </div>
+      <div class="demo-right-panel">
+        <div class="demo-panel-header">
+          <h3>属性设置</h3>
+          <el-icon><ArrowRight></ArrowRight></el-icon>
+        </div>
+        <div class="demo-panel-content"></div>
+      </div>
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<style scoped lang="scss">
+.demo {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f9fafb;
+  color: #1f2937;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.demo-header {
+  height: 48px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.demo-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px
+}
+
+.demo-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.demo-divider {
+  height: 16px;
+  width: 1px;
+  background-color: #e5e7eb;
+}
+
+.demo-his-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.demo-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.demo-left-toolbar {
+  width: 56px;
+  background-color: #1f2937;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.demo-tool-item {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #374151;
+  }
+
+  &.active {
+    background-color: #4b5563;
+  }
+
+  .el-icon {
+    font-size: 20px;
+  }
+}
+
+.demo-divider-horizontal {
+  width: 80%;
+  height: 1px;
+  background-color: #4b5563;
+  margin: 8px 0;
+}
+
+.demo-main {
+  flex: 1;
+}
+
+.demo-right-panel {
+  width: 256px;
+  background-color: #FFFFFF;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.demo-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+
+  > h3 {
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
+.demo-panel-content {
+  padding: 16px;
+  overflow-y: auto;
 }
 </style>

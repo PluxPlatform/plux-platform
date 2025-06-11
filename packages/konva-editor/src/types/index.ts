@@ -1,17 +1,16 @@
-import type Konva from "konva";
-import type Group from "../group";
-import type Editor from "../editor";
+import type Konva from 'konva';
+import type Node from '../node';
+import type Group from '../group';
+import type Editor from '../editor';
 
 export type NodeId = string;
 
-export type EditorMode = "A" | "E" | "R" | "T";
+export type EditorMode = 'A' | 'E' | 'R' | 'T';
 
-export type GridConfig =
-  | boolean
-  | {
-      size: number;
-      fixed: boolean;
-    };
+export type GridConfig = boolean | {
+  size: number;
+  fixed: boolean;
+};
 
 export type GuideLineConfig = {
   enable: boolean;
@@ -27,14 +26,14 @@ export type ClickEvent = {
 };
 
 export type DropFilesEvent = {
-  type: "files";
+  type: 'files';
   files: FileList;
   offsetX: number;
   offsetY: number;
 };
 
 export type DropDataEvent<Group> = {
-  type: "data";
+  type: 'data';
   group: Group;
   offsetX: number;
   offsetY: number;
@@ -44,7 +43,7 @@ export type DropEvent<Group> = DropFilesEvent | DropDataEvent<Group>;
 
 export type Nodes<Node> = Node[];
 
-export type SelectEvent<Node> = Nodes<Node> | null;
+export type SelectEvent = Nodes<Node> | null;
 
 export type Step = {
   title: string;
@@ -68,7 +67,7 @@ export type Menu = {
 
 export type MenuList = Menu[];
 
-export type Options<Node, Group> = {
+export type Options = {
   background: string;
   isEdit: boolean;
   mode: EditorMode;
@@ -83,7 +82,7 @@ export type Options<Node, Group> = {
   onModeChange: (mode: EditorMode) => void;
   onClick: (event: ClickEvent) => void;
   onDrop: (event: DropEvent<Group>) => void;
-  onSelect: (event: SelectEvent<Node>) => void;
+  onSelect: (event: SelectEvent) => void;
   onDragmove: () => void;
   // onCreateLine: (line: Line) => Promise<boolean>;
   onRemove: () => void;
@@ -96,11 +95,11 @@ export type Options<Node, Group> = {
 
 export type Value = string | number | null;
 
-export type NodeType = "Group" | "Rect" | "Text" | "Image" | "Line";
+export type NodeType = 'Group' | 'Rect' | 'Text' | 'Image' | 'Line';
 
 export type ImageSrc = string;
 
-export type TextDecoration = "" | "line-through" | "underline";
+export type TextDecoration = '' | 'line-through' | 'underline';
 
 export type LineType = string;
 
