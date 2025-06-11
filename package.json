@@ -12,8 +12,8 @@
     "dev:editor": "pnpm --filter editor dev",
     "build:editor": "pnpm --filter @plux/editor build",
     "dev:site": "pnpm --filter site dev",
-    "dev:kon": "pnpm --filter editor dev:vite",
-    "build:kon": "pnpm --filter editor build:vite",
+    "dev:kon": "pnpm --filter konva-editor dev:vite",
+    "build:kon": "pnpm --filter konva-editor build:vite",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck"
