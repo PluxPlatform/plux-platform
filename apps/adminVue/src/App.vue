@@ -15,7 +15,9 @@ import {
   Pointer,
 } from '@element-plus/icons-vue';
 import Editor from './components/editor.vue';
+import Operation from './components/operation.vue';
 import { base64toFile } from './utils/base64toFile';
+import type { EditorMode } from '@plux/editor';
 
 const editor = useTemplateRef('editor');
 
@@ -29,7 +31,7 @@ const alignLineOnlySameType = ref(false);
 const alignLineFixed = ref(false);
 const selected = ref<any>(null);
 provide('selected', selected);
-const mode = ref('A');
+const mode = ref<EditorMode>('A');
 const intersection = ref(false);
 const setSelectionMode = (inter?: boolean) => {
   mode.value = 'A';
@@ -142,19 +144,19 @@ const lineTop = ref(true);
     <div class="demo-content">
       <div class="demo-left-toolbar">
         <el-tooltip content="选择工具" placement="right" :show-after="500">
-          <div class="demo-tool-item">
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'A' }" @click="mode = 'A'">
             <el-icon><Pointer></Pointer></el-icon>
           </div>
         </el-tooltip>
         <div class="demo-divider-horizontal"></div>
         <el-tooltip content="矩形" placement="right" :show-after="500">
-          <div class="demo-tool-item">R</div>
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'R' }" @click="mode = 'R'">R</div>
         </el-tooltip>
         <el-tooltip content="圆形" placement="right" :show-after="500">
           <div class="demo-tool-item">C</div>
         </el-tooltip>
         <el-tooltip content="文字" placement="right" :show-after="500">
-          <div class="demo-tool-item">T</div>
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'T' }" @click="mode = 'T'">T</div>
         </el-tooltip>
         <el-tooltip content="按钮" placement="right" :show-after="500">
           <div class="demo-tool-item">B</div>
@@ -172,6 +174,8 @@ const lineTop = ref(true);
       <div class="demo-main">
         <Editor
           ref="editor"
+          v-model:mode="mode"
+          v-model:selected="selected"
           is-edit
           scroll
           history
@@ -194,7 +198,12 @@ const lineTop = ref(true);
           <h3>属性设置</h3>
           <el-icon><ArrowRight></ArrowRight></el-icon>
         </div>
-        <div class="demo-panel-content"></div>
+        <div class="demo-panel-content">
+          <Operation
+            ref="operation"
+            v-model:intersection="intersection"
+          ></Operation>
+        </div>
       </div>
     </div>
   </div>
@@ -274,7 +283,7 @@ const lineTop = ref(true);
     background-color: #374151;
   }
 
-  &.active {
+  &.is-active {
     background-color: #4b5563;
   }
 
