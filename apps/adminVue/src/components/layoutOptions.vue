@@ -1,22 +1,15 @@
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  watch,
-  inject,
-  onMounted,
-  type Ref,
-} from 'vue';
-import _ from 'lodash';
-import useSetting from './useSetting.ts';
-import Block from './block.vue';
-import type { EditorInstance } from './editor';
-import { Group } from '@plux/editor';
-import type { Node, Nodes } from '@plux/editor';
+import { ref, computed, watch, inject, onMounted, type Ref } from "vue";
+import _ from "lodash";
+import useSetting from "./useSetting";
+import Block from "./block.vue";
+import type { EditorInstance } from "./editor";
+import { Group } from "@plux/editor";
+import type { Node, Nodes } from "@plux/editor";
 
-const editor = inject<Ref<EditorInstance>>('editor');
+const editor = inject<Ref<EditorInstance>>("editor");
 
-const selected = inject<Ref<Nodes<Node>>>('selected');
+const selected = inject<Ref<Nodes<Node>>>("selected");
 
 type ValueType = number | string | void | null;
 
@@ -34,25 +27,33 @@ const height = ref<ValueType>(0);
 
 const { getValue, setValue } = useSetting(() => selected!.value, 1);
 
-const showWidth = computed(() => !_.some(
-  selected?.value,
-  (item) => !_.includes(['Scraper', 'Belt', 'CustomImage', 'Rect'], item.className),
-));
+const showWidth = computed(
+  () =>
+    !_.some(
+      selected?.value,
+      (item) =>
+        !_.includes(["Scraper", "Belt", "CustomImage", "Rect"], item.className)
+    )
+);
 
-const showHeight = computed(() => !_.some(
-  selected?.value,
-  (item) => !_.includes(['CustomImage', 'Rect'], item.className),
-));
+const showHeight = computed(
+  () =>
+    !_.some(
+      selected?.value,
+      (item) => !_.includes(["CustomImage", "Rect"], item.className)
+    )
+);
 
-const showRotation = computed(() => !_.some(
-  selected?.value,
-  (item) => _.includes(['TextGroup', 'Group'], item.className),
-));
+const showRotation = computed(
+  () =>
+    !_.some(selected?.value, (item) =>
+      _.includes(["TextGroup", "Group"], item.className)
+    )
+);
 
-const showScale = computed(() => !_.some(
-  selected?.value,
-  (item) => item.className === 'Group',
-));
+const showScale = computed(
+  () => !_.some(selected?.value, (item) => item.className === "Group")
+);
 
 const getX = () => {
   x.value = getValue((item) => item.getX()) as number;
@@ -224,15 +225,16 @@ const pull = () => {
               || selected.length !== (selected[0].layer as Group).children.length
             "
           >
+            <el-button v-if="selected.length > 1" type="primary" @click="group"
+              >组合</el-button
+            >
             <el-button
-              v-if="selected.length > 1"
-              type="primary"
-              @click="group"
-            >组合</el-button>
-            <el-button
-              v-if="!(selected[0].layer instanceof Group && selected[0].layer.root)"
+              v-if="
+                !(selected[0].layer instanceof Group && selected[0].layer.root)
+              "
               @click="pull"
-            >移出当前组</el-button>
+              >移出当前组</el-button
+            >
           </template>
         </el-space>
       </el-form-item>
