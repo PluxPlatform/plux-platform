@@ -20,7 +20,7 @@ interface GroupConfig extends NodeConfig {
   root?: boolean;
 }
 
-class Group extends Node {
+export class Group extends Node {
 
   highlight() {}
 

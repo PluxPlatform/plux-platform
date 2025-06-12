@@ -3,7 +3,7 @@ import Node from './node';
 import type Group from './group';
 import type { NodeAttrs, NodeConfig, NodeType, TextDecoration } from './types';
 
-class Text extends Node {
+export class Text extends Node {
   className: NodeType = 'Text';
   attrs: NodeAttrs;
   imageGroup: Konva.Text;

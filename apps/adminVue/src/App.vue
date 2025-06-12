@@ -194,14 +194,15 @@ const lineTop = ref(true);
         ></Editor>
       </div>
       <div class="demo-right-panel">
-        <div class="demo-panel-header">
-          <h3>属性设置</h3>
-          <el-icon><ArrowRight></ArrowRight></el-icon>
-        </div>
         <div class="demo-panel-content">
           <Operation
             ref="operation"
             v-model:intersection="intersection"
+            v-model:gridSize="gridSize"
+            v-model:gridFixed="gridFixed"
+            v-model:alignLineFlag="alignLineFlag"
+            v-model:alignLineOnlySameType="alignLineOnlySameType"
+            v-model:alignLineFixed="alignLineFixed"
           ></Operation>
         </div>
       </div>

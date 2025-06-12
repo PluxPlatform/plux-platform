@@ -4,7 +4,7 @@ import Node from './node';
 import type Group from './group';
 import type { NodeType, NodeConfig } from './types';
 
-class Rect extends Node {
+export class Rect extends Node {
   className: NodeType = 'Rect';
   imageGroup: Konva.Rect;
 

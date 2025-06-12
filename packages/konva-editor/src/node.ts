@@ -22,7 +22,7 @@ type Start = {
   activeAnchor: string;
 } | null;
 
-abstract class Node {
+export abstract class Node {
   abstract className: NodeType;
   nodeId: NodeId;
   isNode: boolean = false;
