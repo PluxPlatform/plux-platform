@@ -17,14 +17,12 @@ type CircleSetting = {
   fill: string;
   stroke: string;
   strokeWidth: number;
-  radius: number;
 };
 
 const circleSetting = reactive<CircleSetting>({
   fill: '#d8d8d8',
   stroke: '#d8d8d8',
   strokeWidth: 1,
-  radius: 50,
 });
 
 const { getValue, setValue } = useSetting<Circle>(() => props.selected);
@@ -39,10 +37,6 @@ const getStroke = () => {
 
 const getStrokeWidth = () => {
   circleSetting.strokeWidth = getValue((item) => item.getStrokeWidth()) as number;
-};
-
-const getRadius = () => {
-  circleSetting.radius = getValue((item) => item.getRadius()) as number;
 };
 
 const setFill = (val: string) => {
@@ -60,16 +54,10 @@ const setStrokeWidth = (val) => {
   getStrokeWidth();
 };
 
-const setRadius = (val) => {
-  setValue((item, groupId) => item.setRadius(val as number, groupId));
-  getRadius();
-};
-
 const init = () => {
   getFill();
   getStroke();
   getStrokeWidth();
-  getRadius();
 };
 
 watch(() => props.selected, init);
@@ -101,13 +89,6 @@ onMounted(init);
           :model-value="circleSetting.strokeWidth"
           :min="0"
           @change="setStrokeWidth"
-        ></el-input-number>
-      </el-form-item>
-      <el-form-item label="半径">
-        <el-input-number
-          :model-value="circleSetting.radius"
-          :min="0"
-          @change="setRadius"
         ></el-input-number>
       </el-form-item>
     </el-form>

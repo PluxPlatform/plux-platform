@@ -2,9 +2,7 @@
 import {
   useTemplateRef,
   inject,
-  ref,
   computed,
-  watch,
   type Ref,
 } from 'vue';
 import { useVModels } from '@vueuse/core';
@@ -64,9 +62,13 @@ const other = computed(() => {
 });
 
 const layoutOptions = useTemplateRef('layoutOptions');
+const settings = useTemplateRef('settings');
 
 const getPosition = () => {
   layoutOptions.value?.getPosition();
+  _.each(settings.value, (setting) => {
+    setting.getPosition();
+  });
 };
 
 defineExpose({
@@ -113,6 +115,7 @@ defineExpose({
     </template>
     <template v-if="_.size(other) === 1">
       <Settings
+        ref="settings"
         v-for="className in _.keys(other)"
         :key="className"
         :className
@@ -127,6 +130,7 @@ defineExpose({
         :label="getClassName(className)"
       >
         <Settings
+          ref="settings"
           :className
           :selected="other[className]"
         ></Settings>

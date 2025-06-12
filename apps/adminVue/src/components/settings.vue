@@ -17,6 +17,14 @@ const props = withDefaults(defineProps<{
 }>(), {
   showTitle: false,
 });
+
+const getPosition = () => {
+  console.log('getPosition');
+};
+
+defineExpose({
+  getPosition,
+});
 </script>
 
 <template>
