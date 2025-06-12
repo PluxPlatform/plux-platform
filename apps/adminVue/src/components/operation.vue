@@ -57,6 +57,7 @@ const other = computed(() => {
     return _.pick(_.groupBy(selected.value, 'className'), [
       'Text',
       'Rect',
+      'Circle',
     ]);
   }
   return {};

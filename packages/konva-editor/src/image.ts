@@ -6,6 +6,7 @@ import type { NodeAttrs, NodeType, NodeConfig } from './types';
 
 class Image extends Node {
   className: NodeType = 'Image';
+  name = '图片';
   attrs: NodeAttrs;
 
   highlight() {}

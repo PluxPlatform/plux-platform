@@ -6,6 +6,7 @@ import Group from './group';
 import Rect from './rect';
 import Text from './text';
 import Image from './image';
+import Circle from './circle';
 import Transformer from './transformer';
 import Mover from './mover';
 import EditorHistory from './history';
@@ -27,6 +28,8 @@ import { type PositionEnum } from './types/enums';
 import type Node from './node';
 // import type Port from './port';
 import type Anchor from './anchor';
+
+export type AllNodes = Node | Rect | Text | Image | Circle;
 
 type EditorOptions = Options;
 
@@ -91,12 +94,12 @@ export class Editor {
   editorContainer: HTMLElement;
   options: EditorOptions;
   // lineMap: Record<string, Line>;
-  nodeIds: Record<string, Node>;
+  nodeIds: Record<string, AllNodes>;
   tr: Transformer;
   cursor?: string;
   cacheAnchor: Anchor | null;
   // tempLine: Line | null;
-  tempRect: Rect | null;
+  tempShape: Node | null;
   tempMover?: Mover;
   blockSave: boolean;
   copied: NodeId[];
@@ -127,7 +130,7 @@ export class Editor {
     this.lastDistance = 0;
     this.blockSave = false;
     // this.tempLine = null;
-    this.tempRect = null;
+    this.tempShape = null;
     this.cacheAnchor = null;
     this.copied = [];
     this.options = _.extend({
@@ -237,8 +240,12 @@ export class Editor {
         this.selectionRectangle,
       );
       this.stage.on('mousedown', ({ evt, target }) => {
-        if (this.options.mode === 'R' && !target.hasName('rect') && !mover.enable && target.parent?.className !== 'Transformer') {
-          this.createRectStart(evt.offsetX, evt.offsetY);
+        if (!mover.enable && target.parent?.className !== 'Transformer') {
+          if (this.options.mode === 'R' && !target.hasName('rect')) {
+            this.createShapeStart(Rect, evt.offsetX, evt.offsetY);
+          } else if (this.options.mode === 'C' && !target.hasName('circle')) {
+            this.createShapeStart(Circle, evt.offsetX, evt.offsetY);
+          }
         }
         if (
           !mover.enable
@@ -301,13 +308,13 @@ export class Editor {
       });
       this.stage.on('mouseup dragend', () => {
         // this.createLineOver();
-        this.createRectEnd();
+        this.createShapeEnd();
         this.selectionEnd();
         this.clearGuide();
       });
       container.addEventListener('mouseout', () => {
         // this.createLineOver();
-        this.createRectEnd();
+        this.createShapeEnd();
         this.selectionEnd();
         if (mover.enable) {
           container.style.cursor = 'default';
@@ -674,44 +681,45 @@ export class Editor {
     this.cacheAnchor = null;
   }
 
-  createRectStart(offsetX: number, offsetY: number) {
+  createShapeStart(Shape: typeof Rect | typeof Circle, offsetX: number, offsetY: number) {
     this.clearSelect();
     this.tr.clear();
     const { x: startX, y: startY } = this.getPositionInLayer(offsetX, offsetY);
-    this.tempRect = new Rect({
+    this.tempShape = new Shape({
       attrs: {
         width: 0,
         height: 0,
         x: startX,
         y: startY,
+        radius: 0,
       },
       layer: this.nodeLayer,
       editor: this,
     });
     this.tempMover = new Mover(this.stage, ({ offsetX: ox, offsetY: oy }) => {
-      if (this.tempRect) {
+      if (this.tempShape) {
         const { x: endX, y: endY } = this.getPositionInLayer(ox, oy);
         const width = Math.abs(endX - startX);
         const height = Math.abs(endY - startY);
         const x = endX < startX ? endX : startX;
         const y = endY < startY ? endY : startY;
-        this.tempRect.setWidth(width);
-        this.tempRect.setHeight(height);
-        this.tempRect.setX(x);
-        this.tempRect.setY(y);
+        this.tempShape.setWidth(width);
+        this.tempShape.setHeight(height);
+        this.tempShape.setX(x);
+        this.tempShape.setY(y);
       }
     }, true);
   }
 
-  createRectEnd() {
-    if (this.tempRect) {
-      if (this.tempRect.getWidth() && this.tempRect.getHeight()) {
-        const id = this.tempRect.nodeId;
-        const template = this.tempRect.getTemplate();
-        this.nodeIds[id] = this.tempRect;
+  createShapeEnd() {
+    if (this.tempShape) {
+      if (this.tempShape.getWidth() && this.tempShape.getHeight()) {
+        const id = this.tempShape.nodeId;
+        const template = this.tempShape.getTemplate();
+        this.nodeIds[id] = this.tempShape;
         this.setMode('A');
         this.history.add({
-          title: '创建矩形',
+          title: `创建${this.tempShape.name}`,
           undo: () => {
             this.removeNode(id);
           },
@@ -723,9 +731,9 @@ export class Editor {
           this.nodeIds[id].select();
         }, 10);
       } else {
-        this.tempRect.destroy();
+        this.tempShape.destroy();
       }
-      this.tempRect = null;
+      this.tempShape = null;
     }
   }
 
@@ -1330,7 +1338,7 @@ export class Editor {
   }
 
   groupByIds(ids: NodeId[], nodeId?: NodeId) {
-    const list: Node[] = [];
+    const list: AllNodes[] = [];
     _.each(ids, (id) => {
       const finded = this.findNode(id);
       if (finded) {

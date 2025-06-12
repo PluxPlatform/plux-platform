@@ -3,8 +3,6 @@ import {
   reactive,
   watch,
   onMounted,
-  type PropType,
-  h,
 } from 'vue';
 import {
   BoldOutlined,
@@ -18,16 +16,10 @@ import Block from './block.vue';
 import useSetting from './useSetting.ts';
 import type { Nodes, Text, TextDecoration } from '@plux/editor';
 
-const props = defineProps({
-  selected: {
-    type: Array as PropType<Nodes<Text>>,
-    default: () => [],
-  },
-  showTitle: {
-    type: Boolean,
-    default: false,
-  },
-});
+const props = defineProps<{
+  selected: Nodes<Text>;
+  showTitle: boolean;
+}>();
 
 type TextSetting = {
   text: string;

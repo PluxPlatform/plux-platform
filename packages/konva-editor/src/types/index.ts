@@ -5,7 +5,7 @@ import type Editor from '../editor';
 
 export type NodeId = string;
 
-export type EditorMode = 'A' | 'E' | 'R' | 'T';
+export type EditorMode = 'A' | 'E' | 'R' | 'T' | 'C' | 'B' | 'I' | 'S';
 
 export type GridConfig = boolean | {
   size: number;
@@ -95,7 +95,7 @@ export type Options = {
 
 export type Value = string | number | null;
 
-export type NodeType = 'Group' | 'Rect' | 'Text' | 'Image' | 'Line';
+export type NodeType = 'Group' | 'Rect' | 'Text' | 'Image' | 'Line' | 'Circle';
 
 export type ImageSrc = string;
 

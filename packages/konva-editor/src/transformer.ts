@@ -2,7 +2,7 @@ import Konva from "konva";
 import { debounce, map, each, min, max, sortBy, sumBy } from "lodash";
 import HistoryRecord from "./historyRecord";
 import { PositionEnum } from "./types/enums";
-import type Editor from "./editor";
+import type { Editor, AllNodes } from "./editor";
 import type Node from "./node";
 import Group from "./group";
 
@@ -125,7 +125,7 @@ class Transformer {
     }
   }
 
-  setList(nodes: Node[], force = false) {
+  setList(nodes: AllNodes[], force = false) {
     this.clear();
     const evt = new KeyboardEvent("keydown", { ctrlKey: true });
     each(nodes, (node) => {

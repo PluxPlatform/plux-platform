@@ -52,6 +52,8 @@ const onKeydown = ({ key }: KeyboardEvent) => {
     editor.value?.setMode('R');
   } else if (key === 't') {
     editor.value?.setMode('T');
+  } else if (key === 'c') {
+    editor.value?.setMode('C');
   } else if (key === 'g') {
     if (selected.value) {
       if (selected.value.length === 1) {
@@ -153,7 +155,7 @@ const lineTop = ref(true);
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'R' }" @click="mode = 'R'">R</div>
         </el-tooltip>
         <el-tooltip content="圆形" placement="right" :show-after="500">
-          <div class="demo-tool-item">C</div>
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'C' }" @click="mode = 'C'">C</div>
         </el-tooltip>
         <el-tooltip content="文字" placement="right" :show-after="500">
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'T' }" @click="mode = 'T'">T</div>
@@ -187,6 +189,7 @@ const lineTop = ref(true);
           :alignLineFlag
           :alignLineOnlySameType
           :alignLineFixed
+          @click="(e) => console.log(e)"
           @keydown="onKeydown"
           @do="onDo"
           @dragmove="onDragMove"

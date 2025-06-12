@@ -6,43 +6,43 @@ import {
 } from 'vue';
 import useSetting from './useSetting.ts';
 import Block from './block.vue';
-import type { Nodes, Rect } from '@plux/editor';
+import type { Nodes, Circle } from '@plux/editor';
 
 const props = defineProps<{
-  selected: Nodes<Rect>;
+  selected: Nodes<Circle>;
   showTitle: boolean;
 }>();
 
-type RectSetting = {
+type CircleSetting = {
   fill: string;
   stroke: string;
   strokeWidth: number;
-  cornerRadius: number;
+  radius: number;
 };
 
-const rectSetting = reactive<RectSetting>({
+const circleSetting = reactive<CircleSetting>({
   fill: '#d8d8d8',
   stroke: '#d8d8d8',
   strokeWidth: 1,
-  cornerRadius: 0,
+  radius: 50,
 });
 
-const { getValue, setValue } = useSetting<Rect>(() => props.selected);
+const { getValue, setValue } = useSetting<Circle>(() => props.selected);
 
 const getFill = () => {
-  rectSetting.fill = getValue((item) => item.getFill()) as string;
+  circleSetting.fill = getValue((item) => item.getFill()) as string;
 };
 
 const getStroke = () => {
-  rectSetting.stroke = getValue((item) => item.getStroke()) as string;
+  circleSetting.stroke = getValue((item) => item.getStroke()) as string;
 };
 
 const getStrokeWidth = () => {
-  rectSetting.strokeWidth = getValue((item) => item.getStrokeWidth()) as number;
+  circleSetting.strokeWidth = getValue((item) => item.getStrokeWidth()) as number;
 };
 
-const getCornerRadius = () => {
-  rectSetting.cornerRadius = getValue((item) => item.getCornerRadius()) as number;
+const getRadius = () => {
+  circleSetting.radius = getValue((item) => item.getRadius()) as number;
 };
 
 const setFill = (val: string) => {
@@ -60,16 +60,16 @@ const setStrokeWidth = (val) => {
   getStrokeWidth();
 };
 
-const setCornerRadius = (val) => {
-  setValue((item, groupId) => item.setCornerRadius(val as number, groupId));
-  getCornerRadius();
+const setRadius = (val) => {
+  setValue((item, groupId) => item.setRadius(val as number, groupId));
+  getRadius();
 };
 
 const init = () => {
   getFill();
   getStroke();
   getStrokeWidth();
-  getCornerRadius();
+  getRadius();
 };
 
 watch(() => props.selected, init);
@@ -78,13 +78,13 @@ onMounted(init);
 </script>
 
 <template>
-  <Block :title="props.showTitle ? '矩形' : ''">
+  <Block :title="props.showTitle ? '圆形' : ''">
     <el-form size="small" label-width="auto">
       <el-form-item label="填充颜色">
         <el-input
           class="demo-editor-color-picker"
           type="color"
-          :model-value="rectSetting.fill"
+          :model-value="circleSetting.fill"
           @update:model-value="setFill"
         ></el-input>
       </el-form-item>
@@ -92,22 +92,22 @@ onMounted(init);
         <el-input
           class="demo-editor-color-picker"
           type="color"
-          :model-value="rectSetting.stroke"
+          :model-value="circleSetting.stroke"
           @update:model-value="setStroke"
         ></el-input>
       </el-form-item>
       <el-form-item label="边框宽度">
         <el-input-number
-          :model-value="rectSetting.strokeWidth"
+          :model-value="circleSetting.strokeWidth"
           :min="0"
           @change="setStrokeWidth"
         ></el-input-number>
       </el-form-item>
-      <el-form-item label="圆角">
+      <el-form-item label="半径">
         <el-input-number
-          :model-value="rectSetting.cornerRadius"
+          :model-value="circleSetting.radius"
           :min="0"
-          @change="setCornerRadius"
+          @change="setRadius"
         ></el-input-number>
       </el-form-item>
     </el-form>

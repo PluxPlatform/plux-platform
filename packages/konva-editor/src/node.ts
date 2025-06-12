@@ -24,11 +24,12 @@ type Start = {
 
 export abstract class Node {
   abstract className: NodeType;
+  abstract name: string;
   nodeId: NodeId;
   isNode: boolean = false;
   layer: Konva.Group | Group;
   group!: Konva.Group;
-  imageGroup!: Konva.Group | Konva.Image | Konva.Text | Konva.Rect;
+  imageGroup!: Konva.Group | Konva.Image | Konva.Text | Konva.Rect | Konva.Circle;
   editor: Editor;
   selected: boolean = false;
   minWidth: number | (() => number) = 10;
@@ -47,6 +48,7 @@ export abstract class Node {
     };
     this.dr = new DebounceRecord();
   }
+  
 
   bindEvent(
     type: string,
@@ -212,13 +214,132 @@ export abstract class Node {
     return this.group.width();
   }
 
-  abstract setWidth(width: number, groupId?: string): void;
+  setWidth(width: number, groupId?: string) {
+    const oldValue = this.getWidth();
+    const { nodeId } = this;
+    const v = width >= this.getMinWidth() ? width : this.getMinWidth();
+    this.group.skewX(0);
+    this.group.skewY(0);
+    this.group.width(v);
+    this.imageGroup.width(v);
+    this.editor.tr.update();
+    this.dr.set(oldValue, v, groupId).then((step) => {
+      this.editor.history.add({
+        title: `修改${this.name}宽度`,
+        groupId: step.groupId,
+        undo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setWidth(step.oldValue);
+        },
+        redo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setWidth(step.value);
+        },
+      });
+    });
+  };
 
   getHeight() {
     return this.group.height();
   }
 
-  abstract setHeight(height: number, groupId?: string): void;
+  setHeight(height: number, groupId?: string) {
+    const oldValue = this.getHeight();
+    const { nodeId } = this;
+    const v = height >= this.minHeight ? height : this.minHeight;
+    this.group.skewX(0);
+    this.group.skewY(0);
+    this.group.height(v);
+    this.imageGroup.height(v);
+    this.editor.tr.update();
+    this.dr.set(oldValue, v, groupId).then((step) => {
+      this.editor.history.add({
+        title: `修改${this.name}高度`,
+        groupId: step.groupId,
+        undo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setHeight(step.oldValue);
+        },
+        redo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setHeight(step.value);
+        },
+      });
+    });
+  }
+
+  getFill() {
+    return (this.imageGroup as Konva.Shape).fill();
+  }
+
+  setFill(color: string, groupId?: string) {
+    const oldValue = this.getFill();
+    const { nodeId } = this;
+    (this.imageGroup as Konva.Shape).fill(color);
+    this.dr.set(oldValue, color, groupId).then((step) => {
+      this.editor.history.add({
+        title: `修改${this.name}填充颜色`,
+        groupId: step.groupId,
+        undo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setFill(step.oldValue);
+        },
+        redo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setFill(step.value);
+        },
+      });
+    });
+  }
+
+  getStroke() {
+    return (this.imageGroup as Konva.Shape).stroke() as string;
+  }
+
+  setStroke(color: string, groupId?: string) {
+    const oldValue = this.getStroke();
+    const { nodeId } = this;
+    (this.imageGroup as Konva.Shape).stroke(color);
+    this.dr.set(oldValue, color, groupId).then((step) => {
+      this.editor.history.add({
+        title: `修改${this.name}边框颜色`,
+        groupId: step.groupId,
+        undo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setStroke(step.oldValue);
+        },
+        redo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setStroke(step.value);
+        },
+      });
+    });
+  }
+
+  getStrokeWidth() {
+    return (this.imageGroup as Konva.Shape).strokeWidth();
+  }
+
+  setStrokeWidth(strokeWidth: number, groupId?: string) {
+    const oldValue = this.getStrokeWidth();
+    const { nodeId } = this;
+    (this.imageGroup as Konva.Shape).strokeWidth(strokeWidth);
+    this.editor.tr.update();
+    this.dr.set(oldValue, strokeWidth, groupId).then((step) => {
+      this.editor.history.add({
+        title: `修改${this.name}边框宽度`,
+        groupId: step.groupId,
+        undo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setStrokeWidth(step.oldValue);
+        },
+        redo: () => {
+          const node = this.editor.findNode(nodeId);
+          node?.setStrokeWidth(step.value);
+        },
+      });
+    });
+  }
 
   transformChange(callback: (start: Start, movementX: number, movementY: number) => void) {
     let start: Start = null;

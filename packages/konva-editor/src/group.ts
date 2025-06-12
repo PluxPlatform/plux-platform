@@ -25,6 +25,7 @@ export class Group extends Node {
   highlight() {}
 
   className: NodeType = 'Group';
+  name = '组';
 
   root: boolean;
 

@@ -5,6 +5,7 @@ import type { NodeAttrs, NodeConfig, NodeType, TextDecoration } from './types';
 
 export class Text extends Node {
   className: NodeType = 'Text';
+  name = '文本';
   attrs: NodeAttrs;
   imageGroup: Konva.Text;
 

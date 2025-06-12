@@ -36,12 +36,12 @@ const { getValue, setValue } = useSetting(() => selected!.value, 1);
 
 const showWidth = computed(() => !_.some(
   selected?.value,
-  (item) => !_.includes(['Scraper', 'Belt', 'CustomImage', 'Rect'], item.className),
+  (item) => !_.includes(['Rect', 'Circle', 'Image'], item.className),
 ));
 
 const showHeight = computed(() => !_.some(
   selected?.value,
-  (item) => !_.includes(['CustomImage', 'Rect'], item.className),
+  (item) => !_.includes(['Rect', 'Circle', 'Image'], item.className),
 ));
 
 const showRotation = computed(() => !_.some(
