@@ -12,6 +12,7 @@ import _ from 'lodash';
 import LayoutSetting from './layoutSetting/index.vue';
 import LayoutOptions from './layoutOptions.vue';
 import Settings from './settings.vue';
+import { getClassName } from './getClassName';
 import type { EditorInstance } from './editor';
 
 const editor = inject<Ref<EditorInstance>>('editor');
@@ -62,6 +63,14 @@ const other = computed(() => {
 });
 
 const layoutOptions = useTemplateRef('layoutOptions');
+
+const getPosition = () => {
+  layoutOptions.value?.getPosition();
+};
+
+defineExpose({
+  getPosition,
+});
 </script>
 
 <template>
@@ -110,5 +119,17 @@ const layoutOptions = useTemplateRef('layoutOptions');
         show-title
       ></Settings>
     </template>
+    <el-tabs v-else-if="_.size(other) > 1">
+      <el-tab-pane
+        v-for="className in _.keys(other)"
+        :key="className"
+        :label="getClassName(className)"
+      >
+        <Settings
+          :className
+          :selected="other[className]"
+        ></Settings>
+      </el-tab-pane>
+    </el-tabs>
   </template>
 </template>

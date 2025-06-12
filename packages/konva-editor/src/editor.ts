@@ -279,7 +279,7 @@ export class Editor {
           const textConfig = {
             x,
             y,
-            fill: '#333',
+            fill: '#333333',
           };
           const text = this.createText(textConfig, this.nodeLayer);
           this.setMode('A');

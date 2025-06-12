@@ -16,7 +16,7 @@ export class Text extends Node {
     super(config);
     const {
       width,
-      fill = '#000',
+      fill = '#000000',
       fontFamily = 'Arial',
       bold = false,
       italic = false,

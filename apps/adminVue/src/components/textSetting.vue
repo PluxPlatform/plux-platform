@@ -46,7 +46,7 @@ const textSetting = reactive<TextSetting>({
   italic: false,
   textDecoration: '',
   fontSize: 14,
-  fill: '#000',
+  fill: '#000000',
 });
 
 const { getValue, setValue } = useSetting<Text>(() => props.selected);
