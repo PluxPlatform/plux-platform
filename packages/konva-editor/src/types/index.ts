@@ -95,7 +95,7 @@ export type Options = {
 
 export type Value = string | number | null;
 
-export type NodeType = 'Group' | 'Rect' | 'Text' | 'Image' | 'Line' | 'Circle';
+export type NodeType = 'Group' | 'Rect' | 'Text' | 'Image' | 'Line' | 'Circle' | 'Button';
 
 export type ImageSrc = string;
 

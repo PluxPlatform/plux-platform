@@ -9,8 +9,6 @@ export class Text extends Node {
   attrs: NodeAttrs;
   imageGroup: Konva.Text;
 
-  setHeight() {}
-
   highlight() {}
 
   constructor(config: NodeConfig) {

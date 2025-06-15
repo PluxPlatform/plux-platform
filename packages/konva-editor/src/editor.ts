@@ -5,6 +5,7 @@ import Group from './group';
 // import Line from './line';
 import Rect from './rect';
 import Text from './text';
+import Button from './button';
 import Image from './image';
 import Circle from './circle';
 import Transformer from './transformer';
@@ -280,30 +281,54 @@ export class Editor {
         }
       });
       this.stage.on('click', ({ target, evt }) => {
-        if (this.options.mode === 'T' && !target.hasName('text') && !mover.enable) {
+        if (!mover.enable) {
           const { offsetX, offsetY } = evt;
           const { x, y } = this.getPositionInLayer(offsetX, offsetY);
-          const textConfig = {
-            x,
-            y,
-            fill: '#333333',
-          };
-          const text = this.createText(textConfig, this.nodeLayer);
-          this.setMode('A');
-          this.history.add({
-            title: '创建文字',
-            undo: () => {
-              this.removeNode(text.nodeId);
-            },
-            redo: () => {
-              this.createText({
-                ...textConfig,
-              }, this.nodeLayer, text.nodeId);
-            },
-          });
-          setTimeout(() => {
-            text.select();
-          }, 10);
+          if (this.options.mode === 'T' && !target.hasName('text')) {
+            const textConfig = {
+              x,
+              y,
+              fill: '#333333',
+            };
+            const text = this.createText(textConfig, this.nodeLayer);
+            this.setMode('A');
+            this.history.add({
+              title: '创建文字',
+              undo: () => {
+                this.removeNode(text.nodeId);
+              },
+              redo: () => {
+                this.createText({
+                  ...textConfig,
+                }, this.nodeLayer, text.nodeId);
+              },
+            });
+            setTimeout(() => {
+              text.select();
+            }, 10);
+          } else if (this.options.mode === 'B' && !target.hasName('button')) {
+            const buttonConfig = {
+              x,
+              y,
+              type: 'primary',
+            };
+            const button = this.createButton(buttonConfig, this.nodeLayer);
+            this.setMode('A');
+            this.history.add({
+              title: '创建按钮',
+              undo: () => {
+                this.removeNode(button.nodeId);
+              },
+              redo: () => {
+                this.createButton({
+                  ...buttonConfig,
+                }, this.nodeLayer, button.nodeId);
+              },
+            });
+            setTimeout(() => {
+              button.select();
+            }, 10);
+          }
         }
       });
       this.stage.on('mouseup dragend', () => {
@@ -817,6 +842,17 @@ export class Editor {
     return text;
   }
 
+  protected createButton(attrs: NodeAttrs, layer: Group, nodeId?: string) {
+    const button = new Button({
+      nodeId,
+      attrs,
+      layer,
+      editor: this,
+    });
+    this.nodeIds[button.nodeId] = button;
+    return button;
+  }
+
   selectionEnd() {
     if (this.selecting) {
       this.selecting = false;
@@ -1158,6 +1194,23 @@ export class Editor {
 
   dragmove() {
     this.options.onDragmove();
+  }
+
+  addImage(src: string) {
+    const image = this.createImage({ src, x: 10, y: 10 }, this.nodeLayer);
+    this.history.add({
+      title: '插入图片',
+      undo: () => {
+        this.removeNode(image.nodeId);
+      },
+      redo: () => {
+        this.createImage({
+          x,
+          y,
+          src,
+        }, this.nodeLayer, image.nodeId);
+      },
+    });
   }
 
   dropImage(src: ImageSrc, offsetX: number, offsetY: number) {

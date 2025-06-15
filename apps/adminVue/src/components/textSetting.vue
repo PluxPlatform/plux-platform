@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  reactive,
-  watch,
-  onMounted,
-} from 'vue';
+import { reactive, watch, onMounted } from 'vue';
 import {
   BoldOutlined,
   ItalicOutlined,
@@ -13,7 +9,7 @@ import {
 import _ from 'lodash';
 import FontSelect from './fontSelect.vue';
 import Block from './block.vue';
-import useSetting from './useSetting.ts';
+import useSetting from './useSetting';
 import type { Nodes, Text, TextDecoration } from '@plux/editor';
 
 const props = defineProps<{

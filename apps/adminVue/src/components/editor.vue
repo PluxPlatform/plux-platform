@@ -209,6 +209,10 @@ const dropImage = (src: ImageSrc, offsetX: number, offsetY: number) => {
   editor.dropImage(src, offsetX, offsetY);
 };
 
+const addImage = (url) => {
+  editor.addImage(url);
+};
+
 const setMode = (mode: EditorMode) => editor.setMode(mode);
 
 watch(() => props.mode, (mode) => {
@@ -263,6 +267,7 @@ defineExpose({
   // resetTexts,
   destroy,
   dropImage,
+  addImage,
   setMode,
   exportPNG,
   exportData,

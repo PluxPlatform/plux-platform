@@ -56,6 +56,7 @@ const other = computed(() => {
       'Text',
       'Rect',
       'Circle',
+      'Button',
     ]);
   }
   return {};

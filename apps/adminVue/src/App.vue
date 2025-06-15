@@ -7,7 +7,7 @@ import {
   onUnmounted,
 } from 'vue';
 import _ from 'lodash';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   ArrowLeft,
   ArrowRight,
@@ -39,6 +39,12 @@ const setSelectionMode = (inter?: boolean) => {
     intersection.value = inter;
   }
 };
+const handleAddPictrue = () => {
+  ElMessageBox.prompt('URL', '插入图片').then(({ value }) => {
+    const url = _.trim(value);
+    editor.value?.addImage(url);
+  });
+};
 const onKeydown = ({ key }: KeyboardEvent) => {
   if (key === 'a') {
     if (mode.value === 'A') {
@@ -52,8 +58,12 @@ const onKeydown = ({ key }: KeyboardEvent) => {
     editor.value?.setMode('R');
   } else if (key === 't') {
     editor.value?.setMode('T');
+  } else if (key === 'b') {
+    editor.value?.setMode('B');
   } else if (key === 'c') {
     editor.value?.setMode('C');
+  } else if (key === 'p') {
+    handleAddPictrue();
   } else if (key === 'g') {
     if (selected.value) {
       if (selected.value.length === 1) {
@@ -161,13 +171,10 @@ const lineTop = ref(true);
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'T' }" @click="mode = 'T'">T</div>
         </el-tooltip>
         <el-tooltip content="按钮" placement="right" :show-after="500">
-          <div class="demo-tool-item">B</div>
-        </el-tooltip>
-        <el-tooltip content="输入框" placement="right" :show-after="500">
-          <div class="demo-tool-item">I</div>
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'B' }" @click="mode = 'B'">B</div>
         </el-tooltip>
         <el-tooltip content="图片" placement="right" :show-after="500">
-          <div class="demo-tool-item">P</div>
+          <div class="demo-tool-item" @click="handleAddPictrue">P</div>
         </el-tooltip>
         <el-tooltip content="开关" placement="right" :show-after="500">
           <div class="demo-tool-item">S</div>
@@ -189,7 +196,8 @@ const lineTop = ref(true);
           :alignLineFlag
           :alignLineOnlySameType
           :alignLineFixed
-          @click="(e) => console.log(e)"
+          @click="(e) => console.log('click', e)"
+          @select="(e) => console.log('select', e)"
           @keydown="onKeydown"
           @do="onDo"
           @dragmove="onDragMove"

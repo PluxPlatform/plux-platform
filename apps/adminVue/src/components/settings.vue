@@ -2,12 +2,14 @@
 import RectSetting from './rectSetting.vue';
 import TextSetting from './textSetting.vue';
 import CircleSetting from './circleSetting.vue';
+import ButtonSetting from './buttonSetting.vue';
 import type {
   Nodes,
   Node,
   Rect,
   Text,
   Circle,
+  Button,
 } from '@plux/editor';
 
 const props = withDefaults(defineProps<{
@@ -43,4 +45,9 @@ defineExpose({
     :selected="(props.selected as Nodes<Circle>)"
     :showTitle
   ></CircleSetting>
+  <ButtonSetting
+    v-else-if="props.className === 'Button'"
+    :selected="(props.selected as Nodes<Button>)"
+    :showTitle
+  ></ButtonSetting>
 </template>

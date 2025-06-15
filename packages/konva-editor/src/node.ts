@@ -33,7 +33,7 @@ export abstract class Node {
   editor: Editor;
   selected: boolean = false;
   minWidth: number | (() => number) = 10;
-  minHeight: number = 10;
+  minHeight: number | (() => number) = 10;
   portsGroup?: Konva.Group;
   // ports?: Port[];
   events: Record<string, ((node: Node, mechanical?: boolean) => void)[]>;
@@ -73,6 +73,10 @@ export abstract class Node {
           }
         } else if (mode === 'T') {
           if (this.className === 'Text') {
+            this.select(event.evt);
+          }
+        } else if (mode === 'B') {
+          if (this.className === 'Button') {
             this.select(event.evt);
           }
         }
@@ -214,6 +218,8 @@ export abstract class Node {
     return this.group.width();
   }
 
+  afterSetWidth(_width: number, _groupId?: string) {}
+
   setWidth(width: number, groupId?: string) {
     const oldValue = this.getWidth();
     const { nodeId } = this;
@@ -223,6 +229,7 @@ export abstract class Node {
     this.group.width(v);
     this.imageGroup.width(v);
     this.editor.tr.update();
+    this.afterSetWidth(width, groupId);
     this.dr.set(oldValue, v, groupId).then((step) => {
       this.editor.history.add({
         title: `修改${this.name}宽度`,
@@ -243,15 +250,18 @@ export abstract class Node {
     return this.group.height();
   }
 
+  afterSetHeight(_height: number, _groupId?: string) {}
+
   setHeight(height: number, groupId?: string) {
     const oldValue = this.getHeight();
     const { nodeId } = this;
-    const v = height >= this.minHeight ? height : this.minHeight;
+    const v = height >= this.getMinHeight() ? height : this.getMinHeight();
     this.group.skewX(0);
     this.group.skewY(0);
     this.group.height(v);
     this.imageGroup.height(v);
     this.editor.tr.update();
+    this.afterSetHeight(height, groupId);
     this.dr.set(oldValue, v, groupId).then((step) => {
       this.editor.history.add({
         title: `修改${this.name}高度`,
@@ -443,7 +453,7 @@ export abstract class Node {
             } else {
               newHeight -= movementY;
             }
-            if (newHeight >= this.minHeight) {
+            if (newHeight >= this.getMinHeight()) {
               this.setHeight(newHeight);
               this.editor.tr.update();
             } else {
@@ -473,6 +483,13 @@ export abstract class Node {
       return this.minWidth;
     }
     return this.minWidth();
+  }
+
+  getMinHeight() {
+    if (_.isNumber(this.minHeight)) {
+      return this.minHeight;
+    }
+    return this.minHeight();
   }
 
   get() {

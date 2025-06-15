@@ -200,7 +200,7 @@ const pull = () => {
             selected.length > 1
             || selected[0].className === 'Group'
             || (
-              (selected[0].layer as Group).root
+              !(selected[0].layer as Group).root
               && (selected[0].layer as Group).children.length !== 1
             )
           )
@@ -208,7 +208,7 @@ const pull = () => {
         label="组合"
       >
         <el-space>
-          <el-button type="primary" @click="cancelGroup">取消组合</el-button>
+          <el-button v-if="selected.length === 1 && selected[0].className === 'Group'" type="primary" @click="cancelGroup">取消组合</el-button>
           <template
             v-if="
               (
