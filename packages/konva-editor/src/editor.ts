@@ -418,6 +418,8 @@ export class Editor {
       this.gridGroup = new Konva.Group();
       this.mainLayer.add(this.gridGroup);
       this.renderGrid();
+      // Todo: 先在这里开启历史记录，后期要改成加载完数据再开启
+      this.history.start();
     }
     this.nodeLayer = new Group({
       root: true,
