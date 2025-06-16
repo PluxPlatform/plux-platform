@@ -1,16 +1,18 @@
-import type Konva from 'konva';
-import type Node from '../node';
-import type Group from '../group';
-import type Editor from '../editor';
+import type Konva from "konva";
+import type Node from "../node";
+import type Group from "../group";
+import type Editor from "../editor";
 
 export type NodeId = string;
 
-export type EditorMode = 'A' | 'E' | 'R' | 'T' | 'C' | 'B' | 'I' | 'S';
+export type EditorMode = "A" | "E" | "R" | "T" | "C" | "B" | "I" | "S";
 
-export type GridConfig = boolean | {
-  size: number;
-  fixed: boolean;
-};
+export type GridConfig =
+  | boolean
+  | {
+      size: number;
+      fixed: boolean;
+    };
 
 export type GuideLineConfig = {
   enable: boolean;
@@ -26,14 +28,14 @@ export type ClickEvent = {
 };
 
 export type DropFilesEvent = {
-  type: 'files';
+  type: "files";
   files: FileList;
   offsetX: number;
   offsetY: number;
 };
 
 export type DropDataEvent<Group> = {
-  type: 'data';
+  type: "data";
   group: Group;
   offsetX: number;
   offsetY: number;
@@ -95,11 +97,19 @@ export type Options = {
 
 export type Value = string | number | null;
 
-export type NodeType = 'Group' | 'Rect' | 'Text' | 'Image' | 'Line' | 'Circle' | 'Button';
+export type NodeType =
+  | "Group"
+  | "Rect"
+  | "Text"
+  | "Image"
+  | "Line"
+  | "Circle"
+  | "Button"
+  | "Tag";
 
 export type ImageSrc = string;
 
-export type TextDecoration = '' | 'line-through' | 'underline';
+export type TextDecoration = "" | "line-through" | "underline";
 
 export type LineType = string;
 
