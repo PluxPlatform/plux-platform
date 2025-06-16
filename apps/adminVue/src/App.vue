@@ -19,7 +19,7 @@ import Operation from './components/operation.vue';
 import { base64toFile } from './utils/base64toFile';
 import type { EditorMode } from '@plux/editor';
 
-const editor = useTemplateRef('editor');
+const editor = useTemplateRef<typeof Editor>('editor');
 
 provide('editor', editor);
 
@@ -143,8 +143,20 @@ const lineTop = ref(true);
         <h1 class="demo-title">设计工具</h1>
         <div class="demo-divider"></div>
         <div class="demo-his-btns">
-          <el-button :icon="ArrowLeft" circle size="small" plain></el-button>
-          <el-button :icon="ArrowRight" circle size="small" plain></el-button>
+          <el-button
+            :icon="ArrowLeft"
+            circle
+            size="small"
+            plain
+            @click="() => editor?.undo()"
+          ></el-button>
+          <el-button
+            :icon="ArrowRight"
+            circle
+            size="small"
+            plain
+            @click="() => editor?.redo()"
+          ></el-button>
         </div>
       </div>
       <div class="demo-header-right">
