@@ -1205,8 +1205,8 @@ export class Editor {
       },
       redo: () => {
         this.createImage({
-          x,
-          y,
+          x: 10,
+          y: 10,
           src,
         }, this.nodeLayer, image.nodeId);
       },

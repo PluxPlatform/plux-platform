@@ -89,7 +89,7 @@ class Image extends Node {
   setHeight(height: number, groupId?: string) {
     const oldValue = this.getHeight();
     const { nodeId } = this;
-    const v = height >= this.minHeight ? height : this.minHeight;
+    const v = height >= this.getMinHeight() ? height : this.getMinHeight();
     if (this.group.getAttr('flipY')) {
       this.group.y(this.group.y() - v + this.group.height());
       this.imageGroup?.offsetY(v);
