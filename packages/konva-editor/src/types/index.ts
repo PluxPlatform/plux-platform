@@ -1,6 +1,7 @@
 import type Konva from 'konva';
 import type Node from '../node';
 import type Group from '../group';
+import type Line from '../line';
 import type Editor from '../editor';
 
 export type NodeId = string;
@@ -84,7 +85,7 @@ export type Options = {
   onDrop: (event: DropEvent<Group>) => void;
   onSelect: (event: SelectEvent) => void;
   onDragmove: () => void;
-  // onCreateLine: (line: Line) => Promise<boolean>;
+  onCreateLine: (line: Line) => Promise<boolean>;
   onRemove: () => void;
   onMessage: (message: string) => void;
   onDo: (event: DoEvent) => void;
@@ -166,4 +167,9 @@ export interface Frame {
 export interface GifFrame extends Frame {
   pixels: Uint8ClampedArray;
   buffer: HTMLCanvasElement;
+}
+
+export interface Coordinate {
+  x: number;
+  y: number;
 }
