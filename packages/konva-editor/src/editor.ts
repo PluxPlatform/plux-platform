@@ -29,6 +29,7 @@ import { type PositionEnum } from "./types/enums";
 import type Node from "./node";
 import type Port from "./port";
 import type Anchor from "./anchor";
+import Tag from "./elements/Tag";
 
 export type AllNodes = Node | Rect | Text | Image | Circle | Tag;
 
