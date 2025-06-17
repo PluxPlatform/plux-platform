@@ -116,6 +116,7 @@ const init = () => {
         sameType: props.alignLineOnlySameType,
         fixed: props.alignLineFixed,
       },
+      background: props.background,
       onKeydown: (event) => {
         emit('keydown', event);
       },

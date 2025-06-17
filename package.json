@@ -9,7 +9,7 @@
   "scripts": {
     "dev:admin": "pnpm --filter adminvue dev",
     "dev:server": "pnpm --filter server start:dev",
-    "dev:editor": "pnpm --filter editor dev",
+    "dev:editor": "pnpm --filter @plux/editor dev",
     "build:editor": "pnpm --filter @plux/editor build",
     "dev:site": "pnpm --filter site dev",
     "build": "pnpm -r build",
