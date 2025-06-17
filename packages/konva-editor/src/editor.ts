@@ -7,7 +7,7 @@ import Rect from "./elements/rect";
 import Text from "./elements/text";
 import Button from "./elements/button";
 import Image from "./elements/image";
-import Circle from "./circle";
+import Circle from "./elements/circle";
 import Transformer from "./transformer";
 import Mover from "./mover";
 import EditorHistory from "./history";
