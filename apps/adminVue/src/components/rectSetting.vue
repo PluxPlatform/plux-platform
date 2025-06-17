@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  reactive,
-  watch,
-  onMounted,
-} from 'vue';
+import { reactive, watch, onMounted } from 'vue';
 import useSetting from './useSetting.ts';
 import Block from './block.vue';
 import type { Nodes, Rect } from '@plux/editor';
