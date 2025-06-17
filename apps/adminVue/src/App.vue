@@ -17,6 +17,7 @@ import {
 import Editor from './components/editor.vue';
 import Operation from './components/operation.vue';
 import { base64toFile } from './utils/base64toFile';
+import { fileToBase64 } from './utils/fileToBase64';
 import type { EditorMode } from '@plux/editor';
 
 const editor = useTemplateRef<typeof Editor>('editor');
@@ -112,18 +113,22 @@ const snapshot = () => {
     URL.revokeObjectURL(url);
   });
 };
-// const onDrop = (event) => {
-//   console.log(event);
-//   const { type } = event;
-//   if (type === 'files') {
-//     const { files, offsetX, offsetY } = event;
-//     _.each(files, (file) => {
-//       uploadImage(file).then(({ data }) => {
-//         editor.value?.dropImage(data, offsetX, offsetY);
-//       });
-//     });
-//   }
-// };
+const onDrop = (event) => {
+  const { type } = event;
+  if (type === 'files') {
+    const { files, offsetX, offsetY } = event;
+    _.each(files, (file) => {
+      if (_.includes(['jpg', 'jpeg', 'png', 'bmp', 'svg', 'svg'], _.last<string>(file.name.split('.'))?.toLowerCase())) {
+        fileToBase64(file).then((base64) => {
+          editor.value?.addImage(base64, offsetX, offsetY);
+        });
+      }
+      // uploadImage(file).then(({ data }) => {
+      //   editor.value?.dropImage(data, offsetX, offsetY);
+      // });
+    });
+  }
+};
 const onDragMove = _.debounce(() => {
   operation.value?.getPosition();
 }, 500);
@@ -134,6 +139,7 @@ const onDo = () => {
   operation.value?.getPosition();
 };
 const lineTop = ref(true);
+
 </script>
 
 <template>
@@ -214,6 +220,7 @@ const lineTop = ref(true);
           @do="onDo"
           @dragmove="onDragMove"
           @message="onMessage"
+          @drop="onDrop"
         ></Editor>
       </div>
       <div class="demo-right-panel">
@@ -226,6 +233,7 @@ const lineTop = ref(true);
             v-model:alignLineFlag="alignLineFlag"
             v-model:alignLineOnlySameType="alignLineOnlySameType"
             v-model:alignLineFixed="alignLineFixed"
+            v-model:background="background"
           ></Operation>
         </div>
       </div>

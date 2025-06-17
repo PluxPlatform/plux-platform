@@ -88,6 +88,8 @@ function getClosest(
 
 export class Editor {
   stage: Konva.Stage;
+  backLayer: Konva.Layer;
+  background: Konva.Rect;
   gridGroup?: Konva.Group;
   mainLayer: Konva.Layer;
   nodeLayer: Group;
@@ -170,7 +172,16 @@ export class Editor {
       height: container.clientHeight,
     });
     this.mainLayer = new Konva.Layer();
-    this.stage.add(this.mainLayer);
+    this.background = new Konva.Rect({
+      x: 0,
+      y: 0,
+      width: this.stage.width(),
+      height: this.stage.height(),
+      fill: this.options.background,
+    });
+    this.backLayer = new Konva.Layer();
+    this.backLayer.add(this.background);
+    this.stage.add(this.backLayer, this.mainLayer);
     this.lineMap = {};
     this.nodeIds = {};
     if (this.options.scroll) {
@@ -291,7 +302,6 @@ export class Editor {
               fill: '#333333',
             };
             const text = this.createText(textConfig, this.nodeLayer);
-            this.setMode('A');
             this.history.add({
               title: '创建文字',
               undo: () => {
@@ -313,7 +323,6 @@ export class Editor {
               type: 'primary',
             };
             const button = this.createButton(buttonConfig, this.nodeLayer);
-            this.setMode('A');
             this.history.add({
               title: '创建按钮',
               undo: () => {
@@ -438,7 +447,7 @@ export class Editor {
     }
     this.tr = new Transformer(this.mainLayer, this);
     this.stage.on('click', ({ target }) => {
-      if (target === this.stage) {
+      if (target === this.stage || target === this.background || target.hasName('grid')) {
         this.tr.clear();
         this.clearSelect();
       }
@@ -744,7 +753,6 @@ export class Editor {
         const id = this.tempShape.nodeId;
         const template = this.tempShape.getTemplate();
         this.nodeIds[id] = this.tempShape;
-        this.setMode('A');
         this.history.add({
           title: `创建${this.tempShape.name}`,
           undo: () => {
@@ -1080,6 +1088,10 @@ export class Editor {
         width: clientWidth,
         height: clientHeight,
       });
+      this.background.setAttrs({
+        width: clientWidth,
+        height: clientHeight,
+      });
     }
   }
 
@@ -1087,6 +1099,7 @@ export class Editor {
 
   changeBackground(background: string) {
     this.options.background = background;
+    this.background.fill(background);
   }
 
   onClick(event: ClickEvent) {
@@ -1327,6 +1340,7 @@ export class Editor {
       from,
       layer: this.lineLayer,
       editor: this,
+      isTemp: true,
     });
     let t = 0;
     this.tempMover = new Mover(this.stage, ({

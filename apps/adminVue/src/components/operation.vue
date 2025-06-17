@@ -23,6 +23,7 @@ const props = defineProps<{
   alignLineFlag: boolean;
   alignLineFixed: boolean;
   alignLineOnlySameType: boolean;
+  background: string;
 }>();
 
 const emit = defineEmits<{
@@ -32,6 +33,7 @@ const emit = defineEmits<{
   'update:alignLineFlag': [alignLineFlag: boolean];
   'update:alignLineFixed': [alignLineFixed: boolean];
   'update:alignLineOnlySameType': [alignLineOnlySameType: boolean];
+  'update:background': [background: string];
 }>();
 
 const {
@@ -41,6 +43,7 @@ const {
   alignLineFlag,
   alignLineFixed,
   alignLineOnlySameType,
+  background,
 } = useVModels(props, emit);
 
 const isNode = computed(() => {
@@ -76,6 +79,19 @@ const getPosition = () => {
 defineExpose({
   getPosition,
 });
+
+const customBack = computed({
+  get() {
+    return !!background.value;
+  },
+  set(val) {
+    if (val) {
+      background.value = '#000B29';
+    } else {
+      background.value = '';
+    }
+  },
+});
 </script>
 
 <template>
@@ -85,6 +101,14 @@ defineExpose({
         <el-radio-button :value="true">相交选择</el-radio-button>
         <el-radio-button :value="false">包含选择</el-radio-button>
       </el-radio-group>
+    </el-form-item>
+    <el-form-item label="背景色">
+      <el-switch
+        v-model="customBack"
+        active-text="自定义"
+        inactive-text="透明"
+      ></el-switch>
+      <el-input v-if="customBack" v-model="background" type="color"></el-input>
     </el-form-item>
     <el-collapse :model-value="['grid', 'guide']">
       <el-collapse-item title="网格" name="grid">
