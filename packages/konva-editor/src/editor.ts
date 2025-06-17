@@ -264,6 +264,7 @@ export class Editor {
           && this.options.mode === 'A'
           && (
             target === this.stage
+            || target === this.background
             || target.hasName('grid')
           )
         ) {
