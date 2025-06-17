@@ -120,7 +120,7 @@ const onDrop = (event) => {
     _.each(files, (file) => {
       if (_.includes(['jpg', 'jpeg', 'png', 'bmp', 'svg', 'svg'], _.last<string>(file.name.split('.'))?.toLowerCase())) {
         fileToBase64(file).then((base64) => {
-          editor.value?.addImage(base64, offsetX, offsetY);
+          editor.value?.dropImage(base64, offsetX, offsetY);
         });
       }
       // uploadImage(file).then(({ data }) => {
