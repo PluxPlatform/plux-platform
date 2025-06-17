@@ -5,10 +5,10 @@ export type * from "./types";
 export type * from "./types/enums";
 export * from "./node";
 export * from "./group";
-export * from "./elements/rect";
-export * from "./elements/text";
-export * from "./elements/circle";
-export * from "./elements/button";
+export * from "./elements/Rect";
+export * from "./elements/Text";
+export * from "./elements/Circle";
+export * from "./elements/Button";
 export * from "./line";
 
 export default Editor;

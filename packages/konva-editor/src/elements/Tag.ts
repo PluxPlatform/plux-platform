@@ -3,7 +3,6 @@ import { omit } from "lodash";
 import Node from "../node";
 import type Group from "../group";
 import type { NodeType, NodeConfig } from "../types";
-import Rect from "../rect";
 
 export class Tag extends Node {
   className: NodeType = "Tag";
@@ -76,11 +75,11 @@ export class Tag extends Node {
         title: "修改矩形圆角",
         groupId: step.groupId,
         undo: () => {
-          const node = this.editor.findNode(nodeId) as Rect;
+          const node = this.editor.findNode(nodeId) as Tag;
           node?.setCornerRadius(step.oldValue);
         },
         redo: () => {
-          const node = this.editor.findNode(nodeId) as Rect;
+          const node = this.editor.findNode(nodeId) as Tag;
           node?.setCornerRadius(step.value);
         },
       });
