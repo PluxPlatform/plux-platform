@@ -6,7 +6,7 @@ import {
   extend,
 } from 'lodash';
 import type Node from './node';
-import Line from './line';
+import type Line from './line';
 import { PortType } from './types/enums';
 
 type Options = {
@@ -48,10 +48,10 @@ class Port {
     let x: number;
     let y: number;
     let stroke = '#87cefa';
-    if (line instanceof Line) {
+    if ((line as Line).className === 'Line') {
       this.isFixed = false;
-      this.lines.push(line);
-      line.onDestroy((currentLine) => {
+      this.lines.push(line as Line);
+      (line as Line).onDestroy((currentLine) => {
         const index = this.lines.indexOf(currentLine as Line);
         if (index > -1) {
           this.lines.splice(index, 1);
@@ -73,14 +73,15 @@ class Port {
         y: relativeY,
       }));
     } else {
+      const l = line as FixedPortConfig;
       this.isFixed = true;
-      this.type = line.type;
-      this.id = line.id;
-      this.position = line.position;
+      this.type = l.type;
+      this.id = l.id;
+      this.position = l.position;
       ([x, y] = pos);
-      if (line.type === PortType.InPort) {
+      if (l.type === PortType.InPort) {
         stroke = 'green';
-      } else if (line.type === PortType.OutPort) {
+      } else if (l.type === PortType.OutPort) {
         stroke = 'red';
       }
     }

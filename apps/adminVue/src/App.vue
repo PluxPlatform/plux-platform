@@ -176,6 +176,9 @@ const lineTop = ref(true);
         <el-tooltip content="矩形" placement="right" :show-after="500">
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'R' }" @click="mode = 'R'">R</div>
         </el-tooltip>
+        <el-tooltip content="管路" placement="right" :show-after="500">
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'E' }" @click="mode = 'E'">E</div>
+        </el-tooltip>
         <el-tooltip content="圆形" placement="right" :show-after="500">
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'C' }" @click="mode = 'C'">C</div>
         </el-tooltip>
@@ -187,9 +190,6 @@ const lineTop = ref(true);
         </el-tooltip>
         <el-tooltip content="图片" placement="right" :show-after="500">
           <div class="demo-tool-item" @click="handleAddPictrue">P</div>
-        </el-tooltip>
-        <el-tooltip content="开关" placement="right" :show-after="500">
-          <div class="demo-tool-item">S</div>
         </el-tooltip>
       </div>
       <div class="demo-main">

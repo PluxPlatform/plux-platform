@@ -1322,6 +1322,7 @@ export class Editor {
         type: 'CLEAN_COAL',
         lineWidth,
         points: [x, y, x, y, x, y],
+        isPipeline: true,
       },
       from,
       layer: this.lineLayer,

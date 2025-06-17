@@ -26,7 +26,7 @@ export abstract class Node {
   abstract className: NodeType;
   abstract name: string;
   nodeId: NodeId;
-  isNode: boolean = false;
+  isNode: boolean = true;
   layer: Konva.Group | Group;
   group!: Konva.Group;
   imageGroup!: Konva.Group | Konva.Image | Konva.Text | Konva.Rect | Konva.Circle;
@@ -45,6 +45,7 @@ export abstract class Node {
     this.nodeId = attrs.nodeId || uuid();
     this.events = {
       move: [],
+      destroy: [],
     };
     this.dr = new DebounceRecord();
   }
@@ -410,11 +411,7 @@ export abstract class Node {
       });
       this.group.on('mousedown', ({ evt }) => {
         if (
-          (
-            this.isNode
-            || this.className === 'Rect'
-            || this.className === 'Text'
-          )
+          this.isNode
           && this.editor.options.mode === 'E'
           // && !_.some(this.ports, (port) => port.isFixed)
         ) {
@@ -423,11 +420,7 @@ export abstract class Node {
       });
       this.group.on('mouseup', () => {
         if (
-          (
-            this.isNode
-            || this.className === 'Rect'
-            || this.className === 'Text'
-          )
+          this.isNode
           && this.editor.options.mode === 'E'
           // && !_.some(this.ports, (port) => port.isFixed)
         ) {
