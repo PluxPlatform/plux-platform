@@ -13,9 +13,12 @@ import {
   ArrowRight,
   FullScreen,
   Pointer,
+  QuestionFilled,
 } from '@element-plus/icons-vue';
+import { ArrowsAltOutlined } from '@ant-design/icons-vue';
 import Editor from './components/editor.vue';
 import Operation from './components/operation.vue';
+import Help from './components/help.vue';
 import { base64toFile } from './utils/base64toFile';
 import { fileToBase64 } from './utils/fileToBase64';
 import type { EditorMode } from '@plux/editor';
@@ -139,7 +142,7 @@ const onDo = () => {
   operation.value?.getPosition();
 };
 const lineTop = ref(true);
-
+const help = useTemplateRef<InstanceType<typeof Help>>('help');
 </script>
 
 <template>
@@ -166,6 +169,9 @@ const lineTop = ref(true);
         </div>
       </div>
       <div class="demo-header-right">
+        <el-tooltip content="帮助">
+          <el-button :icon="QuestionFilled" size="small" text @click="help?.open()"></el-button>
+        </el-tooltip>
         <el-tooltip content="适应画布">
           <el-button :icon="FullScreen" size="small"></el-button>
         </el-tooltip>
@@ -178,12 +184,14 @@ const lineTop = ref(true);
             <el-icon><Pointer></Pointer></el-icon>
           </div>
         </el-tooltip>
+        <el-tooltip content="管路" placement="right" :show-after="500">
+          <div class="demo-tool-item" :class="{ 'is-active': mode === 'E' }" @click="mode = 'E'">
+            <el-icon><ArrowsAltOutlined></ArrowsAltOutlined></el-icon>
+          </div>
+        </el-tooltip>
         <div class="demo-divider-horizontal"></div>
         <el-tooltip content="矩形" placement="right" :show-after="500">
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'R' }" @click="mode = 'R'">R</div>
-        </el-tooltip>
-        <el-tooltip content="管路" placement="right" :show-after="500">
-          <div class="demo-tool-item" :class="{ 'is-active': mode === 'E' }" @click="mode = 'E'">E</div>
         </el-tooltip>
         <el-tooltip content="圆形" placement="right" :show-after="500">
           <div class="demo-tool-item" :class="{ 'is-active': mode === 'C' }" @click="mode = 'C'">C</div>
@@ -239,6 +247,7 @@ const lineTop = ref(true);
       </div>
     </div>
   </div>
+  <help ref="help"></help>
 </template>
 
 <style scoped lang="scss">
