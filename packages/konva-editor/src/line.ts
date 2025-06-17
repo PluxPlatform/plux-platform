@@ -1,18 +1,17 @@
-/* eslint-disable class-methods-use-this */
-import Konva from 'konva';
-import * as _ from 'lodash';
-import Node from './node';
-import Anchor from './anchor';
-import { SetPoint } from './setPoint';
-import type Group from './group';
-import type Port from './port';
+import Konva from "konva";
+import * as _ from "lodash";
+import Node from "./node";
+import Anchor from "./anchor";
+import { SetPoint } from "./setPoint";
+import type Group from "./group";
+import type Port from "./port";
 import type {
   NodeAttrs,
   NodeConfig,
   NodeId,
   NodeType,
   Coordinate,
-} from './types';
+} from "./types";
 
 export interface LineConfig extends NodeConfig {
   from?: NodeId;
@@ -29,20 +28,22 @@ function calcDistance(pointA: number[], pointB: number[]) {
 }
 
 function calcDirection(pointA: number[], pointB: number[]) {
-  return Math.abs(pointA[0] - pointB[0]) < Math.abs(pointA[1] - pointB[1]) ? 0 : 1;
+  return Math.abs(pointA[0] - pointB[0]) < Math.abs(pointA[1] - pointB[1])
+    ? 0
+    : 1;
 }
 
 const lineTheme = {
-  fill: '#000000',
-  borderOuter: '#7c87a1',
-  borderInner: '#354468',
+  fill: "#000000",
+  borderOuter: "#7c87a1",
+  borderInner: "#354468",
 };
 
 const defaultLineWidth = 8;
 
 class Line extends Node {
-  className: NodeType = 'Line';
-  name = '管路';
+  className: NodeType = "Line";
+  name = "管路";
 
   attrs: NodeAttrs;
 
@@ -86,7 +87,7 @@ class Line extends Node {
 
   constructor(config: LineConfig) {
     super(config);
-    this.className = 'Line';
+    this.className = "Line";
     this.anchors = [];
     this.selected = false;
     this.animationAvailable = true;
@@ -100,22 +101,22 @@ class Line extends Node {
     this.isNode = false;
     this.ports = [];
     this.group = new Konva.Group();
-    this.group.on('click tap dblclick', (event) => this.bindEvent('line', event));
+    this.group.on("click tap dblclick", (event) =>
+      this.bindEvent("line", event)
+    );
     if (this.editor.options.isEdit) {
-      this.group.on('mouseover', () => {
+      this.group.on("mouseover", () => {
         this.editor.pointer(true);
         this.highlight(true);
       });
-      this.group.on('mouseout', () => {
+      this.group.on("mouseout", () => {
         this.editor.pointer(false);
         this.highlight(false);
       });
     }
     (config.layer as Group).add(this);
-    const {
-      lineWidth = defaultLineWidth,
-    } = config.attrs;
-    const color = '#3FCC83';
+    const { lineWidth = defaultLineWidth } = config.attrs;
+    const color = "#3FCC83";
     const dotted = [15, 8, 15, 8];
     const pointer = config.attrs.showArrow ? 10 : 0;
     const opt = {
@@ -150,13 +151,15 @@ class Line extends Node {
       this.borderOuter.cache();
       this.borderOuter.filters([Konva.Filters.HSL]);
       this.borderOuter.luminance(-0.5);
-        this.borderOuter.saturation(-0.3);
+      this.borderOuter.saturation(-0.3);
       this.group.add(this.borderOuter);
     }
     const dash = dotted || [15, 8, 15, 8];
     this.line = this.createLine({
       ...opt,
-      strokeWidth: config.attrs.isPipeline ? lineWidth * 0.4 : config.attrs.lineWidth,
+      strokeWidth: config.attrs.isPipeline
+        ? lineWidth * 0.4
+        : config.attrs.lineWidth,
       stroke: color,
       dash,
       dashEnabled: config.attrs.isPipeline ? true : !!dotted,
@@ -186,21 +189,25 @@ class Line extends Node {
 
   setX(val: number) {
     const { points } = this.attrs;
-    const finded = _.find(this.anchors, 'selected');
+    const finded = _.find(this.anchors, "selected");
     if (finded) {
-      this.setPoints(_.map(points, (p, i) => {
-        if (i === finded.index! * 2) {
-          return p + val;
-        }
-        return p;
-      }));
+      this.setPoints(
+        _.map(points, (p, i) => {
+          if (i === finded.index! * 2) {
+            return p + val;
+          }
+          return p;
+        })
+      );
     } else {
-      this.setPoints(_.map(points, (p, i) => {
-        if (i % 2 === 0) {
-          return p + val;
-        }
-        return p;
-      }));
+      this.setPoints(
+        _.map(points, (p, i) => {
+          if (i % 2 === 0) {
+            return p + val;
+          }
+          return p;
+        })
+      );
     }
     this.refreshAnchors();
     this.editor.tr.update();
@@ -208,21 +215,25 @@ class Line extends Node {
 
   setY(val: number) {
     const { points } = this.attrs;
-    const finded = _.find(this.anchors, 'selected');
+    const finded = _.find(this.anchors, "selected");
     if (finded) {
-      this.setPoints(_.map(points, (p, i) => {
-        if (i === finded.index! * 2 + 1) {
-          return p + val;
-        }
-        return p;
-      }));
+      this.setPoints(
+        _.map(points, (p, i) => {
+          if (i === finded.index! * 2 + 1) {
+            return p + val;
+          }
+          return p;
+        })
+      );
     } else {
-      this.setPoints(_.map(points, (p, i) => {
-        if (i % 2) {
-          return p + val;
-        }
-        return p;
-      }));
+      this.setPoints(
+        _.map(points, (p, i) => {
+          if (i % 2) {
+            return p + val;
+          }
+          return p;
+        })
+      );
     }
     this.refreshAnchors();
     this.editor.tr.update();
@@ -291,7 +302,7 @@ class Line extends Node {
         this.line.shadowEnabled(false);
       }
     } else {
-      const color = highlight === true ? '#53f7fe' : highlight;
+      const color = highlight === true ? "#53f7fe" : highlight;
       if (this.attrs.isPipeline) {
         this.borderOuter.shadowColor(color);
         this.borderOuter.shadowBlur(10);
@@ -384,7 +395,7 @@ class Line extends Node {
     return this.group;
   }
   onDestroy(callback: (line: Node, mechanical?: boolean) => void) {
-    this.on('destroy', callback);
+    this.on("destroy", callback);
   }
 
   destroy(skipClear = false) {
@@ -459,7 +470,12 @@ class Line extends Node {
     this.anchors = [];
   }
 
-  private onAnchorHode(holding: boolean, index?: number, type?: boolean, moved?: boolean) {
+  private onAnchorHode(
+    holding: boolean,
+    index?: number,
+    type?: boolean,
+    moved?: boolean
+  ) {
     if (holding) {
       this.setPoint?.start();
       _.each(this.anchors, (anchor) => {
@@ -528,51 +544,61 @@ class Line extends Node {
     const lineWidth = this.attrs.lineWidth || defaultLineWidth;
     _.each(points, (point, pi) => {
       const [px, py] = point;
-      this.anchors.push(new Anchor({
-        layer: this.layer as Group,
-        index: pi,
-        attrs: {
-          x: px,
-          y: py,
-          lineWidth,
-          selected: this.selected,
-        },
-        onPositionChange: ({ x, y }, index, type, ap) => {
-          this.setPoint?.set(index!, type, x, y, ap);
-        },
-        onHold: this.onAnchorHode.bind(this),
-        onClick: this.onAnchorClick.bind(this),
-        onRemove: (_anchor, index, type) => {
-          this.removePoint(index!, type);
-        },
-      }));
+      this.anchors.push(
+        new Anchor({
+          layer: this.layer as Group,
+          index: pi,
+          attrs: {
+            x: px,
+            y: py,
+            lineWidth,
+            selected: this.selected,
+          },
+          onPositionChange: ({ x, y }, index, type, ap) => {
+            this.setPoint?.set(index!, type, x, y, ap);
+          },
+          onHold: this.onAnchorHode.bind(this),
+          onClick: this.onAnchorClick.bind(this),
+          onRemove: (_anchor, index, type) => {
+            this.removePoint(index!, type);
+          },
+        })
+      );
     });
     if (points.length > 2) {
       for (let i = 0; i < points.length - 1; i += 1) {
         const startPoint = points[i];
         const endPoint = points[i + 1];
         const v = startPoint[0] === endPoint[0];
-        const d = v ? Math.abs(startPoint[1] - endPoint[1]) : Math.abs(startPoint[0] - endPoint[0]);
+        const d = v
+          ? Math.abs(startPoint[1] - endPoint[1])
+          : Math.abs(startPoint[0] - endPoint[0]);
         if (d > 30) {
-          this.anchors.push(new Anchor({
-            layer: this.layer as Group,
-            index: i,
-            type: v,
-            attrs: {
-              x: v ? startPoint[0] : (Math.abs(startPoint[0] + endPoint[0]) / 2),
-              y: v ? (Math.abs(startPoint[1] + endPoint[1]) / 2) : startPoint[1],
-              lineWidth,
-              selected: this.selected,
-            },
-            onPositionChange: ({ x, y }, index, type, ap) => {
-              this.setPoint?.set(index!, type, x, y, ap);
-            },
-            onHold: this.onAnchorHode.bind(this),
-            onClick: this.onAnchorClick.bind(this),
-            onRemove: (_anchor, index, type) => {
-              this.removePoint(index!, type);
-            },
-          }));
+          this.anchors.push(
+            new Anchor({
+              layer: this.layer as Group,
+              index: i,
+              type: v,
+              attrs: {
+                x: v
+                  ? startPoint[0]
+                  : Math.abs(startPoint[0] + endPoint[0]) / 2,
+                y: v
+                  ? Math.abs(startPoint[1] + endPoint[1]) / 2
+                  : startPoint[1],
+                lineWidth,
+                selected: this.selected,
+              },
+              onPositionChange: ({ x, y }, index, type, ap) => {
+                this.setPoint?.set(index!, type, x, y, ap);
+              },
+              onHold: this.onAnchorHode.bind(this),
+              onClick: this.onAnchorClick.bind(this),
+              onRemove: (_anchor, index, type) => {
+                this.removePoint(index!, type);
+              },
+            })
+          );
         }
       }
     }
@@ -583,10 +609,10 @@ class Line extends Node {
     this.startPort = this.editor.setPort(this.from, _.first(points)!, this);
     this.endPort = this.editor.setPort(this.to, _.last(points)!, this);
     if (this.startPort) {
-      this.bindPortsEvents(this.startPort, 'start');
+      this.bindPortsEvents(this.startPort, "start");
     }
     if (this.endPort) {
-      this.bindPortsEvents(this.endPort, 'end');
+      this.bindPortsEvents(this.endPort, "end");
     }
   }
 
@@ -607,15 +633,16 @@ class Line extends Node {
       if (!from.getSelected() || !to.getSelected()) {
         return false;
       }
-      return from.getSelected() === to.getSelected() || (
-        this.editor.tr.include(from.getSelected())
-        && this.editor.tr.include(to.getSelected())
+      return (
+        from.getSelected() === to.getSelected() ||
+        (this.editor.tr.include(from.getSelected()) &&
+          this.editor.tr.include(to.getSelected()))
       );
     }
     return false;
   }
 
-  bindPortsEvents(port: Port, type: 'start' | 'end') {
+  bindPortsEvents(port: Port, type: "start" | "end") {
     port.onHold((holding) => {
       if (holding) {
         this.anchorsVisible(false);
@@ -628,12 +655,14 @@ class Line extends Node {
     });
     port.onPositionChange(({ x, y }, mechanical) => {
       if (!mechanical && this.isBothSelected()) {
-        this.setPoints(_.map(this.attrs.points, (p, i) => {
-          if (i % 2) {
-            return p + y / 2;
-          }
-          return p + x / 2;
-        }));
+        this.setPoints(
+          _.map(this.attrs.points, (p, i) => {
+            if (i % 2) {
+              return p + y / 2;
+            }
+            return p + x / 2;
+          })
+        );
       } else {
         this.setPoint?.set(type, undefined, x, y);
       }
@@ -739,7 +768,7 @@ class Line extends Node {
 
   getData(parentId?: NodeId) {
     return {
-      type: 'Line' as NodeType,
+      type: "Line" as NodeType,
       nodeId: this.nodeId,
       parentId,
       attrs: {
