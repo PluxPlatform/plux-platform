@@ -1,8 +1,8 @@
 import Konva from "konva";
 import { omit } from "lodash";
-import Node from "./node";
-import type Group from "./group";
-import type { NodeType, NodeConfig } from "./types";
+import Node from "../node";
+import type Group from "../group";
+import type { NodeType, NodeConfig } from "../types";
 
 export class Rect extends Node {
   className: NodeType = "Rect";

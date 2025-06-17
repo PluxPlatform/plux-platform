@@ -1,14 +1,14 @@
-import Konva from 'konva';
-import Node from './node';
-import type Group from './group';
-import type { NodeAttrs, NodeConfig, NodeType } from './types';
+import Konva from "konva";
+import Node from "../node";
+import type Group from "../group";
+import type { NodeAttrs, NodeConfig, NodeType } from "../types";
 
 export class Button extends Node {
-  className: NodeType = 'Button';
-  name = '按钮';
+  className: NodeType = "Button";
+  name = "按钮";
   attrs: NodeAttrs;
   highlight() {}
-  
+
   buttonRect: Konva.Rect;
   buttonText: Konva.Text;
 
@@ -16,13 +16,13 @@ export class Button extends Node {
     super(config);
     const {
       width = 58,
-      height = 30, 
-      text = '按钮',
-      type = 'primary',
+      height = 30,
+      text = "按钮",
+      type = "primary",
       borderRadius = 4,
       fontSize = 14,
-      backgroundColor = '',
-      color = '',
+      backgroundColor = "",
+      color = "",
       padding = [8, 15],
     } = config.attrs;
     this.attrs = {
@@ -47,14 +47,14 @@ export class Button extends Node {
     this.imageGroup = new Konva.Group();
     this.group.add(this.imageGroup);
     this.buttonRect = new Konva.Rect({
-      name: 'button',
+      name: "button",
       width,
       height,
       fill: this.getBackgroundColor(),
       cornerRadius: borderRadius,
     });
     this.buttonText = new Konva.Text({
-      name: 'button',
+      name: "button",
       text: this.attrs.text,
       fontSize,
       fill: this.getTextColor(),
@@ -69,22 +69,22 @@ export class Button extends Node {
     if (backgroundColor) {
       return backgroundColor;
     }
-    if (type === 'primary') {
-      return '#409EFF';
+    if (type === "primary") {
+      return "#409EFF";
     }
-    if (type === 'success') {
-      return '#67C23A';
+    if (type === "success") {
+      return "#67C23A";
     }
-    if (type === 'danger') {
-      return '#F56C6C';
+    if (type === "danger") {
+      return "#F56C6C";
     }
-    if (type === 'warning') {
-      return '#E6A23C';
+    if (type === "warning") {
+      return "#E6A23C";
     }
-    if (type === 'info') {
-      return '#909399';
+    if (type === "info") {
+      return "#909399";
     }
-    return '';
+    return "";
   }
 
   getTextColor() {
@@ -92,14 +92,23 @@ export class Button extends Node {
     if (color) {
       return color;
     }
-    if (type === 'default' || !type) {
-      return '#606266';
+    if (type === "default" || !type) {
+      return "#606266";
     }
-    return '#ffffff';
+    return "#ffffff";
   }
 
   setTransformer() {
-    this.editor.tr.transformer.enabledAnchors(['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right', 'top-center', 'bottom-center']);
+    this.editor.tr.transformer.enabledAnchors([
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right",
+      "middle-left",
+      "middle-right",
+      "top-center",
+      "bottom-center",
+    ]);
     this.editor.tr.transformer.rotateEnabled(true);
   }
 
@@ -117,12 +126,14 @@ export class Button extends Node {
       this.group.width(newRectWidth);
       this.buttonRect.width(newRectWidth);
     } else {
-      this.buttonText.x(this.buttonRect.width() / 2 - this.buttonText.width() / 2);
+      this.buttonText.x(
+        this.buttonRect.width() / 2 - this.buttonText.width() / 2
+      );
     }
     this.editor.tr.update();
     this.dr.set(oldValue, text, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改按钮文字',
+        title: "修改按钮文字",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Button;
@@ -143,7 +154,7 @@ export class Button extends Node {
 
   afterSetHeight(height: number) {
     this.buttonRect.height(height);
-    this.buttonText.y(height / 2 - this.buttonText.height() / 2 + 1)
+    this.buttonText.y(height / 2 - this.buttonText.height() / 2 + 1);
   }
 
   getType() {
@@ -158,7 +169,7 @@ export class Button extends Node {
     this.buttonText.fill(this.getTextColor());
     this.dr.set(oldValue, type, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改按钮类型',
+        title: "修改按钮类型",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Button;

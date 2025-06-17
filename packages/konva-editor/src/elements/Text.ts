@@ -1,11 +1,11 @@
-import Konva from 'konva';
-import Node from './node';
-import type Group from './group';
-import type { NodeAttrs, NodeConfig, NodeType, TextDecoration } from './types';
+import Konva from "konva";
+import Node from "../node";
+import type Group from "../group";
+import type { NodeAttrs, NodeConfig, NodeType, TextDecoration } from "../types";
 
 export class Text extends Node {
-  className: NodeType = 'Text';
-  name = '文本';
+  className: NodeType = "Text";
+  name = "文本";
   attrs: NodeAttrs;
   imageGroup: Konva.Text;
 
@@ -15,12 +15,12 @@ export class Text extends Node {
     super(config);
     const {
       width,
-      fill = '#000000',
-      fontFamily = 'Arial',
+      fill = "#000000",
+      fontFamily = "Arial",
       bold = false,
       italic = false,
-      textDecoration = '',
-      text = '文本',
+      textDecoration = "",
+      text = "文本",
       fontSize = 14,
     } = config.attrs;
     this.attrs = {
@@ -37,21 +37,21 @@ export class Text extends Node {
       ...config.attrs,
       width,
     });
-    let fontStyle = 'normal';
+    let fontStyle = "normal";
     if (bold) {
       if (italic) {
-        fontStyle = 'italic bold';
+        fontStyle = "italic bold";
       } else {
-        fontStyle = 'bold';
+        fontStyle = "bold";
       }
     } else if (italic) {
-      fontStyle = 'italic';
+      fontStyle = "italic";
     }
     (config.layer as Group).add(this);
     this.init();
     this.editing();
     this.imageGroup = new Konva.Text({
-      name: 'text',
+      name: "text",
       x: 0,
       y: 0,
       width,
@@ -68,7 +68,14 @@ export class Text extends Node {
   }
 
   setTransformer() {
-    this.editor.tr.transformer.enabledAnchors(['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right']);
+    this.editor.tr.transformer.enabledAnchors([
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right",
+      "middle-left",
+      "middle-right",
+    ]);
     this.editor.tr.transformer.rotateEnabled(true);
   }
 
@@ -101,7 +108,7 @@ export class Text extends Node {
     this.editor.tr.update();
     this.dr.set(oldValue, text, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改文字文本',
+        title: "修改文字文本",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Text;
@@ -116,7 +123,7 @@ export class Text extends Node {
   }
 
   getFontFamily() {
-    return this.attrs.fontFamily || 'Arial';
+    return this.attrs.fontFamily || "Arial";
   }
 
   setFontFamily(fontFamily: string, groupId?: string) {
@@ -126,7 +133,7 @@ export class Text extends Node {
     this.imageGroup.fontFamily(fontFamily);
     this.dr.set(oldValue, fontFamily, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改文字字体',
+        title: "修改文字字体",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Text;
@@ -142,15 +149,15 @@ export class Text extends Node {
 
   setTextStyle() {
     const { bold, italic } = this.attrs;
-    let fontStyle = 'normal';
+    let fontStyle = "normal";
     if (bold) {
       if (italic) {
-        fontStyle = 'italic bold';
+        fontStyle = "italic bold";
       } else {
-        fontStyle = 'bold';
+        fontStyle = "bold";
       }
     } else if (italic) {
-      fontStyle = 'italic';
+      fontStyle = "italic";
     }
     this.imageGroup.fontStyle(fontStyle);
   }
@@ -166,7 +173,7 @@ export class Text extends Node {
     this.setTextStyle();
     this.dr.set(oldValue, bold, groupId).then((step) => {
       this.editor.history.add({
-        title: bold ? '文字加粗' : '取消文字加粗',
+        title: bold ? "文字加粗" : "取消文字加粗",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Text;
@@ -191,7 +198,7 @@ export class Text extends Node {
     this.setTextStyle();
     this.dr.set(oldValue, italic, groupId).then((step) => {
       this.editor.history.add({
-        title: italic ? '文字倾斜' : '取消文字倾斜',
+        title: italic ? "文字倾斜" : "取消文字倾斜",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Text;
@@ -217,7 +224,7 @@ export class Text extends Node {
     this.setWidth(this.imageGroup.width());
     this.dr.set(oldValue, fontSize, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改文字字体大小',
+        title: "修改文字字体大小",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Text;
@@ -232,7 +239,7 @@ export class Text extends Node {
   }
 
   getFill() {
-    return (this.attrs.fill || '#000') as string;
+    return (this.attrs.fill || "#000") as string;
   }
 
   setFill(fill: string, groupId?: string) {
@@ -242,7 +249,7 @@ export class Text extends Node {
     this.imageGroup.fill(fill);
     this.dr.set(oldValue, fill, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改文字颜色',
+        title: "修改文字颜色",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Text;
@@ -257,7 +264,7 @@ export class Text extends Node {
   }
 
   getTextDecoration() {
-    return this.attrs.textDecoration || '';
+    return this.attrs.textDecoration || "";
   }
 
   setTextDecoration(textDecoration: TextDecoration, groupId?: string) {
@@ -266,13 +273,13 @@ export class Text extends Node {
     this.attrs.textDecoration = textDecoration;
     this.imageGroup.textDecoration(textDecoration);
     this.dr.set(oldValue, textDecoration, groupId).then((step) => {
-      let title = '';
-      if (textDecoration === 'underline') {
-        title = '文字下划线';
-      } else if (textDecoration === 'line-through') {
-        title = '文字删除线';
+      let title = "";
+      if (textDecoration === "underline") {
+        title = "文字下划线";
+      } else if (textDecoration === "line-through") {
+        title = "文字删除线";
       } else {
-        title = '取消文字装饰';
+        title = "取消文字装饰";
       }
       this.editor.history.add({
         title,

@@ -1,12 +1,12 @@
-import Konva from 'konva';
-import { createImage } from './createImage';
-import Node from './node';
-import type Group from './group';
-import type { NodeAttrs, NodeType, NodeConfig } from './types';
+import Konva from "konva";
+import { createImage } from "../createImage";
+import Node from "../node";
+import type Group from "../group";
+import type { NodeAttrs, NodeType, NodeConfig } from "../types";
 
 class Image extends Node {
-  className: NodeType = 'Image';
-  name = '图片';
+  className: NodeType = "Image";
+  name = "图片";
   attrs: NodeAttrs;
 
   highlight() {}
@@ -17,7 +17,7 @@ class Image extends Node {
       src: config.attrs.src,
     };
     const {
-      src = '/micro-assets/platform-web/close.png',
+      src = "/micro-assets/platform-web/close.png",
       x = 0,
       y = 0,
     } = config.attrs;
@@ -29,10 +29,14 @@ class Image extends Node {
     (config.layer as Group).add(this);
     this.init();
     this.editing();
-    createImage(src, {
-      width: config.attrs.width,
-      height: config.attrs.height,
-    }, this.group).then((image) => {
+    createImage(
+      src,
+      {
+        width: config.attrs.width,
+        height: config.attrs.height,
+      },
+      this.group
+    ).then((image) => {
       this.imageGroup = image;
       this.group.add(image);
       const width = image.width();
@@ -45,13 +49,13 @@ class Image extends Node {
   }
 
   setTransformer() {
-    const anchors = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+    const anchors = ["top-left", "top-right", "bottom-left", "bottom-right"];
     const { flipX, flipY } = this.group.getAttrs();
     if (!flipX) {
-      anchors.push('middle-right', 'middle-left');
+      anchors.push("middle-right", "middle-left");
     }
     if (!flipY) {
-      anchors.push('bottom-center', 'top-center');
+      anchors.push("bottom-center", "top-center");
     }
     this.editor.tr.transformer.enabledAnchors(anchors);
     this.editor.tr.transformer.rotateEnabled(true);
@@ -61,7 +65,7 @@ class Image extends Node {
     const oldValue = this.getWidth();
     const { nodeId } = this;
     const v = width >= this.getMinWidth() ? width : this.getMinWidth();
-    if (this.group.getAttr('flipX')) {
+    if (this.group.getAttr("flipX")) {
       this.group.x(this.group.x() - v + this.group.width());
       this.imageGroup?.offsetX(v);
     }
@@ -72,7 +76,7 @@ class Image extends Node {
     this.editor.tr.update();
     this.dr.set(oldValue, v, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改图片宽度',
+        title: "修改图片宽度",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Image;
@@ -90,7 +94,7 @@ class Image extends Node {
     const oldValue = this.getHeight();
     const { nodeId } = this;
     const v = height >= this.getMinHeight() ? height : this.getMinHeight();
-    if (this.group.getAttr('flipY')) {
+    if (this.group.getAttr("flipY")) {
       this.group.y(this.group.y() - v + this.group.height());
       this.imageGroup?.offsetY(v);
     }
@@ -101,7 +105,7 @@ class Image extends Node {
     this.editor.tr.update();
     this.dr.set(oldValue, v, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改图片高度',
+        title: "修改图片高度",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Image;

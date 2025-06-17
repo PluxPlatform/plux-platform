@@ -3,10 +3,10 @@ import * as _ from "lodash";
 import { uuid } from "./uuid";
 import Group from "./group";
 import Line from "./line";
-import Rect from "./rect";
-import Text from "./text";
-import Button from "./button";
-import Image from "./image";
+import Rect from "./elements/rect";
+import Text from "./elements/text";
+import Button from "./elements/button";
+import Image from "./elements/image";
 import Circle from "./circle";
 import Transformer from "./transformer";
 import Mover from "./mover";
@@ -264,13 +264,11 @@ export class Editor {
           }
         }
         if (
-          !mover.enable
-          && this.options.mode === 'A'
-          && (
-            target === this.stage
-            || target === this.background
-            || target.hasName('grid')
-          )
+          !mover.enable &&
+          this.options.mode === "A" &&
+          (target === this.stage ||
+            target === this.background ||
+            target.hasName("grid"))
         ) {
           this.selecting = true;
           this.selectionRectangle.setAttrs({
