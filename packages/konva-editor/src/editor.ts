@@ -1,16 +1,16 @@
-import Konva from 'konva';
-import * as _ from 'lodash';
-import { uuid } from './uuid';
-import Group from './group';
-import Line from './line';
-import Rect from './rect';
-import Text from './text';
-import Button from './button';
-import Image from './image';
-import Circle from './circle';
-import Transformer from './transformer';
-import Mover from './mover';
-import EditorHistory from './history';
+import Konva from "konva";
+import * as _ from "lodash";
+import { uuid } from "./uuid";
+import Group from "./group";
+import Line from "./line";
+import Rect from "./rect";
+import Text from "./text";
+import Button from "./button";
+import Image from "./image";
+import Circle from "./circle";
+import Transformer from "./transformer";
+import Mover from "./mover";
+import EditorHistory from "./history";
 
 import type {
   NodeId,
@@ -24,13 +24,14 @@ import type {
   GridConfig,
   GuideLineConfig,
   ExportObject,
-} from './types';
-import { type PositionEnum } from './types/enums';
-import type Node from './node';
-import type Port from './port';
-import type Anchor from './anchor';
+} from "./types";
+import { type PositionEnum } from "./types/enums";
+import type Node from "./node";
+import type Port from "./port";
+import type Anchor from "./anchor";
+import Tag from "./elements/Tag";
 
-export type AllNodes = Node | Rect | Text | Image | Circle;
+export type AllNodes = Node | Rect | Text | Image | Circle | Tag;
 
 type EditorOptions = Options;
 
@@ -60,7 +61,7 @@ function getClosest(
   type: string,
   threshold = 5
 ): Closest {
-  const index = _.sortedIndexBy(guideList, { val, nodeId: '' }, 'val');
+  const index = _.sortedIndexBy(guideList, { val, nodeId: "" }, "val");
   let ln: GuideItem | null = null;
   let rn: GuideItem | null = null;
   if (index !== 0) {
@@ -69,8 +70,8 @@ function getClosest(
   if (index !== guideList.length) {
     rn = guideList[index];
   }
-  const l = (ln && Math.abs(ln.val - val) < threshold) ? ln.val : undefined;
-  const r = (rn && Math.abs(rn.val - val) < threshold) ? rn.val : undefined;
+  const l = ln && Math.abs(ln.val - val) < threshold ? ln.val : undefined;
+  const r = rn && Math.abs(rn.val - val) < threshold ? rn.val : undefined;
   if (!_.isUndefined(l) && !_.isUndefined(r)) {
     if (Math.abs(l - val) <= Math.abs(r - val)) {
       return [l, Math.abs(l - val), type];
@@ -136,35 +137,38 @@ export class Editor {
     this.tempShape = null;
     this.cacheAnchor = null;
     this.copied = [];
-    this.options = _.extend({
-      background: '',
-      isEdit: false,
-      mode: 'A',
-      intersection: false,
-      scroll: false,
-      touch: false,
-      history: false,
-      grid: false,
-      guideLine: {
-        enable: false,
-        sameType: false,
-        fixed: false,
+    this.options = _.extend(
+      {
+        background: "",
+        isEdit: false,
+        mode: "A",
+        intersection: false,
+        scroll: false,
+        touch: false,
+        history: false,
+        grid: false,
+        guideLine: {
+          enable: false,
+          sameType: false,
+          fixed: false,
+        },
+        lineTop: false,
+        onKeydown: () => {},
+        onModeChange: () => {},
+        onClick: () => {},
+        onDrop: () => {},
+        onSelect: () => {},
+        onDragmove: () => {},
+        onCreateLine: () => Promise.resolve(true),
+        onRemove: () => {},
+        onMessage: () => {},
+        onDo: () => {},
+        onTouch: () => {},
+        onBeforeDrop: () => Promise.resolve(true),
+        onContextMenu: () => {},
       },
-      lineTop: false,
-      onKeydown: () => {},
-      onModeChange: () => {},
-      onClick: () => {},
-      onDrop: () => {},
-      onSelect: () => {},
-      onDragmove: () => {},
-      onCreateLine: () => Promise.resolve(true),
-      onRemove: () => {},
-      onMessage: () => {},
-      onDo: () => {},
-      onTouch: () => {},
-      onBeforeDrop: () => Promise.resolve(true),
-      onContextMenu: () => {},
-    }, opt);
+      opt
+    );
     this.editorContainer = container;
     this.stage = new Konva.Stage({
       container,
@@ -212,23 +216,23 @@ export class Editor {
       this.stage.add(this.utilLayer);
       this.selectionRectMap = {};
       this.selectionRectangle = new Konva.Rect({
-        fill: 'rgba(0, 0, 255, .3)',
+        fill: "rgba(0, 0, 255, .3)",
         visible: false,
         listening: false,
       });
       this.selecting = false;
       const { clientWidth, clientHeight } = this.editorContainer;
       this.guideXLine = new Konva.Line({
-        name: 'grid',
+        name: "grid",
         points: [0, 0, 0, clientHeight],
-        stroke: '#ff00007f',
+        stroke: "#ff00007f",
         strokeWidth: 1,
         visible: false,
       });
       this.guideYLine = new Konva.Line({
-        name: 'grid',
+        name: "grid",
         points: [0, 0, clientWidth, 0],
-        stroke: '#ff00ff7f',
+        stroke: "#ff00ff7f",
         strokeWidth: 1,
         visible: false,
       });
@@ -236,26 +240,26 @@ export class Editor {
         enabledAnchors: [],
         rotateEnabled: false,
         resizeEnabled: false,
-        borderStroke: '#ff00007f',
+        borderStroke: "#ff00007f",
       });
       this.guideYTransform = new Konva.Transformer({
         enabledAnchors: [],
         rotateEnabled: false,
         resizeEnabled: false,
-        borderStroke: '#ff00ff7f',
+        borderStroke: "#ff00ff7f",
       });
       this.utilLayer.add(
         this.guideXTransform,
         this.guideYTransform,
         this.guideXLine,
         this.guideYLine,
-        this.selectionRectangle,
+        this.selectionRectangle
       );
-      this.stage.on('mousedown', ({ evt, target }) => {
-        if (!mover.enable && target.parent?.className !== 'Transformer') {
-          if (this.options.mode === 'R' && !target.hasName('rect')) {
+      this.stage.on("mousedown", ({ evt, target }) => {
+        if (!mover.enable && target.parent?.className !== "Transformer") {
+          if (this.options.mode === "R" && !target.hasName("rect")) {
             this.createShapeStart(Rect, evt.offsetX, evt.offsetY);
-          } else if (this.options.mode === 'C' && !target.hasName('circle')) {
+          } else if (this.options.mode === "C" && !target.hasName("circle")) {
             this.createShapeStart(Circle, evt.offsetX, evt.offsetY);
           }
         }
@@ -276,63 +280,76 @@ export class Editor {
             x: evt.offsetX,
             y: evt.offsetY,
           });
-          const checkList = (this.tr.cache.length === 1 && this.tr.cache[0] instanceof Group)
-            ? this.tr.cache[0].children
-            : this.nodeLayer.children;
-          this.tempMover = new Mover(this.stage, ({ offsetX, offsetY }) => {
-            const width = Math.abs(offsetX - evt.offsetX);
-            const height = Math.abs(offsetY - evt.offsetY);
-            const x = offsetX < evt.offsetX ? offsetX : evt.offsetX;
-            const y = offsetY < evt.offsetY ? offsetY : evt.offsetY;
-            this.selectionRectangle.width(width);
-            this.selectionRectangle.height(height);
-            this.selectionRectangle.x(x);
-            this.selectionRectangle.y(y);
-            this.triggerSelection(checkList, x, y, x + width, y + height);
-          }, true);
+          const checkList =
+            this.tr.cache.length === 1 && this.tr.cache[0] instanceof Group
+              ? this.tr.cache[0].children
+              : this.nodeLayer.children;
+          this.tempMover = new Mover(
+            this.stage,
+            ({ offsetX, offsetY }) => {
+              const width = Math.abs(offsetX - evt.offsetX);
+              const height = Math.abs(offsetY - evt.offsetY);
+              const x = offsetX < evt.offsetX ? offsetX : evt.offsetX;
+              const y = offsetY < evt.offsetY ? offsetY : evt.offsetY;
+              this.selectionRectangle.width(width);
+              this.selectionRectangle.height(height);
+              this.selectionRectangle.x(x);
+              this.selectionRectangle.y(y);
+              this.triggerSelection(checkList, x, y, x + width, y + height);
+            },
+            true
+          );
         }
       });
-      this.stage.on('click', ({ target, evt }) => {
+      this.stage.on("click", ({ target, evt }) => {
         if (!mover.enable) {
           const { offsetX, offsetY } = evt;
           const { x, y } = this.getPositionInLayer(offsetX, offsetY);
-          if (this.options.mode === 'T' && !target.hasName('text')) {
+          if (this.options.mode === "T" && !target.hasName("text")) {
             const textConfig = {
               x,
               y,
-              fill: '#333333',
+              fill: "#333333",
             };
             const text = this.createText(textConfig, this.nodeLayer);
             this.history.add({
-              title: '创建文字',
+              title: "创建文字",
               undo: () => {
                 this.removeNode(text.nodeId);
               },
               redo: () => {
-                this.createText({
-                  ...textConfig,
-                }, this.nodeLayer, text.nodeId);
+                this.createText(
+                  {
+                    ...textConfig,
+                  },
+                  this.nodeLayer,
+                  text.nodeId
+                );
               },
             });
             setTimeout(() => {
               text.select();
             }, 10);
-          } else if (this.options.mode === 'B' && !target.hasName('button')) {
+          } else if (this.options.mode === "B" && !target.hasName("button")) {
             const buttonConfig = {
               x,
               y,
-              type: 'primary',
+              type: "primary",
             };
             const button = this.createButton(buttonConfig, this.nodeLayer);
             this.history.add({
-              title: '创建按钮',
+              title: "创建按钮",
               undo: () => {
                 this.removeNode(button.nodeId);
               },
               redo: () => {
-                this.createButton({
-                  ...buttonConfig,
-                }, this.nodeLayer, button.nodeId);
+                this.createButton(
+                  {
+                    ...buttonConfig,
+                  },
+                  this.nodeLayer,
+                  button.nodeId
+                );
               },
             });
             setTimeout(() => {
@@ -341,84 +358,89 @@ export class Editor {
           }
         }
       });
-      this.stage.on('mouseup dragend', () => {
+      this.stage.on("mouseup dragend", () => {
         this.createLineOver();
         this.createShapeEnd();
         this.selectionEnd();
         this.clearGuide();
       });
-      container.addEventListener('mouseout', () => {
+      container.addEventListener("mouseout", () => {
         this.createLineOver();
         this.createShapeEnd();
         this.selectionEnd();
         if (mover.enable) {
-          container.style.cursor = 'default';
+          container.style.cursor = "default";
           mover.stop();
         }
       });
-      container.addEventListener('keydown', (event) => {
+      container.addEventListener("keydown", (event) => {
         event.stopPropagation();
         event.preventDefault();
         const metaKey = event.metaKey || event.ctrlKey;
-        if (event.code === 'Space') {
+        if (event.code === "Space") {
           if (!this.selecting) {
-            container.style.cursor = 'grab';
+            container.style.cursor = "grab";
             mover.enable = true;
           }
-        } else if (event.code === 'Delete' || event.code === 'Backspace') {
+        } else if (event.code === "Delete" || event.code === "Backspace") {
           if (this.cacheAnchor && !this.cacheAnchor.destroyed) {
             this.cacheAnchor.remove();
             this.cacheAnchor = null;
           } else if (this.tr.cache.length) {
-            this.saveHistory('删除', () => {
-              _.each(this.tr.cache, (node) => {
-                node.destroy();
-              });
-              this.options.onRemove();
-            }, 'deleteNodeUndo', 'deleteNodeRedo');
+            this.saveHistory(
+              "删除",
+              () => {
+                _.each(this.tr.cache, (node) => {
+                  node.destroy();
+                });
+                this.options.onRemove();
+              },
+              "deleteNodeUndo",
+              "deleteNodeRedo"
+            );
           }
-        } else if (event.code === 'ArrowUp') {
+        } else if (event.code === "ArrowUp") {
           this.tr.up(metaKey);
-        } else if (event.code === 'ArrowDown') {
+        } else if (event.code === "ArrowDown") {
           this.tr.down(metaKey);
-        } else if (event.code === 'ArrowLeft') {
+        } else if (event.code === "ArrowLeft") {
           this.tr.left(metaKey);
-        } else if (event.code === 'ArrowRight') {
+        } else if (event.code === "ArrowRight") {
           this.tr.right(metaKey);
-        } else if (event.code === 'KeyC' && metaKey) {
+        } else if (event.code === "KeyC" && metaKey) {
           this.copy();
-        } else if (event.code === 'KeyV' && metaKey) {
+        } else if (event.code === "KeyV" && metaKey) {
           this.paste();
-        } else if (event.code === 'KeyA' && metaKey) {
+        } else if (event.code === "KeyA" && metaKey) {
           this.selectAll(event);
-        } else if (event.code === 'KeyZ' && metaKey) {
+        } else if (event.code === "KeyZ" && metaKey) {
           if (event.shiftKey) {
             this.history.redo();
           } else {
             this.history.undo();
           }
-        } else if (event.code === 'KeyY' && metaKey) {
+        } else if (event.code === "KeyY" && metaKey) {
           this.history.redo();
         } else {
           this.options.onKeydown(event);
         }
       });
-      container.addEventListener('keyup', ({ code }) => {
-        if (code === 'Space') {
-          container.style.cursor = 'default';
+      container.addEventListener("keyup", ({ code }) => {
+        if (code === "Space") {
+          container.style.cursor = "default";
           mover.stop();
           mover.enable = false;
         }
       });
-      container.addEventListener('dragover', (e) => {
+      container.addEventListener("dragover", (e) => {
         e.preventDefault();
       });
-      container.addEventListener('drop', (e) => {
+      container.addEventListener("drop", (e) => {
         e.preventDefault();
         const { offsetX, offsetY } = e;
         if (e.dataTransfer?.files.length) {
           this.options.onDrop({
-            type: 'files',
+            type: "files",
             files: e.dataTransfer.files,
             offsetX,
             offsetY,
@@ -447,8 +469,12 @@ export class Editor {
       this.nodeLayer.moveUp();
     }
     this.tr = new Transformer(this.mainLayer, this);
-    this.stage.on('click', ({ target }) => {
-      if (target === this.stage || target === this.background || target.hasName('grid')) {
+    this.stage.on("click", ({ target }) => {
+      if (
+        target === this.stage ||
+        target === this.background ||
+        target.hasName("grid")
+      ) {
         this.tr.clear();
         this.clearSelect();
       }
@@ -509,10 +535,10 @@ export class Editor {
     type: NodeType,
     nodeId: NodeId,
     parentId: NodeId | undefined,
-    attrs: NodeAttrs,
+    attrs: NodeAttrs
   ) {
-    const layer = parentId ? this.nodeIds[parentId] as Group : this.nodeLayer;
-    if (type === 'Group') {
+    const layer = parentId ? (this.nodeIds[parentId] as Group) : this.nodeLayer;
+    if (type === "Group") {
       const group = new Group({
         nodeId,
         attrs,
@@ -522,13 +548,13 @@ export class Editor {
       this.nodeIds[nodeId] = group;
       return group;
     }
-    if (type === 'Image') {
+    if (type === "Image") {
       return this.createImage(attrs, layer, nodeId);
     }
-    if (type === 'Rect') {
+    if (type === "Rect") {
       return this.createRect(attrs, layer, nodeId);
     }
-    if (type === 'Text') {
+    if (type === "Text") {
       return this.createText(attrs, layer, nodeId);
     }
     return null;
@@ -540,7 +566,7 @@ export class Editor {
     from: NodeId,
     to: NodeId,
     fromPort?: string | null,
-    toPort?: string | null,
+    toPort?: string | null
   ) {
     const line = new Line({
       nodeId,
@@ -556,7 +582,7 @@ export class Editor {
   }
 
   onWheel() {
-    this.stage.on('wheel', ({ evt }) => {
+    this.stage.on("wheel", ({ evt }) => {
       evt.preventDefault();
       if (!this.selecting) {
         if (evt.ctrlKey || evt.metaKey) {
@@ -576,7 +602,7 @@ export class Editor {
   }
 
   offWheel() {
-    this.stage.off('wheel');
+    this.stage.off("wheel");
   }
 
   getTouchPos(clientX: number, clientY: number) {
@@ -591,7 +617,7 @@ export class Editor {
   }
 
   onTouch() {
-    this.stage.on('touchstart', ({ evt }) => {
+    this.stage.on("touchstart", ({ evt }) => {
       if (evt.touches.length === 1) {
         const [{ clientX, clientY }] = evt.touches;
         this.lastCenter = {
@@ -601,10 +627,15 @@ export class Editor {
       } else if (evt.touches.length) {
         const [a, b] = evt.touches;
         this.lastCenter = getCenter(a.clientX, a.clientY, b.clientX, b.clientY);
-        this.lastDistance = getDistance(a.clientX, a.clientY, b.clientX, b.clientY);
+        this.lastDistance = getDistance(
+          a.clientX,
+          a.clientY,
+          b.clientX,
+          b.clientY
+        );
       }
     });
-    this.stage.on('touchmove', ({ evt }) => {
+    this.stage.on("touchmove", ({ evt }) => {
       evt.preventDefault();
       if (evt.touches.length === 1) {
         const [{ clientX, clientY }] = evt.touches;
@@ -619,8 +650,18 @@ export class Editor {
         };
       } else if (evt.touches.length) {
         const [a, b] = evt.touches;
-        const currentCenter = getCenter(a.clientX, a.clientY, b.clientX, b.clientY);
-        const currentDistance = getDistance(a.clientX, a.clientY, b.clientX, b.clientY);
+        const currentCenter = getCenter(
+          a.clientX,
+          a.clientY,
+          b.clientX,
+          b.clientY
+        );
+        const currentDistance = getDistance(
+          a.clientX,
+          a.clientY,
+          b.clientX,
+          b.clientY
+        );
         const scale = this.mainLayer.scaleX();
         const newScale = scale * (currentDistance / this.lastDistance);
         const { x, y } = this.getTouchPos(currentCenter.x, currentCenter.y);
@@ -638,7 +679,7 @@ export class Editor {
   }
 
   offTouch() {
-    this.stage.off('touchstart');
+    this.stage.off("touchstart");
   }
 
   enableScroll(scroll: boolean) {
@@ -696,18 +737,11 @@ export class Editor {
 
   protected reload({ nodes, lines }: ExportData) {
     this.clearAll();
-    _.each(nodes, ({
-      type, nodeId, parentId, attrs
-    }) => {
+    _.each(nodes, ({ type, nodeId, parentId, attrs }) => {
       this.addNode(type, nodeId, parentId, attrs);
     });
     _.each(lines, ({ nodeId, attrs }) => {
-      const {
-        from,
-        to,
-        fromPort,
-        toPort,
-      } = attrs;
+      const { from, to, fromPort, toPort } = attrs;
       this.addLine(nodeId, attrs, from, to, fromPort, toPort);
     });
   }
@@ -718,7 +752,11 @@ export class Editor {
     this.cacheAnchor = null;
   }
 
-  createShapeStart(Shape: typeof Rect | typeof Circle, offsetX: number, offsetY: number) {
+  createShapeStart(
+    Shape: typeof Rect | typeof Circle,
+    offsetX: number,
+    offsetY: number
+  ) {
     this.clearSelect();
     this.tr.clear();
     const { x: startX, y: startY } = this.getPositionInLayer(offsetX, offsetY);
@@ -733,19 +771,23 @@ export class Editor {
       layer: this.nodeLayer,
       editor: this,
     });
-    this.tempMover = new Mover(this.stage, ({ offsetX: ox, offsetY: oy }) => {
-      if (this.tempShape) {
-        const { x: endX, y: endY } = this.getPositionInLayer(ox, oy);
-        const width = Math.abs(endX - startX);
-        const height = Math.abs(endY - startY);
-        const x = endX < startX ? endX : startX;
-        const y = endY < startY ? endY : startY;
-        this.tempShape.setWidth(width);
-        this.tempShape.setHeight(height);
-        this.tempShape.setX(x);
-        this.tempShape.setY(y);
-      }
-    }, true);
+    this.tempMover = new Mover(
+      this.stage,
+      ({ offsetX: ox, offsetY: oy }) => {
+        if (this.tempShape) {
+          const { x: endX, y: endY } = this.getPositionInLayer(ox, oy);
+          const width = Math.abs(endX - startX);
+          const height = Math.abs(endY - startY);
+          const x = endX < startX ? endX : startX;
+          const y = endY < startY ? endY : startY;
+          this.tempShape.setWidth(width);
+          this.tempShape.setHeight(height);
+          this.tempShape.setX(x);
+          this.tempShape.setY(y);
+        }
+      },
+      true
+    );
   }
 
   createShapeEnd() {
@@ -773,7 +815,13 @@ export class Editor {
     }
   }
 
-  addSelectionRect(nodeId: NodeId, x1: number, y1: number, x2: number, y2: number) {
+  addSelectionRect(
+    nodeId: NodeId,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+  ) {
     if (this.selectionRectMap[nodeId]) {
       this.selectionRectMap[nodeId].setAttrs({
         x: x1,
@@ -788,7 +836,7 @@ export class Editor {
         width: x2 - x1,
         height: y2 - y1,
         strokeWidth: 1,
-        stroke: '#f00',
+        stroke: "#f00",
       });
       this.utilLayer.add(rect);
       this.selectionRectMap[nodeId] = rect;
@@ -802,16 +850,20 @@ export class Editor {
     }
   }
 
-  triggerSelection(list: Node[], rx1: number, ry1: number, rx2: number, ry2: number) {
+  triggerSelection(
+    list: Node[],
+    rx1: number,
+    ry1: number,
+    rx2: number,
+    ry2: number
+  ) {
     _.each(list, (node) => {
-      const {
-        minX, minY, maxX, maxY,
-      } = node.getGroupSize();
+      const { minX, minY, maxX, maxY } = node.getGroupSize();
       const { x: x1, y: y1 } = this.getPositionInStage(minX, minY);
       const { x: x2, y: y2 } = this.getPositionInStage(maxX, maxY);
       const secting = this.options.intersection
-        ? (!(rx2 < x1 || ry2 < y1 || rx1 > x2 || ry1 > y2))
-        : (rx1 < x1 && ry1 < y1 && rx2 > x2 && ry2 > y2);
+        ? !(rx2 < x1 || ry2 < y1 || rx1 > x2 || ry1 > y2)
+        : rx1 < x1 && ry1 < y1 && rx2 > x2 && ry2 > y2;
       if (secting) {
         this.addSelectionRect(node.nodeId, x1, y1, x2, y2);
       } else {
@@ -873,7 +925,9 @@ export class Editor {
         this.clearSelect();
       }
       setTimeout(() => {
-        this.tr.setList(_.map(this.selectionRectMap, (_rect, nodeId) => this.findNode(nodeId)));
+        this.tr.setList(
+          _.map(this.selectionRectMap, (_rect, nodeId) => this.findNode(nodeId))
+        );
         _.each(this.selectionRectMap, (rect) => {
           rect.destroy();
         });
@@ -899,7 +953,7 @@ export class Editor {
     return new Promise<string>((resolve) => {
       this.gridGroup?.hide();
       this.exportCanvas().then((canvas) => {
-        resolve(canvas.toDataURL('image/png'));
+        resolve(canvas.toDataURL("image/png"));
         this.gridGroup?.show();
       });
     });
@@ -908,7 +962,7 @@ export class Editor {
   exportData() {
     return new Promise<ExportData>((resolve, reject) => {
       if (this.blockSave) {
-        reject(new Error('阻塞保存'));
+        reject(new Error("阻塞保存"));
       } else {
         resolve({
           options: this.mainLayer.getAttrs(),
@@ -923,7 +977,7 @@ export class Editor {
     title: string,
     callback: () => void,
     undoTriggerEvent?: string,
-    redoTriggerEvent?: string,
+    redoTriggerEvent?: string
   ) {
     this.exportData().then((oldData) => {
       callback();
@@ -953,27 +1007,33 @@ export class Editor {
   }
 
   copy() {
-    this.copied = _.map(this.tr.cache, 'nodeId');
+    this.copied = _.map(this.tr.cache, "nodeId");
   }
 
   paste(/* pos?: { x: number; y: number } */) {
     const offsetX = 50;
     const offsetY = 50;
-    if (this.copied.length && !_.some(this.copied, (nodeId) => {
-      const node = this.nodeIds[nodeId];
-      if (node) {
-        if (node.className === 'Group') {
-          return (node as Group).checkCopy();
+    if (
+      this.copied.length &&
+      !_.some(this.copied, (nodeId) => {
+        const node = this.nodeIds[nodeId];
+        if (node) {
+          if (node.className === "Group") {
+            return (node as Group).checkCopy();
+          }
+          return _.includes(
+            ["Node", "Belt", "Scraper", "TextGroup", "Line"],
+            node.className
+          );
         }
-        return _.includes(['Node', 'Belt', 'Scraper', 'TextGroup', 'Line'], node.className);
-      }
-      return true;
-    })) {
+        return true;
+      })
+    ) {
       this.exportData().then((/* oldData */) => {
         // const layer = this.nodeIds[this.copied[0]].layer as Group;
         _.each(this.copied, (nodeId) => {
           const node = this.nodeIds[nodeId];
-          if (node.className === 'Group') {
+          if (node.className === "Group") {
             console.log(node.getData());
           }
         });
@@ -982,7 +1042,7 @@ export class Editor {
       const pasted: Node[] = [];
       _.each(this.copied, (nodeId) => {
         const node = this.nodeIds[nodeId];
-        if (node.className === 'Group') {
+        if (node.className === "Group") {
           const check = (node as Group).checkCopy();
           if (check) {
             this.message(check);
@@ -1001,16 +1061,16 @@ export class Editor {
             node.className,
             uuid(),
             layer.root ? undefined : layer.nodeId,
-            attrs,
+            attrs
           );
           if (newNode) {
             pasted.push(newNode);
-          }          
+          }
         }
       });
       this.clearSelect(layer);
       this.tr.setList(pasted);
-      this.copied = _.map(pasted, 'nodeId');
+      this.copied = _.map(pasted, "nodeId");
     }
   }
 
@@ -1025,7 +1085,10 @@ export class Editor {
 
   selectAllType(type: string) {
     this.clearSelect();
-    this.tr.setList(_.filter(this.nodeIds, (item) => item.className === type), true);
+    this.tr.setList(
+      _.filter(this.nodeIds, (item) => item.className === type),
+      true
+    );
   }
 
   undo() {
@@ -1069,17 +1132,17 @@ export class Editor {
     const container = this.stage.container();
     if (isPointer) {
       if (!this.cursor) {
-        container.style.cursor = 'pointer';
+        container.style.cursor = "pointer";
       }
     } else {
-      container.style.cursor = 'default';
+      container.style.cursor = "default";
     }
   }
 
   setCursor(cursor?: string) {
     this.cursor = cursor;
     const container = this.stage.container();
-    container.style.cursor = cursor || 'default';
+    container.style.cursor = cursor || "default";
   }
 
   fitStage() {
@@ -1116,14 +1179,17 @@ export class Editor {
     if ((target.layer as Group).root) {
       return arr;
     }
-    return this.getParentIds((target.layer as Group), _.concat(arr, [target.nodeId]));
+    return this.getParentIds(
+      target.layer as Group,
+      _.concat(arr, [target.nodeId])
+    );
   }
 
   getChildrenIds(target: Node) {
-    if (target.className === 'Group') {
+    if (target.className === "Group") {
       const re: NodeId[] = [];
       _.each((target as Group).children, (child) => {
-        if (child.className === 'Group') {
+        if (child.className === "Group") {
           re.push(...this.getChildrenIds(child as Group));
         } else {
           re.push(child.nodeId);
@@ -1137,26 +1203,21 @@ export class Editor {
   select(target: Node[] | null) {
     this.options.onSelect(target ? [...target] : null);
     if (target?.length === 1) {
-      if (target[0].className !== 'Line' && this.options.guideLine.enable) {
+      if (target[0].className !== "Line" && this.options.guideLine.enable) {
         const parentIds = this.getParentIds(target[0]);
         const childrenIds = this.getChildrenIds(target[0]);
         _.each(this.nodeIds, (node, nodeId) => {
           if (
-            node.className !== 'Line'
-            && nodeId !== target[0].nodeId
-            && !_.includes(parentIds, nodeId)
-            && !_.includes(childrenIds, nodeId)
-            && (
-              !this.options.guideLine.sameType
-              || (
-                (target[0].isNode && node.isNode)
-                || target[0].className === node.className
-              )
-            )
+            node.className !== "Line" &&
+            nodeId !== target[0].nodeId &&
+            !_.includes(parentIds, nodeId) &&
+            !_.includes(childrenIds, nodeId) &&
+            (!this.options.guideLine.sameType ||
+              (target[0].isNode && node.isNode) ||
+              target[0].className === node.className)
           ) {
-            const {
-              width, height, minX, minY, maxX, maxY,
-            } = node.getGroupSize();
+            const { width, height, minX, minY, maxX, maxY } =
+              node.getGroupSize();
             const cx = minX + width / 2;
             const cy = minY + height / 2;
             if (!this.guideXMap[minX]) {
@@ -1197,8 +1258,8 @@ export class Editor {
             }
           }
         });
-        this.guideXList = _.sortBy(this.guideXMap, 'val');
-        this.guideYList = _.sortBy(this.guideYMap, 'val');
+        this.guideXList = _.sortBy(this.guideXMap, "val");
+        this.guideYList = _.sortBy(this.guideYMap, "val");
       }
     } else {
       this.guideXMap = {};
@@ -1215,52 +1276,66 @@ export class Editor {
   addImage(src: string) {
     const image = this.createImage({ src, x: 10, y: 10 }, this.nodeLayer);
     this.history.add({
-      title: '插入图片',
+      title: "插入图片",
       undo: () => {
         this.removeNode(image.nodeId);
       },
       redo: () => {
-        this.createImage({
-          x: 10,
-          y: 10,
-          src,
-        }, this.nodeLayer, image.nodeId);
+        this.createImage(
+          {
+            x: 10,
+            y: 10,
+            src,
+          },
+          this.nodeLayer,
+          image.nodeId
+        );
       },
     });
   }
 
   dropImage(src: ImageSrc, offsetX: number, offsetY: number) {
     const { x, y } = this.getPositionInLayer(offsetX, offsetY);
-    const image = this.createImage({
-      x,
-      y,
-      src,
-    }, this.nodeLayer);
+    const image = this.createImage(
+      {
+        x,
+        y,
+        src,
+      },
+      this.nodeLayer
+    );
     this.history.add({
-      title: '拖入图片',
+      title: "拖入图片",
       undo: () => {
         this.removeNode(image.nodeId);
       },
       redo: () => {
-        this.createImage({
-          x,
-          y,
-          src,
-        }, this.nodeLayer, image.nodeId);
+        this.createImage(
+          {
+            x,
+            y,
+            src,
+          },
+          this.nodeLayer,
+          image.nodeId
+        );
       },
     });
   }
 
-  getGroupSize(group: Konva.Group, options: {
-    scale?: number;
-    filterFunc?: (item: Konva.Node) => boolean;
-    getClientRectConfig?: {
-      skipTransform?: boolean;
-      skipShadow?: boolean;
-      skipStroke?: boolean;
-      relativeTo?: Konva.Container;
-    };
-  } = {}) {
+  getGroupSize(
+    group: Konva.Group,
+    options: {
+      scale?: number;
+      filterFunc?: (item: Konva.Node) => boolean;
+      getClientRectConfig?: {
+        skipTransform?: boolean;
+        skipShadow?: boolean;
+        skipStroke?: boolean;
+        relativeTo?: Konva.Container;
+      };
+    } = {}
+  ) {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -1271,11 +1346,14 @@ export class Editor {
     const childs = group.getChildren(options.filterFunc);
     if (childs.length) {
       _.each(childs, (child) => {
-        const {
-          x, y, width, height,
-        } = child.getClientRect(_.extend({
-          skipShadow: true,
-        }, options.getClientRectConfig));
+        const { x, y, width, height } = child.getClientRect(
+          _.extend(
+            {
+              skipShadow: true,
+            },
+            options.getClientRectConfig
+          )
+        );
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
         maxX = Math.max(maxX, x + width);
@@ -1333,7 +1411,7 @@ export class Editor {
       attrs: {
         tid: uuid(),
         showArrow,
-        type: 'CLEAN_COAL',
+        type: "CLEAN_COAL",
         lineWidth,
         points: [x, y, x, y, x, y],
         isPipeline: true,
@@ -1344,32 +1422,31 @@ export class Editor {
       isTemp: true,
     });
     let t = 0;
-    this.tempMover = new Mover(this.stage, ({
-      offsetX: ox,
-      offsetY: oy,
-      movementX,
-      movementY,
-    }) => {
-      if (this.tempLine) {
-        if (!t) {
-          t = Math.abs(movementX) > Math.abs(movementY) ? 1 : 2;
+    this.tempMover = new Mover(
+      this.stage,
+      ({ offsetX: ox, offsetY: oy, movementX, movementY }) => {
+        if (this.tempLine) {
+          if (!t) {
+            t = Math.abs(movementX) > Math.abs(movementY) ? 1 : 2;
+          }
+          const { x: lx, y: ly } = this.getPositionInLayer(ox, oy);
+          const points = _.chunk(this.tempLine.attrs.points, 2);
+          if (t === 1) {
+            const endY = ly < points[0][1] ? ly + 5 : ly - 5;
+            points[1][0] = lx;
+            points[2][0] = lx;
+            points[2][1] = endY;
+          } else {
+            const endX = lx < points[0][0] ? lx + 5 : lx - 5;
+            points[1][1] = ly;
+            points[2][0] = endX;
+            points[2][1] = ly;
+          }
+          this.tempLine.setPoints(_.flatten(points));
         }
-        const { x: lx, y: ly } = this.getPositionInLayer(ox, oy);
-        const points = _.chunk(this.tempLine.attrs.points, 2);
-        if (t === 1) {
-          const endY = ly < points[0][1] ? ly + 5 : ly - 5;
-          points[1][0] = lx;
-          points[2][0] = lx;
-          points[2][1] = endY;
-        } else {
-          const endX = lx < points[0][0] ? lx + 5 : lx - 5;
-          points[1][1] = ly;
-          points[2][0] = endX;
-          points[2][1] = ly;
-        }
-        this.tempLine.setPoints(_.flatten(points));
-      }
-    }, true);
+      },
+      true
+    );
   }
 
   createLineDone(to: NodeId, port?: Port) {
@@ -1436,11 +1513,11 @@ export class Editor {
   }
 
   group() {
-    const ids = _.map(this.tr.cache, 'nodeId');
+    const ids = _.map(this.tr.cache, "nodeId");
     const groupId = this.groupByIds(ids);
     if (groupId) {
       this.history.add({
-        title: '组合',
+        title: "组合",
         undo: () => {
           this.cancelGroupById(groupId);
         },
@@ -1454,7 +1531,7 @@ export class Editor {
   cancelGroupById(groupId: NodeId) {
     const group = this.findNode(groupId) as Group;
     const layer = group.layer as Group;
-    const ids = _.map(group.children, 'nodeId');
+    const ids = _.map(group.children, "nodeId");
     _.each(group.children, (node) => {
       node.get().moveTo(layer.get());
       node.layer = layer;
@@ -1473,7 +1550,7 @@ export class Editor {
     const groupId = group.nodeId;
     const ids = this.cancelGroupById(groupId);
     this.history.add({
-      title: '取消组合',
+      title: "取消组合",
       undo: () => {
         this.groupByIds(ids, groupId);
       },
@@ -1484,22 +1561,27 @@ export class Editor {
   }
 
   pull(nodes: Node[]) {
-    this.saveHistory('移出组', () => {
-      const group = nodes[0].layer as Group;
-      const layer = group.layer as Group;
-      _.each(nodes, (node) => {
-        node.get().moveTo(layer.get());
-        node.layer = layer;
-        node.get().x(node.get().x() + group.get().x());
-        node.get().y(node.get().y() + group.get().y());
-      });
-      layer.children.push(...nodes);
-      _.remove(group.children, (item) => _.includes(nodes, item));
-      this.tr.clear();
-      this.clearSelect();
-    }, 'deleteNodeUndo', 'deleteNodeRedo');
+    this.saveHistory(
+      "移出组",
+      () => {
+        const group = nodes[0].layer as Group;
+        const layer = group.layer as Group;
+        _.each(nodes, (node) => {
+          node.get().moveTo(layer.get());
+          node.layer = layer;
+          node.get().x(node.get().x() + group.get().x());
+          node.get().y(node.get().y() + group.get().y());
+        });
+        layer.children.push(...nodes);
+        _.remove(group.children, (item) => _.includes(nodes, item));
+        this.tr.clear();
+        this.clearSelect();
+      },
+      "deleteNodeUndo",
+      "deleteNodeRedo"
+    );
   }
-  
+
   setGrid(gridConfig: GridConfig) {
     this.options.grid = gridConfig;
     this.renderGrid();
@@ -1564,35 +1646,33 @@ export class Editor {
 
   move(node: Node) {
     if (_.size(this.guideXMap) || _.size(this.guideYMap)) {
-      const {
-        width, height, minX, minY, maxX, maxY,
-      } = node.getGroupSize();
+      const { width, height, minX, minY, maxX, maxY } = node.getGroupSize();
       const cx = minX + width / 2;
-      const l = getClosest(minX, this.guideXList, 'l');
-      const c = getClosest(cx, this.guideXList, 'c');
-      const r = getClosest(maxX, this.guideXList, 'r');
+      const l = getClosest(minX, this.guideXList, "l");
+      const c = getClosest(cx, this.guideXList, "c");
+      const r = getClosest(maxX, this.guideXList, "r");
       const x = _.minBy(_.compact([l, c, r]), 1);
       this.showGuideX(x);
       const cy = minY + height / 2;
-      const t = getClosest(minY, this.guideYList, 't');
-      const m = getClosest(cy, this.guideYList, 'm');
-      const b = getClosest(maxY, this.guideYList, 'b');
+      const t = getClosest(minY, this.guideYList, "t");
+      const m = getClosest(cy, this.guideYList, "m");
+      const b = getClosest(maxY, this.guideYList, "b");
       const y = _.minBy(_.compact([t, m, b]), 1);
       this.showGuideY(y);
       if (this.options.guideLine.enable && this.options.guideLine.fixed) {
         if (x) {
-          if (x[2] === 'l') {
+          if (x[2] === "l") {
             node.setX(x[0]);
-          } else if (x[2] === 'r') {
+          } else if (x[2] === "r") {
             node.setX(x[0] - width);
           } else {
             node.setX(x[0] - width / 2);
           }
         }
         if (y) {
-          if (y[2] === 't') {
+          if (y[2] === "t") {
             node.setY(y[0]);
-          } else if (y[2] === 'b') {
+          } else if (y[2] === "b") {
             node.setY(y[0] - height);
           } else {
             node.setY(y[0] - height / 2);
@@ -1602,10 +1682,13 @@ export class Editor {
     }
     const size = this.getGridSize();
     const isFixed = this.getGridFixed();
-    if (size && isFixed && this.tr.cache.length === 1 && node === this.tr.cache[0]) {
-      const {
-        width, height, minX, minY, maxX, maxY,
-      } = node.getGroupSize();
+    if (
+      size &&
+      isFixed &&
+      this.tr.cache.length === 1 &&
+      node === this.tr.cache[0]
+    ) {
+      const { width, height, minX, minY, maxX, maxY } = node.getGroupSize();
       const closestMinX = Math.round(minX / size) * size;
       const offsetMinX = Math.abs(minX - closestMinX);
       const closestMaxX = Math.round(maxX / size) * size;

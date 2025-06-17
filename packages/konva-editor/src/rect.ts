@@ -1,12 +1,12 @@
-import Konva from 'konva';
-import { omit } from 'lodash';
-import Node from './node';
-import type Group from './group';
-import type { NodeType, NodeConfig } from './types';
+import Konva from "konva";
+import { omit } from "lodash";
+import Node from "./node";
+import type Group from "./group";
+import type { NodeType, NodeConfig } from "./types";
 
 export class Rect extends Node {
-  className: NodeType = 'Rect';
-  name = '矩形';
+  className: NodeType = "Rect";
+  name = "矩形";
   imageGroup: Konva.Rect;
 
   highlight() {}
@@ -20,9 +20,9 @@ export class Rect extends Node {
       y = 0,
       width = 100,
       height = 100,
-      stroke = '#d8d8d8',
+      stroke = "#d8d8d8",
       strokeWidth = 1,
-      fill = '#d8d8d8',
+      fill = "#d8d8d8",
       cornerRadius = 0,
     } = config.attrs;
     this.group = new Konva.Group({
@@ -36,7 +36,7 @@ export class Rect extends Node {
     this.init();
     this.editing();
     this.imageGroup = new Konva.Rect({
-      name: 'rect',
+      name: "rect",
       x: 0,
       y: 0,
       width,
@@ -50,7 +50,16 @@ export class Rect extends Node {
   }
 
   setTransformer() {
-    this.editor.tr.transformer.enabledAnchors(['top-left', 'top-right', 'bottom-left', 'bottom-right', 'middle-left', 'middle-right', 'top-center', 'bottom-center']);
+    this.editor.tr.transformer.enabledAnchors([
+      "top-left",
+      "top-right",
+      "bottom-left",
+      "bottom-right",
+      "middle-left",
+      "middle-right",
+      "top-center",
+      "bottom-center",
+    ]);
     this.editor.tr.transformer.rotateEnabled(true);
   }
 
@@ -64,7 +73,7 @@ export class Rect extends Node {
     this.imageGroup.cornerRadius(cornerRadius);
     this.dr.set(oldValue, cornerRadius, groupId).then((step) => {
       this.editor.history.add({
-        title: '修改矩形圆角',
+        title: "修改矩形圆角",
         groupId: step.groupId,
         undo: () => {
           const node = this.editor.findNode(nodeId) as Rect;
@@ -79,7 +88,7 @@ export class Rect extends Node {
   }
 
   getAttrs() {
-    return omit(this.imageGroup.getAttrs(), ['x', 'y']);
+    return omit(this.imageGroup.getAttrs(), ["x", "y"]);
   }
 }
 
