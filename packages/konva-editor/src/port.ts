@@ -1,13 +1,8 @@
-import Konva from 'konva';
-import {
-  map,
-  each,
-  max,
-  extend,
-} from 'lodash';
-import type Node from './node';
-import Line from './line';
-import { PortType } from './types/enums';
+import Konva from "konva";
+import { map, each, max, extend } from "lodash";
+import type Node from "./node";
+import type Line from "./line";
+import { PortType } from "./types/enums";
 
 type Options = {
   onDestroy: (port: Port) => void;
@@ -16,7 +11,7 @@ type Options = {
 type FixedPortConfig = {
   id: string;
   type: PortType;
-  position: 'top' | 'bottom' | 'left' | 'right';
+  position: "top" | "bottom" | "left" | "right";
 };
 
 class Port {
@@ -36,18 +31,26 @@ class Port {
 
   id?: string;
 
-  position?: 'top' | 'bottom' | 'left' | 'right';
+  position?: "top" | "bottom" | "left" | "right";
 
-  constructor(node: Node, pos: number[], line: Line | FixedPortConfig, options: Options) {
+  constructor(
+    node: Node,
+    pos: number[],
+    line: Line | FixedPortConfig,
+    options: Options
+  ) {
     this.destroyed = false;
-    this.options = extend({
-      onDestroy: () => {},
-    }, options);
+    this.options = extend(
+      {
+        onDestroy: () => {},
+      },
+      options
+    );
     this.node = node;
     this.lines = [];
     let x: number;
     let y: number;
-    let stroke = '#87cefa';
+    let stroke = "#87cefa";
     if (line instanceof Line) {
       this.isFixed = false;
       this.lines.push(line);
@@ -61,7 +64,10 @@ class Port {
         }
       });
       const [absoluteX, absoluteY] = pos;
-      const groupInverseMatrix = node.portsGroup!.getAbsoluteTransform().copy().invert();
+      const groupInverseMatrix = node
+        .portsGroup!.getAbsoluteTransform()
+        .copy()
+        .invert();
       const base = node.editor.mainLayer;
       const baseX = base.x();
       const baseY = base.y();
@@ -77,55 +83,52 @@ class Port {
       this.type = line.type;
       this.id = line.id;
       this.position = line.position;
-      ([x, y] = pos);
+      [x, y] = pos;
       if (line.type === PortType.InPort) {
-        stroke = 'green';
+        stroke = "green";
       } else if (line.type === PortType.OutPort) {
-        stroke = 'red';
+        stroke = "red";
       }
     }
     this.port = new Konva.Circle({
       x,
       y,
       radius: this.getRadiusByMaxLineWidth(),
-      fill: '#fff',
+      fill: "#fff",
       stroke,
       strokeWidth: 0.5,
-      visible: this.node.editor.options.mode === 'E' && this.isFixed,
+      visible: this.node.editor.options.mode === "E" && this.isFixed,
     });
     if (this.isFixed) {
-      this.port.on('mousedown', () => {
+      this.port.on("mousedown", () => {
         if (this.type !== PortType.InPort) {
           const portPos = this.port.getAbsolutePosition();
           this.node.editor.createLine(this.node.nodeId, portPos.x, portPos.y);
         }
       });
-      this.port.on('mouseup', () => {
+      this.port.on("mouseup", () => {
         if (this.type !== PortType.OutPort) {
-          this.node.editor.createLineDone(
-            this.node.nodeId,
-            this,
-          );
+          this.node.editor.createLineDone(this.node.nodeId, this);
         }
       });
     }
     this.setScale();
-    this.port.on('mouseover', () => {
-      this.port.fill('#53f7fe');
+    this.port.on("mouseover", () => {
+      this.port.fill("#53f7fe");
       this.port.strokeWidth(2);
       if (!this.isFixed) {
         this.port.draggable(true);
       }
-      node.editor.setCursor('move');
+      node.editor.setCursor("move");
     });
-    this.port.on('mouseout', () => {
-      this.port.fill('#fff');
+    this.port.on("mouseout", () => {
+      this.port.fill("#fff");
       this.port.strokeWidth(0.5);
       this.port.draggable(false);
       node.editor.setCursor();
     });
     node.portsGroup?.add(this.port);
-    node.group.on('transform', () => {
+    node.group.on("transform", () => {
       this.setScale();
     });
   }
@@ -154,26 +157,34 @@ class Port {
     return this.port.getAbsolutePosition(this.node.editor.mainLayer);
   }
 
-  onPositionChange(callback: (pos: { x: number, y: number }, mechanical?: boolean) => void) {
+  onPositionChange(
+    callback: (pos: { x: number; y: number }, mechanical?: boolean) => void
+  ) {
     let { x, y } = this.getPos();
-    const handler = (_node: Node | Konva.KonvaEventObject<MouseEvent>, mechanical?: boolean) => {
+    const handler = (
+      _node: Node | Konva.KonvaEventObject<MouseEvent>,
+      mechanical?: boolean
+    ) => {
       const { x: newX, y: newY } = this.getPos();
-      callback({
-        x: newX - x,
-        y: newY - y,
-      }, mechanical);
+      callback(
+        {
+          x: newX - x,
+          y: newY - y,
+        },
+        mechanical
+      );
       x = newX;
       y = newY;
     };
-    this.node.on('move', handler);
-    this.port.on('dragmove', handler);
+    this.node.on("move", handler);
+    this.port.on("dragmove", handler);
   }
 
   onHold(callback: (holding: boolean) => void) {
-    this.port.on('mousedown', () => {
+    this.port.on("mousedown", () => {
       callback(true);
     });
-    this.port.on('mouseup', () => {
+    this.port.on("mouseup", () => {
       callback(false);
     });
   }

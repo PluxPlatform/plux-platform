@@ -41,7 +41,7 @@ const lineTheme = {
 
 const defaultLineWidth = 8;
 
-class Line extends Node {
+export class Line extends Node {
   className: NodeType = "Line";
   name = "管路";
 
