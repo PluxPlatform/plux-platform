@@ -3,11 +3,7 @@ import * as _ from "lodash";
 import { uuid } from "./uuid";
 import Group from "./group";
 import Line from "./line";
-import Rect from "./elements/Rect";
-import Text from "./elements/Text";
-import Button from "./elements/Button";
-import Image from "./elements/Image";
-import Circle from "./elements/Circle";
+
 import Transformer from "./transformer";
 import Mover from "./mover";
 import EditorHistory from "./history";
@@ -30,6 +26,7 @@ import type Node from "./node";
 import type Port from "./port";
 import type Anchor from "./anchor";
 import Tag from "./elements/Tag";
+import { Circle, Image, Rect, Text, Button } from "./elements";
 
 export type AllNodes = Node | Rect | Text | Image | Circle | Tag;
 
