@@ -1,16 +1,19 @@
-import * as _ from 'lodash';
-import type Editor from './editor';
-import type Node from './node';
+import * as _ from "lodash";
+import type Editor from "./editor";
+import type Node from "./node";
 
 export default class HistoryRecord {
   editor: Editor;
 
   callback: (node: Node, val: number) => void;
 
-  data: Record<string, {
-    oldValue?: number;
-    value?: number;
-  }>;
+  data: Record<
+    string,
+    {
+      oldValue?: number;
+      value?: number;
+    }
+  >;
 
   constructor(editor: Editor, callback: (node: Node, val: number) => void) {
     this.editor = editor;
