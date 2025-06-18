@@ -103,12 +103,16 @@ const customBack = computed({
       </el-radio-group>
     </el-form-item>
     <el-form-item label="背景色">
-      <el-switch
-        v-model="customBack"
-        active-text="自定义"
-        inactive-text="透明"
-      ></el-switch>
-      <el-input v-if="customBack" v-model="background" type="color"></el-input>
+      <el-space>
+        <el-switch
+          v-model="customBack"
+          active-text="自定义"
+          inactive-text="透明"
+          inline-prompt
+          size="default"
+        ></el-switch>
+        <el-input v-if="customBack" v-model="background" type="color" style="width: 86px;"></el-input>
+      </el-space>
     </el-form-item>
     <el-collapse :model-value="['grid', 'guide']">
       <el-collapse-item title="网格" name="grid">
